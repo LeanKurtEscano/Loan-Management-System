@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'user',
     'cloudinary',
+    'loan_admin',
     'cloudinary_storage',
 ]
 
@@ -105,7 +106,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=5), 
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1), 
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
    
 }
@@ -114,6 +115,9 @@ CORS_ALLOWED_ORIGINS = [
   
 ]
 
+
+
+CORS_ALLOW_CREDENTIALS = True  
 
 DATABASES = {
     'default': {
@@ -125,6 +129,17 @@ DATABASES = {
         'PORT': '5432',  # Default PostgreSQL port
     }
 }
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST")
+EMAIL_HOST_PASSWORD = os.getenv("HOST_PASS")
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
 
 
 # Password validation
@@ -157,7 +172,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+CORS_ALLOW_ALL_ORIGINS = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 

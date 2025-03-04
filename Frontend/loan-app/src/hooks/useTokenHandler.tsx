@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMyContext } from "../context/MyContext";
-import { userAuth } from "../services/auth";
+import { userAuth } from "../services/token";
 
 const useTokenHandler = () => {
   const { setIsAuthenticated } = useMyContext();
@@ -20,7 +20,7 @@ const useTokenHandler = () => {
 
           localStorage.removeItem("access_token");
           setIsAuthenticated(false);
-          navigate("/");
+         
         }
 
       } catch (error) {

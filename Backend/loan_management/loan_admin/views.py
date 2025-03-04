@@ -9,42 +9,54 @@ from django.contrib.auth import authenticate
 from utils.token import get_tokens_for_user
 import datetime
 from datetime import timedelta
+from .models import LoanAdmin
+
 
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
 def admin_login(request):
     try:
-        
-        username = request.data.get('username')
-        password = request.data.get('password')
-        admin = authenticate(request, username=username, password=password)
-        
-        if admin:
-            tokens = get_tokens_for_user(admin)
-            
-            access_token = tokens['access_token']
-            refresh_token = tokens['refresh_token']
-            
-            response = Response({
-                'message': 'User authenticated',
-                'access_token': access_token,  
-            }, status=status.HTTP_200_OK)
+        data = request.data.get("data", {})
+        username = data.get("username")
+        password = data.get("password")
 
-          
-            expires = datetime.utcnow() + timedelta(days=7)
-            response.set_cookie(
-                key="refresh_token",
-                value=refresh_token,
-                expires=expires,
-                httponly=True,   
-                secure=True,     
-                samesite="None"  
-            )
+      
+        if not username or not password:
+            return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-            
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-          
+    
+        admin = LoanAdmin.objects.filter(username=username).first()
+        if not admin:
+            return Response({"error": "Admin not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        admin_verify = authenticate(request, username  = username, password = password)
+        if not admin_verify:
+            return Response({"error": "Incorrect Password"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Generate tokens
+        tokens = get_tokens_for_user(admin)
+        access_token = tokens['access_token']
+        refresh_token = tokens['refresh_token']
+
+        # Create response
+        response = Response({
+            'message': 'User authenticated',
+            'access_token': access_token,  
+        }, status=status.HTTP_200_OK)
+
+        # Set refresh token cookie
+        expires = datetime.utcnow() + timedelta(days=7)
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            expires=expires,
+            httponly=True,
+            secure=False,   # Set to True in production (HTTPS)
+            samesite="None"
+        )
+        return response
+
     except Exception as e:
-        print(f"{e}")
+        print(f"Login Error: {e}")  
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

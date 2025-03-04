@@ -17,6 +17,4 @@ class CustomUser(AbstractUser):
     image_url = cloudinary.models.CloudinaryField('image', blank=True, null=True)
     type_id = models.ForeignKey(IdType, on_delete=models.CASCADE)
 
-class LoanAdmin(models.Model):
-    username = models.CharField(max_length=150, unique=True)
-    password = models.CharField(max_length=255) 
+
