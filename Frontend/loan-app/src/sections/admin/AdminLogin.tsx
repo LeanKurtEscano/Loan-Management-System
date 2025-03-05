@@ -28,7 +28,7 @@ const AdminLogin: React.FC = () => {
     try {
     const response = await loginAdmin({ username, password });
   
-      if (response.data.success) {
+      if (response.status === 200) {
         localStorage.setItem("admin_token",response.data.access);
         setEmailError("");  
         setPasswordError("");
@@ -40,7 +40,7 @@ const AdminLogin: React.FC = () => {
       if (error.response) {
         const { data, status } = error.response;
         console.log(data.error);
-        if (status === 401) {
+        if (status === 403) {
           setPasswordError(data.error);
         } else if (status === 404) {
           setEmailError(data.error);

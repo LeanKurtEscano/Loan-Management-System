@@ -101,7 +101,7 @@ AUTH_USER_MODEL = 'user.CustomUser'
 
 AUTHENTICATION_BACKENDS = (
     'config.config.EmailBackend',  
-    'config.config.LoanAdminBackend',  
+    'config.config.UsernameBackend',  
     'django.contrib.auth.backends.ModelBackend', 
 )
 

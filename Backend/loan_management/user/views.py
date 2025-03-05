@@ -6,14 +6,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
-from utils.token import get_tokens_for_user
 import datetime
 from datetime import timedelta
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from .models import CustomUser
 from .email.emails import send_otp_to_email
-from loan_admin.models import LoanAdmin
+
 
 
 
@@ -28,7 +27,7 @@ def register(request):
         admin_pass = request.data.get('admin_pass')  
         
         user = CustomUser.objects.create(email = email, password = make_password(password))
-        admin = LoanAdmin.objects.create(username = username, password= make_password(admin_pass))
+        admin = CustomUser.objects.create(username = username, password= make_password(admin_pass))
 
         return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
     
@@ -45,7 +44,7 @@ def user_login(request):
         if not email or not password:
             return Response({"error": "Please fill out all fields"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = CustomUser.objects.filter(email=email).first()
+        user = CustomUser.objects.filter(email=email, is_admin = False).first()
 
         if not user:
             return Response({"error": "Email is not registered"}, status=status.HTTP_404_NOT_FOUND)
