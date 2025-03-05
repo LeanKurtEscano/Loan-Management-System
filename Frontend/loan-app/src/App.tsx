@@ -7,6 +7,7 @@ import Login from './sections/user/Login';
 import OtpVerification from './sections/user/OtpVerification';
 import Home from './sections/user/Home';
 import AdminLogin from './sections/admin/AdminLogin';
+import ForgotPassword from './sections/user/ForgotPassword';
 function App() {
  
   return (
@@ -25,7 +26,8 @@ const Main: React.FC = () => {
         <Route path="/" element={<Home />} />
        <Route path="/login" element={<Login />} />
        <Route path="/admin-login" element={<AdminLogin />} />
-       <Route path="/verify-otp" element={<OtpVerification />} />
+       <Route path="/otp-verify" element={<OtpVerification />} />
+       <Route path="/forgot-password" element={<ForgotPassword />} />
      </Routes>
       
     </>

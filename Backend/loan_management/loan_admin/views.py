@@ -34,25 +34,25 @@ def admin_login(request):
         if not admin_verify:
             return Response({"error": "Incorrect Password"}, status=status.HTTP_403_FORBIDDEN)
 
-        # Generate tokens
+        
         tokens = get_tokens_for_user(admin)
         access_token = tokens['access_token']
         refresh_token = tokens['refresh_token']
 
-        # Create response
+       
         response = Response({
             'message': 'User authenticated',
-            'access_token': access_token,  
+            'access': access_token,  
         }, status=status.HTTP_200_OK)
 
-        # Set refresh token cookie
+       
         expires = datetime.utcnow() + timedelta(days=7)
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
             expires=expires,
             httponly=True,
-            secure=False,   # Set to True in production (HTTPS)
+            secure=False,
             samesite="None"
         )
         return response

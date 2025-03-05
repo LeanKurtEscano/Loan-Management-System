@@ -120,7 +120,7 @@ const Login: React.FC = () => {
 
           <button
             type="submit"
-            className="bg-gradient-to-r from-blue-500 to-blue-600 mt-4 text-white rounded p-2 hover:opacity-90 transition duration-300 flex justify-center items-center"
+            className="bg-gradient-to-r cursor-pointer from-blue-500 to-blue-600 mt-4 text-white rounded p-2 hover:opacity-90 transition duration-300 flex justify-center items-center"
             disabled={loading}
           >
             {loading ? (

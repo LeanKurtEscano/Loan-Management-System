@@ -65,6 +65,8 @@ const OtpVerification: React.FC = () => {
 
       if (response.status === 200) {
         console.log(response.data);
+        sessionStorage.removeItem("password");
+        sessionStorage.removeItem("email");;
         setTimer(120);
         navigate('/');
 
@@ -74,23 +76,20 @@ const OtpVerification: React.FC = () => {
 
     } catch (error: any) {
       const { status, data } = error.response;
-
-      switch (status) {
-
-        case 400:
+  
+      if (status === 400) {
           setInvalid(data.error);
-          break;
-        case 404:
+      } else if (status === 401) {
           setInvalid(data.error);
-          break;
-        case 500:
+      } else if (status === 404) {
           setInvalid(data.error);
-          break;
-        default:
-          alert("Lexscribe is under maintenance. Please try again later.")
+      } else if (status === 500) {
+          setInvalid(data.error);
+      } else {
+          alert("Lexscribe is under maintenance. Please try again later.");
       }
-    }
-
+  }
+  
 
   };
 
@@ -114,14 +113,21 @@ const OtpVerification: React.FC = () => {
       if (response.status === 200) {
         setToggleNotif(true)
         setIsResendDisabled(true);
+  
       }
-
     } catch (error: any) {
+      if (!error.response) {
+        alert("No response received. Check your internet connection.");
+        return;
+      }
+    
       const { status, data } = error.response;
-
+    
       switch (status) {
-
         case 400:
+          setInvalid(data.error);
+          break;
+        case 401:
           setInvalid(data.error);
           break;
         case 404:
@@ -131,9 +137,10 @@ const OtpVerification: React.FC = () => {
           setInvalid(data.error);
           break;
         default:
-          alert("Lexscribe is under maintenance. Please try again later.")
+          alert("Lexscribe is under maintenance. Please try again later.");
       }
     }
+    
 
 
 
@@ -166,7 +173,7 @@ const OtpVerification: React.FC = () => {
     <section className="flex items-center min-h-screen justify-center bg-white">
       <div className="relative border border-gray-300 bg-white rounded-lg shadow-lg px-6 pt-6 pb-9 mx-auto w-full max-w-lg">
         <div className="mx-auto flex w-full max-w-md flex-col space-y-9">
-          {/* Header */}
+
           <div className="flex flex-col items-center justify-center text-center space-y-3">
             <div className="font-bold text-gray-800 text-3xl">
               <p>Verify It's You</p>
@@ -176,14 +183,14 @@ const OtpVerification: React.FC = () => {
             </div>
           </div>
 
-          {/* OTP Input Section */}
+
 
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col space-y-2">
-              {/* OTP Input Fields */}
+
               <div className="flex flex-row justify-between mx-auto w-full max-w-sm space-x-4">
                 {[...Array(6)].map((_, index) => (
-                  <div key={index} className=" h-14 flex justify-center"> {/* Increased width from w-14 to w-20 */}
+                  <div key={index} className=" h-14 flex justify-center">
                     <input
                       ref={(el) => { inputRefs.current[index] = el; }}
                       className="w-full h-full text-center text-xl font-semibold border-2 border-gray-300 rounded-lg shadow-sm bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
@@ -198,16 +205,16 @@ const OtpVerification: React.FC = () => {
               </div>
 
 
-              {/* Error Message */}
+
               {invalid && (
                 <div className=" pl-8 ">
                   <p className="text-md text-red-600">{invalid}</p>
                 </div>
               )}
 
-              {/* Button and Resend OTP Section */}
+
               <div className="flex flex-col mt-4 space-y-5">
-                {/* Submit Button */}
+
                 <div>
                   <button
                     type="submit"
@@ -217,14 +224,14 @@ const OtpVerification: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Timer for OTP expiration */}
+
                 <div className="flex items-end justify-end pr-4">
                   {isResendDisabled && (
                     <p className="text-blue-500 font-bold">OTP expires in: {timer} seconds</p>
                   )}
                 </div>
 
-                {/* Resend OTP */}
+
                 <div className="flex flex-row items-center justify-center text-sm font-medium space-x-1 text-gray-500">
                   <p>Didn't receive the code?</p>
                   <div onClick={handleResendOTP}>

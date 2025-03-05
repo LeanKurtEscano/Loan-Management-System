@@ -1,5 +1,7 @@
 from django.contrib.auth.backends import BaseBackend
-from user.models import CustomUser, LoanAdmin
+from user.models import CustomUser
+
+from loan_admin.models import LoanAdmin
 from django.contrib.auth.hashers import check_password
 
 class EmailBackend(BaseBackend):

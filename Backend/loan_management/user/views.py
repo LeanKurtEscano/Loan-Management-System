@@ -1,5 +1,6 @@
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.decorators import permission_classes, api_view
+from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,7 +13,28 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from .models import CustomUser
 from .email.emails import send_otp_to_email
+from loan_admin.models import LoanAdmin
 
+
+
+@api_view(["POST"])
+def register(request):
+    
+    try:
+        email = request.data.get('email')
+        print(email)
+        password = request.data.get('password')
+        username = request.data.get('username') 
+        admin_pass = request.data.get('admin_pass')  
+        
+        user = CustomUser.objects.create(email = email, password = make_password(password))
+        admin = LoanAdmin.objects.create(username = username, password= make_password(admin_pass))
+
+        return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+    
+    
+    except Exception as e:
+        return Response({"error": f"{e}"}, status= status.HTTP_200_OK)
 @api_view(["POST"])
 def user_login(request):
     try:
@@ -55,7 +77,6 @@ def user_login(request):
 @permission_classes([AllowAny])  
 def otp_verify(request):
     try:
-       
         data = request.data.get("data", {})
         email = data.get("email")
         password = data.get("password")
@@ -63,7 +84,6 @@ def otp_verify(request):
         purpose = "verification"
         
         cache_key = f"{email}_{purpose}"
-        
         cache_otp = cache.get(cache_key)
         
         if cache_otp is None:
@@ -71,19 +91,22 @@ def otp_verify(request):
         
         if str(cache_otp) == str(otpCode):
             user_auth = authenticate(request, username=email, password=password)
-            tokens = get_tokens_for_user(user_auth)
-            access_token = tokens["access_token"]
-            refresh_token = tokens["refresh_token"]
+            
+            if not user_auth:
+                return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            refresh = RefreshToken.for_user(user_auth)
+            access_token = str(refresh.access_token)
 
             response = Response({
                 'message': 'User authenticated',
                 'access_token': access_token,  
             }, status=status.HTTP_200_OK)
 
-            expires = datetime.utcnow() + timedelta(days=7)
+            expires = datetime.datetime.utcnow() + datetime.timedelta(days=7)
             response.set_cookie(
                 key="refresh_token",
-                value=refresh_token,
+                value=str(refresh),
                 expires=expires,
                 httponly=True,   
                 secure=True,     
@@ -92,12 +115,11 @@ def otp_verify(request):
 
             return response
         
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': 'Incorrect OTP Code. Please try again.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
         print(f"Error during login: {e}")
         return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @api_view(["POST"])
 def resend_otp(request):
