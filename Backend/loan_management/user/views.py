@@ -97,10 +97,13 @@ def otp_verify(request):
             refresh = RefreshToken.for_user(user_auth)
             access_token = str(refresh.access_token)
 
-            response = Response({
+            return Response({
                 'message': 'User authenticated',
                 'access_token': access_token,  
+                'refresh_token': str(refresh),  
             }, status=status.HTTP_200_OK)
+            
+            """
 
             expires = datetime.datetime.utcnow() + datetime.timedelta(days=7)
             response.set_cookie(
@@ -113,6 +116,7 @@ def otp_verify(request):
             )
 
             return response
+            """
         
         return Response({'error': 'Incorrect OTP Code. Please try again.'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -157,11 +161,12 @@ def user_register(request):
     except Exception as e:
         print(f"{e}")
         
-        
+"""    
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refresh_token_view(request):
     refresh_token = request.COOKIES.get("refresh_token") 
+    print(refresh_token)
 
     if not refresh_token:
         return Response({"error": "No refresh token found"}, status=status.HTTP_400_BAD_REQUEST)
@@ -172,11 +177,13 @@ def refresh_token_view(request):
 
         return Response({"access_token": new_access_token}, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
+        response = Response({"error": "Refresh token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        response.delete_cookie("refresh_token")  
+        return response
     
     
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def user_logout(request):
     try:
         response = Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
@@ -185,3 +192,4 @@ def user_logout(request):
         return response
     except Exception as e:
         return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+"""

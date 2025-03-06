@@ -12,9 +12,19 @@ export const auth = axios.create({
     headers: {
       "Content-Type": "application/json",
     },
-    withCredentials: true, // This ensures cookies (refresh_token) are sent automatically
+    withCredentials: true, 
   });
 
+
+const accessToken = localStorage.getItem("access_token");
+export const userApi = axios.create({
+  baseURL: "http://localhost:8000/user",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${accessToken}`
+  },
+   
+});
 
 export const adminAuth = axios.create({
     baseURL: "http://127.0.0.1:8000/loan-admin",
@@ -22,4 +32,22 @@ export const adminAuth = axios.create({
        "Content-Type": "application/json",
      },
    });
+
+export const adminRefresh = axios.create({
+    baseURL: "http://127.0.0.1:8000/loan-admin",
+     headers: {
+       "Content-Type": "application/json",
+     },
+     withCredentials: true,
+   });
  
+const adminToken = localStorage.getItem("admin_token");
+   export const adminApi = axios.create({
+     baseURL: "http://localhost:8000/loan-admin",
+     headers: {
+       "Content-Type": "application/json",
+       "Authorization": `Bearer ${adminToken}`
+     },
+      
+   });
+   

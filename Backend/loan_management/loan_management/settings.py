@@ -106,7 +106,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1), 
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1), 
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
    
 }
@@ -116,7 +116,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 CORS_ALLOW_CREDENTIALS = True  
 
 DATABASES = {
@@ -125,8 +127,8 @@ DATABASES = {
         'NAME': 'loangkot',
         'USER': 'postgres',
         'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': 'localhost',  # Or your DB host
-        'PORT': '5432',  # Default PostgreSQL port
+        'HOST': 'localhost',  
+        'PORT': '5432',  
     }
 }
 

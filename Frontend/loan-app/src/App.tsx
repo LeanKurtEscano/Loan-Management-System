@@ -19,6 +19,10 @@ function App() {
 const Main: React.FC = () => {
 
   useTokenHandler();
+  const adminToken = localStorage.getItem("admin_token");
+  const userToken = localStorage.getItem("access_token");
+  console.log(adminToken);
+  console.log(userToken);
   return (
 
     <>

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,8 +11,6 @@ import datetime
 from datetime import timedelta
 from django.utils import timezone
 from user.models import CustomUser
-
-
 from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(["POST"])
@@ -33,13 +31,13 @@ def admin_login(request):
         if not admin_verify:
             return Response({"error": "Incorrect Password"}, status=status.HTTP_403_FORBIDDEN)
 
-        # Generate tokens directly using RefreshToken
+       
         refresh = RefreshToken.for_user(admin)
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
         response = Response({
-            'success': 'User authenticated',
+            'success': 'Admin authenticated',
             'access': access_token,
         }, status=status.HTTP_200_OK)
 
@@ -58,3 +56,22 @@ def admin_login(request):
     except Exception as e:
         print(f"Login Error: {e}")
         return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def refresh_admin_token_view(request):
+    """ Refresh token for admin users """
+    refresh_token = request.COOKIES.get("admin_refresh_token")  
+
+    if not refresh_token:
+        return Response({"error": "No admin refresh token found"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        refresh = RefreshToken(refresh_token)
+        new_access_token = str(refresh.access_token)
+        return Response({"access_token": new_access_token}, status=status.HTTP_200_OK)
+    except Exception:
+        response = Response({"error": "Refresh token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        response.delete_cookie("admin_refresh_token")  
+        return response
+      

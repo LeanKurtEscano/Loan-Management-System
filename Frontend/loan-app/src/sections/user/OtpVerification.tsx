@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-
+import { useMyContext } from '../../context/MyContext';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../../components/Notification';
 import { verifyLogin, userEmailResend } from '../../services/userAuth';
@@ -10,6 +10,7 @@ const OtpVerification: React.FC = () => {
 
   const [timer, setTimer] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const {setIsAuthenticated} = useMyContext();
   // @ts-ignore
   const [expired, setExpired] = useState(false);
   const [toggleNotif, setToggleNotif] = useState(false);
@@ -64,7 +65,9 @@ const OtpVerification: React.FC = () => {
       const response = await verifyLogin(data);
 
       if (response.status === 200) {
-        console.log(response.data);
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
+        setIsAuthenticated(true);
         sessionStorage.removeItem("password");
         sessionStorage.removeItem("email");;
         setTimer(120);

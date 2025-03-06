@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 import {  refresh } from "./axiosConfig";
+import { auth } from "./axiosConfig";
 
 const isTokenExpired = (token: string) => {
     const decoded: { exp: number } = jwtDecode(token);
@@ -9,27 +10,43 @@ const isTokenExpired = (token: string) => {
     return tokenExpiration < currentTime;
 };
 
-const refreshUserToken = async (): Promise<boolean> => {
-    try {
-        const response = await refresh.post("/token/refresh/"); 
+const refreshUserToken  = async() => {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if(!refreshToken) {
+        return false
+    }
 
-        if (response.status === 200) {
-            const newAccessToken = response.data.access_token;
-            localStorage.setItem("access_token", newAccessToken);
-            return true;
+
+    if(isTokenExpired(refreshToken)) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        return false
+    }
+
+
+    try {
+        const response =  await auth.post('/token/refresh/',{
+            refresh: refreshToken
+        })
+
+
+        if(response.status === 200) {
+            const newAccessToken = response.data.access;
+            localStorage.setItem("access_token", newAccessToken);;
+            return true
+
         }
-    } catch (error: any) {
+
+    } catch(error: any) { 
         console.error("Refresh token failed:", error);
 
-        // If the refresh token is invalid or expired, remove tokens and return false
         if (error.response?.status === 401) {
             localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
             return false;
         }
     }
-
-    return false;
-};
+}
 
 
 export const userAuth = async (): Promise<boolean> => {
