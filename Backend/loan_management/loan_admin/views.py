@@ -36,11 +36,12 @@ def admin_login(request):
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
-        response = Response({
+        return Response({
             'success': 'Admin authenticated',
-            'access': access_token,
+            'access_token': access_token,
+            'refresh_token': str(refresh),
         }, status=status.HTTP_200_OK)
-
+        """
         expires = timezone.now() + timedelta(days=7) 
         response.set_cookie(
             key="admin_refresh_token",
@@ -50,8 +51,8 @@ def admin_login(request):
             secure=False,
             samesite="None"
         )
-
-        return response
+       """
+        
 
     except Exception as e:
         print(f"Login Error: {e}")
@@ -60,18 +61,15 @@ def admin_login(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refresh_admin_token_view(request):
-    """ Refresh token for admin users """
-    refresh_token = request.COOKIES.get("admin_refresh_token")  
+    """ Refresh token for admin users without using cookies """
+    refresh_token = request.data.get("refresh_token") 
 
     if not refresh_token:
-        return Response({"error": "No admin refresh token found"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "No refresh token provided"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         refresh = RefreshToken(refresh_token)
         new_access_token = str(refresh.access_token)
         return Response({"access_token": new_access_token}, status=status.HTTP_200_OK)
     except Exception:
-        response = Response({"error": "Refresh token expired"}, status=status.HTTP_401_UNAUTHORIZED)
-        response.delete_cookie("admin_refresh_token")  
-        return response
-      
+        return Response({"error": "Refresh token expired"}, status=status.HTTP_401_UNAUTHORIZED)

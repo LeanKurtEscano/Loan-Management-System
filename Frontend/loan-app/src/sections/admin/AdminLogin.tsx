@@ -9,7 +9,7 @@ import { loginAdmin } from '../../services/adminAuth';
 
 const AdminLogin: React.FC = () => {
   const [show, setShow] = useState(false);
-  const { setIsAuthenticated } = useMyContext();
+  const { setIsAdminAuthenticated } = useMyContext();
   const [loading, setLoading] = useState(false)
   const [username , setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +29,9 @@ const AdminLogin: React.FC = () => {
     const response = await loginAdmin({ username, password });
   
       if (response.status === 200) {
-        localStorage.setItem("admin_token",response.data.access);
+        localStorage.setItem("admin_token",response.data.access_token);
+        localStorage.setItem("admin_refresh_token",response.data.refresh_token);
+        setIsAdminAuthenticated(true);
         setEmailError("");  
         setPasswordError("");
         setLoading(false);
