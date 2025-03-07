@@ -77,24 +77,21 @@ def refresh_admin_token_view(request):
 @api_view(["POST"])
 def reset_password_admin_email(request):   
     try:     
-        email = request.data.get("email")
-        purpose = "reset_password"
-        cache_key = f"{email}_{purpose}"
-        
         my_email = os.getenv("EMAIL")
-       
+        purpose = "reset_password"
+        cache_key = f"{my_email}_{purpose}"
+        
         if cache.get(cache_key):
             return Response({"error": "OTP already sent for reset password. Please wait for it to expire."}, status=400)
+        message = "Your OTP for reset password"
         
-        if email == my_email:
-           message = "Your OTP for reset password"
-           subject = f"Your Verification Code for Password Reset."
-           otp_generated = send_otp_to_email(email, message,subject)
-           OTP_EXPIRATION_TIME = 120
-           cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
-           return Response({"success": "OTP sent for reset password"}, status=status.HTTP_200_OK)
-        else:
-           return Response({"error" : "Incorrect Admin Email."}, status=status.HTTP_404_NOT_FOUND)
+        subject = f"Your Verification Code for Password Reset.(Admin)"
+        otp_generated = send_otp_to_email(my_email, message,subject)
+        OTP_EXPIRATION_TIME = 120
+        cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
+        return Response({"success": "OTP sent for reset password"}, status=status.HTTP_200_OK)
+    
+    
     except Exception as e:
         print(f"{e}")
         return Response({"error": "Something went wrong"}, status=500)

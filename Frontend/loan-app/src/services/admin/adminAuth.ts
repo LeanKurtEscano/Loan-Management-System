@@ -1,8 +1,10 @@
+
 import { adminAuth } from "../axiosConfig";
 interface LoginData {
     username:string;
     password:string;
 }
+
 export const loginAdmin = async (data: LoginData) => {
     try {
       const response = await adminAuth.post("/login/", {data:data});
@@ -12,4 +14,15 @@ export const loginAdmin = async (data: LoginData) => {
       throw error;
     }
   };
+
+
+    export const sendEmailAdmin = async() => {
+      const response = await adminAuth.post(`/email/`, {
+      }, {
+          headers: {
+              "Content-Type": "application/json"
+          }
+      })
   
+      return response
+  }

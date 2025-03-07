@@ -5,7 +5,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 import { loginAdmin } from '../../services/admin/adminAuth';
-
+import { sendEmailAdmin } from '../../services/admin/adminAuth';
 const AdminLogin: React.FC = () => {
   const [show, setShow] = useState(false);
   const { setIsAdminAuthenticated } = useMyContext();
@@ -109,7 +109,7 @@ const AdminLogin: React.FC = () => {
 
 
           </div>
-          <div className='flex items-end justify-end pr-2'>
+          <div onClick={sendEmailAdmin} className='flex items-end justify-end pr-2'>
             <p className='text-textHeading cursor-pointer '>Forgot Password?</p>
           </div>
 

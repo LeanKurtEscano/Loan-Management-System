@@ -170,7 +170,49 @@ def resend_otp(request):
         print(f"{e}")
     
 
+@api_view(["POST"])
+def verify_password_reset_otp(request):
+    try:
+        email = request.data.get("email")
+        otp_code = request.data.get("otpCode")
+        purpose = "reset_password"
+        cache_key = f"{email}_{purpose}"
+        
+      
+        cached_otp = cache.get(cache_key)
+        
+        if cached_otp is None:
+            return Response({"error": "OTP has expired. Please request a new one."}, status=status.HTTP_404_NOT_FOUND)
+        
+       
+        if str(cached_otp) == str(otp_code):
+            return Response({"success": "Email is verified."}, status=status.HTTP_200_OK)
+        
+        return Response({"error": "Incorrect OTP code. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": "An error occurred. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(["POST"])
+def reset_password(request):
+    try:
+        email = request.data.get('email')
+        password = request.data.get('password')
+        confirm_password = request.data.get('confirm')
+        
+        if password != confirm_password:
+            return Response({"error", "Password does not match"}, status=400)
+        
+        else:     
+            user = CustomUser.objects.get(email = email)
+            user.set_password(password)
+            user.save()
+            return Response({"success": "Password has been reset successfully."}, status=200)
+
+    except Exception as e:
+        return Response({"error": "Something Went Wrong"}, status=500)
 
 
 @api_view(["POST"])
