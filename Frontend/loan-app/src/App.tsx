@@ -8,6 +8,7 @@ import OtpVerification from './sections/user/OtpVerification';
 import Home from './sections/user/Home';
 import AdminLogin from './sections/admin/AdminLogin';
 import ForgotPassword from './sections/user/ForgotPassword';
+import EmailForm from './sections/user/EmailForm';
 function App() {
  
   return (
@@ -26,6 +27,7 @@ const Main: React.FC = () => {
       <Routes>
         <Route path="/" element={<Home />} />
        <Route path="/login" element={<Login />} />
+       <Route path="/email-verification" element={<EmailForm/>} />
        <Route path="/admin-login" element={<AdminLogin />} />
        <Route path="/otp-verify" element={<OtpVerification />} />
        <Route path="/forgot-password" element={<ForgotPassword />} />

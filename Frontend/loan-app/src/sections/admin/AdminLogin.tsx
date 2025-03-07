@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { loginAuth, userEmailResend } from '../../services/userAuth';
+
 import { useNavigate, Link } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
-import { loginAdmin } from '../../services/adminAuth';
-
+import { loginAdmin } from '../../services/admin/adminAuth';
 
 const AdminLogin: React.FC = () => {
   const [show, setShow] = useState(false);

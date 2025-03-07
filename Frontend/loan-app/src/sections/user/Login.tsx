@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { loginAuth } from '../../services/userAuth';
+import { loginAuth } from '../../services/user/userAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 
@@ -113,7 +113,7 @@ const Login: React.FC = () => {
 
 
           </div>
-          <div className='flex items-end justify-end pr-2'>
+          <div onClick={() => navigate('/email-verification')}className='flex items-end justify-end pr-2'>
             <p className='text-textHeading cursor-pointer '>Forgot Password?</p>
           </div>
 

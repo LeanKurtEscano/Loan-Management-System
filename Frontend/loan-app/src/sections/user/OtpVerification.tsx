@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMyContext } from '../../context/MyContext';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../../components/Notification';
-import { verifyLogin, userEmailResend } from '../../services/userAuth';
+import { verifyLogin, userEmailResend } from '../../services/user/userAuth';
 import { OtpDetails } from '../../constants/interfaces/authInterface';
 const OtpVerification: React.FC = () => {
   const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(''));

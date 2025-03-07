@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
-import {  refresh } from "./axiosConfig";
-import { auth } from "./axiosConfig";
+import { refresh } from "../axiosConfig";
+import { auth } from "../axiosConfig";
 
 const isTokenExpired = (token: string) => {
     const decoded: { exp: number } = jwtDecode(token);

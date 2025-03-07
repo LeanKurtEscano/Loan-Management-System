@@ -1,4 +1,4 @@
-import { adminAuth } from "./axiosConfig";
+import { adminAuth } from "../axiosConfig";
 interface LoginData {
     username:string;
     password:string;

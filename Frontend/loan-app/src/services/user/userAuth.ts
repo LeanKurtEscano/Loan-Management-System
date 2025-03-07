@@ -1,5 +1,5 @@
-import { auth } from "./axiosConfig";
-import { OtpDetails } from "../constants/interfaces/authInterface";
+import { auth } from "../axiosConfig";
+import { OtpDetails } from "../../constants/interfaces/authInterface";
 interface LoginData {
     email:string;
     password:string;
@@ -31,9 +31,9 @@ export const loginAuth = async(data: LoginData) => {
   }
 
   export const verifyLogin = async(otpData: OtpDetails) => {
-
+  
     try {
-      const response = await auth.post("login/verify/", {
+      const response = await auth.post("/login/verify/", {
         data: otpData,
       });
       return response;
@@ -42,3 +42,16 @@ export const loginAuth = async(data: LoginData) => {
       throw error;
     }
   }
+
+
+  export const sendEmail = async(email:string) => {
+    const response = await auth.post(`/email/`, {
+        email:email
+    }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+
+    return response
+}

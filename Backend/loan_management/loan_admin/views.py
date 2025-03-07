@@ -3,16 +3,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.response import Response
-from rest_framework import status
 from django.contrib.auth import authenticate
-from datetime import datetime, timezone, timedelta
-import datetime
-from datetime import timedelta
-from django.utils import timezone
 from user.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
+import os
+from django.core.cache import cache
 
+
+from user.email.emails import send_otp_to_email
 @api_view(["POST"])
 def admin_login(request):
     try:
@@ -73,3 +71,32 @@ def refresh_admin_token_view(request):
         return Response({"access_token": new_access_token}, status=status.HTTP_200_OK)
     except Exception:
         return Response({"error": "Refresh token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    
+
+@api_view(["POST"])
+def reset_password_admin_email(request):   
+    try:     
+        email = request.data.get("email")
+        purpose = "reset_password"
+        cache_key = f"{email}_{purpose}"
+        
+        my_email = os.getenv("EMAIL")
+       
+        if cache.get(cache_key):
+            return Response({"error": "OTP already sent for reset password. Please wait for it to expire."}, status=400)
+        
+        if email == my_email:
+           message = "Your OTP for reset password"
+           subject = f"Your Verification Code for Password Reset."
+           otp_generated = send_otp_to_email(email, message,subject)
+           OTP_EXPIRATION_TIME = 120
+           cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
+           return Response({"success": "OTP sent for reset password"}, status=status.HTTP_200_OK)
+        else:
+           return Response({"error" : "Incorrect Admin Email."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": "Something went wrong"}, status=500)
+    
+        

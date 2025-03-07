@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMyContext } from "../context/MyContext";
-import { userAuth } from "../services/token";
+import { userAuth } from "../services/user/token";
 
 const useTokenHandler = () => {
   const { setIsAuthenticated } = useMyContext();

@@ -14,7 +14,26 @@ from .models import CustomUser
 from .email.emails import send_otp_to_email
 
 
-
+@api_view(["POST"])
+def user_email(request):
+    try:
+        email = request.data.get('email')
+        
+        if CustomUser.objects.filter(email = email).exists():  
+           purpose = "reset_password"       
+           message = "Your OTP for Reset Password"
+           subject = f"Your Verification Code for Password Reset."
+           cache_key = f"{email}_{purpose}"
+           otp_generated = send_otp_to_email(email,message,subject)
+           OTP_EXPIRATION_TIME = 120 
+           cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
+           
+           return Response({"message": "OTP sent successfully."}, status=202)
+        else:
+            return Response({"error" : "Email is not Registered"}, status=404)
+           
+    except Exception as e:
+        return Response({"error": "Something Went Wrong"}, status=500)
 
 @api_view(["POST"])
 def register(request):
@@ -34,6 +53,8 @@ def register(request):
     
     except Exception as e:
         return Response({"error": f"{e}"}, status= status.HTTP_200_OK)
+    
+    
 @api_view(["POST"])
 def user_login(request):
     try:
@@ -161,6 +182,8 @@ def user_register(request):
     except Exception as e:
         print(f"{e}")
         
+
+
 """    
 @api_view(["POST"])
 @permission_classes([AllowAny])
