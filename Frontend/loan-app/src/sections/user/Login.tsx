@@ -49,7 +49,10 @@ const Login: React.FC = () => {
       }
     }
   };
-
+ 
+  const goToVerification = () => {
+    navigate('/email-verification');
+  }
 
   return (
     <section className="h-screen w-full flex bg-gray-100 justify-center items-center">
@@ -62,7 +65,7 @@ const Login: React.FC = () => {
         </h2>
         <div className="flex items-center justify-center flex-row mb-2">
           <p className="text-center text-gray-500 mr-1">or </p>
-          <Link to="/verify-otp">
+          <Link to="/register">
             <p className="text-center text-blue-600 hover:underline">
               sign up for an account
             </p>
@@ -113,7 +116,7 @@ const Login: React.FC = () => {
 
 
           </div>
-          <div onClick={() => navigate('/email-verification')}className='flex items-end justify-end pr-2'>
+          <div onClick={goToVerification}className='flex items-end justify-end pr-2'>
             <p className='text-textHeading cursor-pointer '>Forgot Password?</p>
           </div>
 

@@ -16,12 +16,12 @@ const useTokenHandler = () => {
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
-          navigate("/"); 
+          navigate("/login"); 
         }
       } catch (error) {
         console.error("Auth check failed:", error);
         setIsAuthenticated(false);
-        navigate("/");
+        navigate("/login");
       }
     };
 

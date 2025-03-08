@@ -3,11 +3,8 @@ from rest_framework.decorators import permission_classes, api_view
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
-import datetime
-from datetime import timedelta
+from django.contrib.auth import authenticate, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from .models import CustomUser
@@ -28,7 +25,7 @@ def user_email(request):
            OTP_EXPIRATION_TIME = 120 
            cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
            
-           return Response({"message": "OTP sent successfully."}, status=202)
+           return Response({"message": "OTP sent successfully."}, status=200)
         else:
             return Response({"error" : "Email is not Registered"}, status=404)
            
@@ -152,13 +149,30 @@ def resend_otp(request):
         email = request.data.get("email")
         purpose = request.data.get("purpose") 
         user = CustomUser.objects.filter(email=email).first()
+    
+     
+        messages = {
+            "verification": "Your OTP for account verification.",
+            "reset_password": "Your OTP for password reset."
+        }
         
+        subject_dynamic = {
+            "verification": "Login",
+            "reset_password": "Reset Password"
+        }
+
+        message = messages.get(purpose, "Your OTP for verification.")  
+        
+        dynamic = subject_dynamic.get(purpose)
+       
+
+              
         if not user:
             return Response({"error": "Email is not registered"}, status=status.HTTP_404_NOT_FOUND)
-
+        
         cache_key = f"{email}_{purpose}"
         message = "Your OTP for verification"
-        subject = f"Your  Verification Code for Login"
+        subject = f"Your  Verification Code for {dynamic}"
         otp_generated = send_otp_to_email(email, message,subject)
         OTP_EXPIRATION_TIME = 120  
         cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
@@ -173,8 +187,10 @@ def resend_otp(request):
 @api_view(["POST"])
 def verify_password_reset_otp(request):
     try:
-        email = request.data.get("email")
-        otp_code = request.data.get("otpCode")
+        
+        data = request.data.get("data")
+        email = data.get("email")
+        otp_code = data.get("otpCode")
         purpose = "reset_password"
         cache_key = f"{email}_{purpose}"
         
@@ -198,9 +214,10 @@ def verify_password_reset_otp(request):
 @api_view(["POST"])
 def reset_password(request):
     try:
-        email = request.data.get('email')
-        password = request.data.get('password')
-        confirm_password = request.data.get('confirm')
+        data = request.data.get("data")
+        email = data.get('email')
+        password = data.get('password')
+        confirm_password = data.get('confirm')
         
         if password != confirm_password:
             return Response({"error", "Password does not match"}, status=400)
@@ -223,7 +240,20 @@ def user_register(request):
         
     except Exception as e:
         print(f"{e}")
-        
+
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def log_out(request):
+    try:
+        refresh_token = request.data.get("refresh")  
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist() 
+        logout(request)
+        return Response({'success': 'Logged out successfully'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)        
 
 
 """    

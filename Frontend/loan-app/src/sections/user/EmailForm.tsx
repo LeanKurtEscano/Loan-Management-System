@@ -15,7 +15,7 @@ const EmailForm = () => {
             const response = await sendEmail(email);
             if (response.status === 200) {
                 sessionStorage.setItem("email", email);
-                navigate('/otp');
+                navigate('/otp-reset');
             }
         } catch (error: any) {
             if (error.response) {

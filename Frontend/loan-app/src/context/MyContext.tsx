@@ -4,9 +4,10 @@ const MyContext = createContext<any>(null);
 export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   return (
-    <MyContext.Provider value={{ isAuthenticated, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated}}>
+    <MyContext.Provider value={{ isAuthenticated, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, setIsVerified}}>
       {children}
     </MyContext.Provider>
   );

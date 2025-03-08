@@ -7,8 +7,11 @@ import Login from './sections/user/Login';
 import OtpVerification from './sections/user/OtpVerification';
 import Home from './sections/user/Home';
 import AdminLogin from './sections/admin/AdminLogin';
-import ForgotPassword from './sections/user/ForgotPassword';
 import EmailForm from './sections/user/EmailForm';
+import OtpReset from './sections/user/OtpReset';
+import ResetPassword from './sections/user/ResetPassword';
+import NavBar from './layout/user/NavBar';
+import Register from './sections/user/Register';
 function App() {
  
   return (
@@ -18,19 +21,26 @@ function App() {
   );
 }
 const Main: React.FC = () => {
-
+ const {setIsAuthenticated} = useMyContext();
+ setIsAuthenticated(false);
   useTokenHandler();
  
   return (
 
     <>
+     <NavBar/>
+  
       <Routes>
-        <Route path="/" element={<Home />} />
+     
+      <Route path="/" element={<Home />} />
        <Route path="/login" element={<Login />} />
        <Route path="/email-verification" element={<EmailForm/>} />
+       <Route path="/reset-password" element={<ResetPassword/>} />
        <Route path="/admin-login" element={<AdminLogin />} />
        <Route path="/otp-verify" element={<OtpVerification />} />
-       <Route path="/forgot-password" element={<ForgotPassword />} />
+       <Route path="/otp-reset" element={<OtpReset/>} />
+       <Route path="/register" element={<Register/>} />
+      
      </Routes>
       
     </>
