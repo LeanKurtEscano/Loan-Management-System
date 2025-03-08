@@ -1,9 +1,12 @@
 import { auth } from "../axiosConfig";
-import { OtpDetails, ResetPasswordInterface } from "../../constants/interfaces/authInterface";
+import { OtpDetails, RegisterData, ResetPasswordInterface } from "../../constants/interfaces/authInterface";
 interface LoginData {
     email:string;
     password:string;
 }
+
+
+
 
 export const loginAuth = async(data: LoginData) => {
     try {
@@ -18,6 +21,22 @@ export const loginAuth = async(data: LoginData) => {
   export const userEmailResend = async() => {
     const userEmail = sessionStorage.getItem("email");
     const verification = "verification"
+    try {
+        const response = await auth.post("/resend/", {
+            purpose : verification,
+            email : userEmail }
+        );
+        return response;
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
+  }
+
+
+  export const userEmailResendRegister = async() => {
+    const userEmail = sessionStorage.getItem("email");
+    const verification = "register"
     try {
         const response = await auth.post("/resend/", {
             purpose : verification,
@@ -47,11 +66,12 @@ export const loginAuth = async(data: LoginData) => {
       }
   }
 
-  export const verifyLogin = async(otpData: OtpDetails) => {
-  
+  export const verifyHandler = async(otpData: OtpDetails, purpose: string) => {
+   
     try {
       const response = await auth.post("/login/verify/", {
         data: otpData,
+        purpose: purpose
       });
       return response;
     } catch (error) {
@@ -117,5 +137,18 @@ export const logout = async() => {
     return response;
   } catch (error) {
     console.error("Logout error:", error)
+  }
+}
+
+
+export const sendRegister = async(data: RegisterData)  => {
+  try {
+    const response = await auth.post("/register/", {
+      data: data,
+    });
+    return response;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
   }
 }

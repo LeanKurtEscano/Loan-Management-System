@@ -94,53 +94,59 @@ def user_login(request):
 @permission_classes([AllowAny])  
 def otp_verify(request):
     try:
+     
         data = request.data.get("data", {})
         email = data.get("email")
+        username = data.get("username")
         password = data.get("password")
-        otpCode = data.get("otpCode")
-        purpose = "verification"
-        
+        otp_code = data.get("otpCode")
+        purpose = request.data.get("purpose")
+        print(purpose)
+
+       
+        if not all([email, password, otp_code, purpose]):
+            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
         cache_key = f"{email}_{purpose}"
         cache_otp = cache.get(cache_key)
-        
-        if cache_otp is None:
-            return Response({"error": "OTP code is expired. Please generate a new one"}, status=status.HTTP_404_NOT_FOUND)
-        
-        if str(cache_otp) == str(otpCode):
-            user_auth = authenticate(request, username=email, password=password)
-            
-            if not user_auth:
-                return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
+        if cache_otp is None:
+            return Response({"error": "OTP code is expired. Please generate a new one."}, status=status.HTTP_404_NOT_FOUND)
+
+       
+        if str(cache_otp) != str(otp_code):
+            return Response({"error": "Incorrect OTP Code. Please try again."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if purpose == "verification":
+            user_auth = authenticate(request, username=email, password=password)
+
+            if user_auth is None:
+                return Response({"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)
+
+          
             refresh = RefreshToken.for_user(user_auth)
             access_token = str(refresh.access_token)
 
             return Response({
-                'message': 'User authenticated',
-                'access_token': access_token,  
-                'refresh_token': str(refresh),  
+                "message": "User authenticated",
+                "access_token": access_token,
+                "refresh_token": str(refresh),
             }, status=status.HTTP_200_OK)
-            
-            """
 
-            expires = datetime.datetime.utcnow() + datetime.timedelta(days=7)
-            response.set_cookie(
-                key="refresh_token",
-                value=str(refresh),
-                expires=expires,
-                httponly=True,   
-                secure=True,     
-                samesite="None"  
-            )
+        elif purpose == "register":
+            if CustomUser.objects.filter(email=email).exists():
+                return Response({"error": "Email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
-            return response
-            """
-        
-        return Response({'error': 'Incorrect OTP Code. Please try again.'}, status=status.HTTP_401_UNAUTHORIZED)
+            user = CustomUser.objects.create(username=username, email=email, password=make_password(password))
+
+            return Response({"success": "Registered successfully"}, status=status.HTTP_201_CREATED)
+
+        return Response({"error": "Invalid purpose."}, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
-        print(f"Error during login: {e}")
-        return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"Error during OTP verification: {e}")
+        return Response({"error": "Something went wrong. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+       
 
 @api_view(["POST"])
 def resend_otp(request):
@@ -235,6 +241,21 @@ def reset_password(request):
 @api_view(["POST"])
 def user_register(request):
     try:
+        
+        data = request.data.get("data")
+        email = data.get("email")
+        print(email)
+        purpose = "register"
+        
+        if CustomUser.objects.filter(email = email).exists():
+            return Response({"error": "Email is already registered"}, status= status.HTTP_403_FORBIDDEN)
+        
+        cache_key = f"{email}_{purpose}"
+        message = "Your OTP for verification"
+        subject = f"Your  Verification Code for Account Registration"
+        otp_generated = send_otp_to_email(email, message,subject)
+        OTP_EXPIRATION_TIME = 120  
+        cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
         
         return Response({"success":" Registration successful"}, status = status.HTTP_200_OK)
         

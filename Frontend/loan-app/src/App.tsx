@@ -12,6 +12,7 @@ import OtpReset from './sections/user/OtpReset';
 import ResetPassword from './sections/user/ResetPassword';
 import NavBar from './layout/user/NavBar';
 import Register from './sections/user/Register';
+import OtpRegister from './sections/user/OtpRegister';
 function App() {
  
   return (
@@ -22,7 +23,6 @@ function App() {
 }
 const Main: React.FC = () => {
  const {setIsAuthenticated} = useMyContext();
- setIsAuthenticated(false);
   useTokenHandler();
  
   return (
@@ -39,6 +39,7 @@ const Main: React.FC = () => {
        <Route path="/admin-login" element={<AdminLogin />} />
        <Route path="/otp-verify" element={<OtpVerification />} />
        <Route path="/otp-reset" element={<OtpReset/>} />
+       <Route path="/otp-register" element={<OtpRegister/>} />
        <Route path="/register" element={<Register/>} />
       
      </Routes>

@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMyContext } from '../../context/MyContext';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../../components/Notification';
-import { verifyHandler, userEmailResend } from '../../services/user/userAuth';
+import { verifyHandler, userEmailResendRegister } from '../../services/user/userAuth';
 import { OtpDetails } from '../../constants/interfaces/authInterface';
-const OtpVerification: React.FC = () => {
+const OtpRegister: React.FC = () => {
   const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(''));
   const [invalid, setInvalid] = useState('');
 
@@ -49,6 +49,7 @@ const OtpVerification: React.FC = () => {
     setInvalid('');
 
     const userEmail = sessionStorage.getItem("email") ?? "";
+    const username = sessionStorage.getItem("username") ?? "";
     const userPassword = sessionStorage.getItem("password") ?? ""
 
     const otpCode = otpValues.join('');
@@ -57,16 +58,17 @@ const OtpVerification: React.FC = () => {
       email: userEmail,
       otpCode: otpCode,
       password: userPassword,
+      username: username
 
     }
 
-    const purpose = "verification";
+    const purpose = "register";
 
     try {
 
       const response = await verifyHandler(data,purpose);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
         setIsAuthenticated(true);
@@ -113,7 +115,7 @@ const OtpVerification: React.FC = () => {
 
     try {
 
-      const response = await userEmailResend();
+      const response = await userEmailResendRegister();
 
       if (response.status === 200) {
         setToggleNotif(true)
@@ -181,7 +183,7 @@ const OtpVerification: React.FC = () => {
 
           <div className="flex flex-col items-center justify-center text-center space-y-3">
             <div className="font-bold text-gray-800 text-3xl">
-              <p>Verify It's You</p>
+              <p>Register your Account</p>
             </div>
             <div className="flex flex-row text-sm font-medium text-gray-600">
               <p>We have sent a 6-digit verification code to your email address</p>
@@ -265,4 +267,4 @@ const OtpVerification: React.FC = () => {
   );
 };
 
-export default OtpVerification;
+export default OtpRegister;

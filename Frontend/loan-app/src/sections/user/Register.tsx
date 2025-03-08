@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
+import { RegisterData } from "../../constants/interfaces/authInterface";
+import { sendRegister } from "../../services/user/userAuth"
+import { useNavigate } from "react-router-dom";
 const Register: React.FC = () => {
+  const nav = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterData>({
     username: "",
     email: "",
     password: "",
@@ -53,11 +56,32 @@ const Register: React.FC = () => {
     return valid;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log("Form submitted:", formData);
+    if (!validateForm()) {
+       return
    
+    }
+
+    try {
+
+
+      const response = await sendRegister(formData);
+
+      if(response.status === 200) {
+        sessionStorage.setItem("username", formData.username);
+        sessionStorage.setItem("email", formData.email);
+        sessionStorage.setItem("password", formData.password);
+        nav('/otp-register')
+        
+      }
+
+    } catch (error: any) {
+      const { data, status} = error.response;
+      if(status === 403) {
+        setErrors((prev) => ({...prev, email: data.error}));
+      }
+
     }
   };
 
@@ -141,7 +165,7 @@ const Register: React.FC = () => {
           
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+            className="w-full cursor-pointer bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
           >
             Register
           </button>
