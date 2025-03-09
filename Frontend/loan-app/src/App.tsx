@@ -13,6 +13,7 @@ import ResetPassword from './sections/user/ResetPassword';
 import NavBar from './layout/user/NavBar';
 import Register from './sections/user/Register';
 import OtpRegister from './sections/user/OtpRegister';
+import Footer from './layout/user/Footer';
 function App() {
  
   return (
@@ -43,6 +44,8 @@ const Main: React.FC = () => {
        <Route path="/register" element={<Register/>} />
       
      </Routes>
+
+     <Footer/>
       
     </>
 

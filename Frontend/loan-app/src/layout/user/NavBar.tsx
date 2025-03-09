@@ -7,10 +7,17 @@ import { logout } from "../../services/user/userAuth";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import useTokenHandler from "../../hooks/useTokenHandler";
+
+
+const menuItems = [
+    { name: "Transactions", path: "/my-transactions" },
+    { name: "My Loans", path: "/my-Loans" },
+    { name: "Apply for Loan", path: "/apply" },
+];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
-    const { setToggleModals, isAuthenticated, setIsAuthenticated,setRole } = useMyContext();
-    
+    const { setToggleModals, isAuthenticated, setIsAuthenticated, setRole, isVerified } = useMyContext();
+
     const [menuOpen, setMenuOpen] = useState(false);
     const toggleDropdown = () => setShowDropdown(!showDropdown);
     const nav = useNavigate();
@@ -18,7 +25,7 @@ const NavBar: React.FC = () => {
         nav('/login');
     }
 
-  
+
 
     const goToLanding = () => {
         nav('/landing-vet')
@@ -34,10 +41,10 @@ const NavBar: React.FC = () => {
                 localStorage.removeItem("access_token");
                 setIsAuthenticated(false);
                 setShowDropdown(false);
-                
+
                 setRole("User");
                 setTimeout(() => {
-                },2000)
+                }, 2000)
                 nav('/');
             }
 
@@ -52,12 +59,12 @@ const NavBar: React.FC = () => {
         <nav className="bg-customWhite">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <img  className="h-14" alt=" Logo" />
+                    <img className="h-14" alt=" Logo" />
                     <span className="self-center text-xl bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent font-bold whitespace-nowrap"></span>
                 </a>
 
                 <div className="flex items-center space-x-4 md:order-2 pr-12">
-                        {/* 
+                    {/* 
                            {isAuthenticated ? (
                         <>
 
@@ -90,13 +97,41 @@ const NavBar: React.FC = () => {
                         </>
                     ) : null}
 
+
                             
                             
                             
                             
                             
                             */}
-                 
+
+
+                    {isAuthenticated ? (
+                        <>
+
+
+
+                            <div className="hidden md:block">
+                                {isVerified ? (
+
+                                    null
+
+                                ) : (
+                                    <>
+
+                                        <div
+                                            onClick={goToLanding}
+                                            className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
+                                        >
+                                            Verify Your Account
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                        </>
+                    ) : null}
+
 
                     <div className="md:hidden">
                         <button className="p-2 rounded-full hover:bg-gray-200 transition duration-200">
@@ -115,7 +150,7 @@ const NavBar: React.FC = () => {
                                 <FontAwesomeIcon icon={faBars} className="text-gray-600 w-3 h-3" />
 
 
-                                <div className="w-7 h-7 bg-gray-400 text-white flex items-center justify-center rounded-full">
+                                <div className="w-7 h-7 bg-blue-500 text-white flex items-center justify-center rounded-full">
                                     <FontAwesomeIcon icon={faUser} className="w-3 h-3" />
                                 </div>
                             </div>
@@ -159,23 +194,29 @@ const NavBar: React.FC = () => {
 
                 <div className="pl-40 items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
                     <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                        {["Today", "Messages","Clinics", "Menu"].map((item) => (
+                        {["Home", "Support", "Loans", ...(isVerified ? ["Menu"] : [])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
                                     <button
-                                        className="flex cursor-pointer items-center gap-1 py-2 px-3 md:p-0 rounded md:bg-transparent hover:text-orange-500 transition duration-200"
+                                        className="flex cursor-pointer items-center gap-1 py-2 px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
                                         onClick={() => setMenuOpen(!menuOpen)}
                                     >
                                         {item}
-                                        <FontAwesomeIcon icon={faChevronDown} className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
+                                        <FontAwesomeIcon
+                                            icon={faChevronDown}
+                                            className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
+                                        />
                                     </button>
                                 ) : (
-                                    <Link to={`${item === "Today" ? "/" : item}`} className="block py-2 px-3 md:p-0 rounded md:bg-transparent hover:text-orange-500 transition duration-200">
+                                    <Link
+                                        to={item === "Home" ? "/" : item.toLowerCase()}
+                                        className="block py-2 px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
+                                    >
                                         {item}
                                     </Link>
                                 )}
 
-                                {menuOpen && item === "Menu" && (
+                                {menuOpen && item === "Menu" && isVerified && (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -183,37 +224,25 @@ const NavBar: React.FC = () => {
                                         transition={{ duration: 0.2 }}
                                         className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-gray-200 z-50 overflow-hidden"
                                     >
-                                        <Link to="/reservations" className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition">
-                                            Bookings
-                                        </Link>
-                                        
-                                    
-                                        <hr className="border-gray-200" />
-                                        <Link to="/create-listing" className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition">
-                                            Create a new clinic
-                                        </Link>
-                                        <hr className="border-gray-200" />
-                                        <Link to="/manage-listings" className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition">
-                                            Manage clinics
-                                        </Link>
-                                        <hr className="border-gray-200" />
-                                        <Link
-                                            to="/patients"
-                                            className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition"
-                                        >
-                                            Patient Records
-                                        </Link>
-                                        <hr className="border-gray-200" />
-                                        <Link to="/create-record" className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition">
-                                            Create a Record
-                                        </Link>
+                                        {menuItems.map((menuItem, index) => (
+                                            <div key={menuItem.path}>
+                                                <Link
+                                                    to={menuItem.path}
+                                                    className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition"
+                                                >
+                                                    {menuItem.name}
+                                                </Link>
+                                                {index < menuItems.length - 1 && <hr className="border-gray-200" />}
+                                            </div>
+                                        ))}
                                     </motion.div>
                                 )}
-
                             </li>
                         ))}
                     </ul>
+
                 </div>
+
             </div>
         </nav>
     );

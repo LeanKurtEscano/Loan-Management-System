@@ -1,4 +1,4 @@
-import { auth } from "../axiosConfig";
+import { auth, userApi } from "../axiosConfig";
 import { OtpDetails, RegisterData, ResetPasswordInterface } from "../../constants/interfaces/authInterface";
 interface LoginData {
     email:string;
@@ -36,6 +36,7 @@ export const loginAuth = async(data: LoginData) => {
 
   export const userEmailResendRegister = async() => {
     const userEmail = sessionStorage.getItem("email");
+    console.log(userEmail);
     const verification = "register"
     try {
         const response = await auth.post("/resend/", {
@@ -131,7 +132,7 @@ export const logout = async() => {
       throw new Error("No access token found.");
     }
 
-    const response = await auth.post("/logout/", {refresh: refreshToken},
+    const response = await userApi.post("/logout-user/", {refresh: refreshToken},
      );
 
     return response;

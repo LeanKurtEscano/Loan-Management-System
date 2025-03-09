@@ -7,7 +7,7 @@ import { OtpDetails } from '../../constants/interfaces/authInterface';
 const OtpRegister: React.FC = () => {
   const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(''));
   const [invalid, setInvalid] = useState('');
-
+ const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const {setIsAuthenticated} = useMyContext();
@@ -69,6 +69,7 @@ const OtpRegister: React.FC = () => {
       const response = await verifyHandler(data,purpose);
 
       if (response.status === 201) {
+        setLoading(false);
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
         setIsAuthenticated(true);
@@ -83,6 +84,7 @@ const OtpRegister: React.FC = () => {
 
     } catch (error: any) {
       const { status, data } = error.response;
+      setLoading(false);
   
       if (status === 400) {
           setInvalid(data.error);
@@ -95,6 +97,7 @@ const OtpRegister: React.FC = () => {
       } else {
           alert("Lexscribe is under maintenance. Please try again later.");
       }
+      return
   }
   
 

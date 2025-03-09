@@ -172,9 +172,6 @@ def resend_otp(request):
         dynamic = subject_dynamic.get(purpose)
        
 
-              
-        if not user:
-            return Response({"error": "Email is not registered"}, status=status.HTTP_404_NOT_FOUND)
         
         cache_key = f"{email}_{purpose}"
         message = "Your OTP for verification"
@@ -265,7 +262,7 @@ def user_register(request):
     
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def log_out(request):
+def log_out_user(request):
     try:
         refresh_token = request.data.get("refresh")  
         if refresh_token:

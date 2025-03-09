@@ -2,14 +2,17 @@ import { jwtDecode } from "jwt-decode";
 import { refresh } from "../axiosConfig";
 import { auth } from "../axiosConfig";
 
-const isTokenExpired = (token: string) => {
-    const decoded: { exp: number } = jwtDecode(token);
-    const tokenExpiration = decoded.exp;
-    const currentTime = Date.now() / 1000;
-
-    return tokenExpiration < currentTime;
+const isTokenExpired = (token: string | null) => {
+    if (!token) return true;  
+    
+    try {
+        const decoded: { exp: number } = jwtDecode(token);
+        return decoded.exp < Date.now() / 1000;
+    } catch (error) {
+        console.error("Invalid token:", error);
+        return true; 
+    }
 };
-
 const refreshUserToken  = async() => {
     const refreshToken = localStorage.getItem("refresh_token");
     if(!refreshToken) {

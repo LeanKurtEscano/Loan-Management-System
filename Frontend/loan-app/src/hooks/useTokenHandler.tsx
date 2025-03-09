@@ -14,10 +14,8 @@ const useTokenHandler = () => {
 
         if (isAuthenticated) {
           setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-          navigate("/login"); 
-        }
+        } 
+        
       } catch (error) {
         console.error("Auth check failed:", error);
         setIsAuthenticated(false);

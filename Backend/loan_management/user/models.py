@@ -9,7 +9,8 @@ class IdType(models.Model):
     id_type = models.CharField(max_length=100)
     
 class CustomUser(AbstractUser):
-    is_admin = models.BooleanField(default=False) 
+    is_admin = models.BooleanField(default=False)  
+    is_verified = models.BooleanField(default=False) 
     contact_number = models.CharField(max_length=255, unique=True, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     monthly_salary = models.IntegerField(null=True, blank=True)
