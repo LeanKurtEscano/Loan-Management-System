@@ -16,7 +16,7 @@ const menuItems = [
 ];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
-    const { setToggleModals, isAuthenticated, setIsAuthenticated, setRole, isVerified } = useMyContext();
+    const { setToggleModals, isAuthenticated, setIsAuthenticated, isVerified } = useMyContext();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const toggleDropdown = () => setShowDropdown(!showDropdown);
@@ -42,14 +42,14 @@ const NavBar: React.FC = () => {
                 setIsAuthenticated(false);
                 setShowDropdown(false);
 
-                setRole("User");
+               
                 setTimeout(() => {
                 }, 2000)
                 nav('/');
             }
 
         } catch (error: any) {
-            alert("Something went wrong. Please try again later")
+           
         }
 
 

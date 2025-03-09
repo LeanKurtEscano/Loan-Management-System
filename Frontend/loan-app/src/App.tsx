@@ -25,7 +25,8 @@ function App() {
 const Main: React.FC = () => {
  const {setIsAuthenticated} = useMyContext();
   useTokenHandler();
- 
+  console.log("Access Token:", localStorage.getItem("access_token"));
+
   return (
 
     <>
