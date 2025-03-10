@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from .models import CustomUser
 from .email.emails import send_otp_to_email
-
+from .serializers import CustomUserSerializer
 
 @api_view(["POST"])
 def user_email(request):
@@ -274,6 +274,21 @@ def log_out_user(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)        
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_details(request):
+    
+    try:
+       user = request.user
+       serializer = CustomUserSerializer(user)
+      
+       return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        
+        
+    except Exception as e:
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"{e}")
 """    
 @api_view(["POST"])
 @permission_classes([AllowAny])

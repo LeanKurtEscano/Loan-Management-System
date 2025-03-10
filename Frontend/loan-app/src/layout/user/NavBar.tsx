@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import useTokenHandler from "../../hooks/useTokenHandler";
 
+import logo2 from '../../assets/logo2.png'
+
 
 const menuItems = [
     { name: "Transactions", path: "/my-transactions" },
@@ -23,6 +25,10 @@ const NavBar: React.FC = () => {
     const nav = useNavigate();
     const showLogin = () => {
         nav('/login');
+    }
+
+    const showAccount = () => {
+        nav('/account');
     }
 
 
@@ -45,7 +51,7 @@ const NavBar: React.FC = () => {
                
                 setTimeout(() => {
                 }, 2000)
-                nav('/');
+                nav('/login');
             }
 
         } catch (error: any) {
@@ -58,8 +64,8 @@ const NavBar: React.FC = () => {
     return (
         <nav className="bg-customWhite">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <img className="h-14" alt=" Logo" />
+                <a href="/" className="flex items-center md:pl-[70px] space-x-3 rtl:space-x-reverse">
+                    <img  src = {logo2}className="h-10" alt=" Logo" />
                     <span className="self-center text-xl bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent font-bold whitespace-nowrap"></span>
                 </a>
 
@@ -120,7 +126,7 @@ const NavBar: React.FC = () => {
                                     <>
 
                                         <div
-                                            onClick={goToLanding}
+                                            onClick={showAccount}
                                             className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
                                         >
                                             Verify Your Account

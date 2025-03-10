@@ -16,8 +16,8 @@ const Notification:React.FC<Toggle> = ({message,heading, setToggle }) => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
                     <div className="flex flex-col ml-3">
-                        <div className="font-medium leading-none text-gray-100 mb-1">{heading}</div>
-                        <p className="text-sm text-gray-500 leading-none mt-1">
+                        <div className="font-medium leading-none text-black-200 mb-1">{heading}</div>
+                        <p className="text-sm text-gray-800 leading-none mt-1">
                             {message}
                         </p>
                     </div>

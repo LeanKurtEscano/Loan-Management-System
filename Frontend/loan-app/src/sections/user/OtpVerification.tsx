@@ -16,7 +16,7 @@ const OtpVerification: React.FC = () => {
   const [toggleNotif, setToggleNotif] = useState(false);
   const inputRefs = useRef<Array<HTMLInputElement | null>>(Array(6).fill(null));
   const heading = "OTP Sent!"
-  const message = "A new OTP has been sent to your registered email."
+  const message = "A new OTP has been sent "
   const navigate = useNavigate();
 
 

@@ -11,7 +11,7 @@ const UserProtectedRoutes: React.FC<ProtectedRouteProps> = ({ children }) => {
     const userToken = localStorage.getItem("access_token"); 
 
     if (!isAuthenticated && !userToken) {
-        return <Navigate to="/" />;
+        return <Navigate to="/login" />;
     }
 
     return <>{children}</>;

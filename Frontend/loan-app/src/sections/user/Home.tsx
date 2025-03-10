@@ -4,7 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp, faChevronDown, faClock, faHandshake } from "@fortawesome/free-solid-svg-icons";
 import home2 from "../../assets/home2.jpg";
 import home3 from "../../assets/home3.jpg";
+import { useNavigate } from "react-router-dom";
 
+import { useMyContext } from "../../context/MyContext";
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: (delay: number) => ({
@@ -29,12 +31,27 @@ const faqs = [
 ];
 
 const Home = () => {
-
+  const nav = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { isAuthenticated, isVerified } = useMyContext();
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(prevIndex => (prevIndex === index ? null : index));
   };
+
+
+  const goToLogin = () => {
+    nav('/login');
+  }
+
+  const goToAccount = () => {
+    nav('/account');
+  }
+
+
+  const goToLoan = () => {
+    nav('/apply-loan');
+  }
 
   return (
     <motion.div className="min-h-screen bg-white text-gray-900">
@@ -47,17 +64,17 @@ const Home = () => {
         className="container mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between"
       >
         {/* Left Section */}
-        <motion.div variants={fadeInUp} className="md:w-1/2 text-center md:text-left">
+        <motion.div variants={fadeInUp} className="md:w-1/2  md:pl-14 text-center md:text-left">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Huwag nang patagalin pa</h1>
-          <h2 className="text-2xl md:text-4xl font-bold text-blue-600 mb-4">ToLoan mo na 'yan!</h2>
+          <h2 className="text-2xl md:text-4xl font-bold text-blue-600 mb-4">To-Loan mo na 'yan!</h2>
           <p className="text-gray-600 mb-6">Best Interest Rates | Effortless Applications | Expert Service</p>
 
           {/* Button Animation */}
-          <motion.div className="flex justify-center md:w-1/2 md:pl-32">
+          <motion.div className="flex flex-start items-start  ">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 text-white px-6 py-3 cursor-pointer rounded-lg hover:bg-blue-700 transition w-full md:w-auto shadow-md"
+              className="bg-blue-600 text-white px-6 py-3 whitespace-nowrap cursor-pointer rounded-lg hover:bg-blue-700 transition w-full md:w-auto shadow-md"
             >
               Get Started
             </motion.button>
@@ -76,8 +93,8 @@ const Home = () => {
       </motion.div>
 
       {/* Feature Cards */}
-      <div className="container mx-auto px-6 text-center mt-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="container mx-auto px-6 text-center">
+        <div className="flex flex-col md:flex-row justify-center gap-6 w-full max-w-[1145px] mx-auto">
           {[
             {
               icon: faThumbsUp,
@@ -105,7 +122,7 @@ const Home = () => {
               viewport={{ once: false, amount: 0.2 }}
               custom={index * 0.3}
               whileHover={{ scale: 1.05 }}
-              className="bg-white text-black items-center p-4 rounded-lg shadow-md flex flex-col border border-gray-300 gap-2"
+              className="flex-1 bg-white text-black p-6 rounded-lg shadow-md flex flex-col items-center border border-gray-300 text-center w-full max-w-sm"
             >
               <div className="flex flex-row items-center gap-2">
                 <div className="bg-blue-600 p-3 rounded-full flex items-center justify-center w-12 h-12">
@@ -113,13 +130,12 @@ const Home = () => {
                 </div>
                 <h3 className="text-md font-semibold text-blue-600">{card.title}</h3>
               </div>
-              <p className="text-gray-700 text-md">{card.description}</p>
+              <p className="text-gray-700 text-md mt-2">{card.description}</p>
             </motion.div>
           ))}
         </div>
       </div>
 
-      {/* New Section (Image Left, Text Right) */}
       <motion.div
         variants={fadeInUp}
         initial="hidden"
@@ -142,10 +158,14 @@ const Home = () => {
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-600">
             Secure and Hassle-Free Loans
           </h2>
-          <p className="text-gray-700 text-lg">
+          <div className="w-[550px]">
+          <p className="text-gray-700  text-lg">
             With our simple and transparent process, you can get the financial support you need without any unnecessary stress.
             Whether it's for personal needs, business expansion, or emergency expenses, we ensure quick approvals and fair terms that work for you.
           </p>
+            
+          </div>
+        
         </motion.div>
       </motion.div>
 
@@ -155,13 +175,14 @@ const Home = () => {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: false, amount: 0.2 }}
-        className="container mx-auto px-6 text-center mt-16 bg-blue-600 text-white p-8 rounded-lg"
+        className="  md:w-[1145px] mx-auto px-6 text-center mt-16 bg-blue-600 text-white p-8 rounded-lg"
       >
         <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Get Started?</h2>
         <p className="text-lg mb-6">Apply now and get approved in minutes!</p>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={isAuthenticated && isVerified ? goToLoan : isAuthenticated ? goToAccount : goToLogin}
           className="bg-white cursor-pointer text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition shadow-md"
         >
           Apply Now
@@ -172,7 +193,7 @@ const Home = () => {
         <h2 className="text-2xl md:text-3xl font-bold text-blue-600 mb-6">
           Frequently Asked Questions
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex flex-col md:flex-row justify-center gap-6 w-full max-w-[1145px] mx-auto">
           {faqs.map((faq, index) => (
             <motion.div key={index}
               variants={fadeInUp}

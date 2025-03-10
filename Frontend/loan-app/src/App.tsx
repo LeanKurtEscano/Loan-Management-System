@@ -14,6 +14,8 @@ import NavBar from './layout/user/NavBar';
 import Register from './sections/user/Register';
 import OtpRegister from './sections/user/OtpRegister';
 import Footer from './layout/user/Footer';
+import Account from './sections/user/Account';
+import LoanApplication from './sections/user/LoanApplication';
 function App() {
  
   return (
@@ -43,6 +45,8 @@ const Main: React.FC = () => {
        <Route path="/otp-reset" element={<OtpReset/>} />
        <Route path="/otp-register" element={<OtpRegister/>} />
        <Route path="/register" element={<Register/>} />
+       <Route path="/account" element={<Account/>} />
+       <Route path="/apply-loan" element={<LoanApplication/>} />
       
      </Routes>
 

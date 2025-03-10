@@ -14,4 +14,5 @@ urlpatterns = [
     path('login/verify/',views.otp_verify, name="verify-otp"),
     path('resend/',views.resend_otp, name="resend-otp"),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  
+    path('details/', views.get_user_details, name='user_Details'),  
 ]
