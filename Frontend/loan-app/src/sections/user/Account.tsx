@@ -83,11 +83,11 @@ const Account = () => {
                                 </div>
 
                             </div>
-                           
+
 
                             <p className="text-lg mb-6">Verify now to access our loan services!</p>
                             <motion.button
-                            onClick={() => setShowForm(true)}
+                                onClick={() => setShowForm(true)}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="bg-white cursor-pointer text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition shadow-md"
@@ -98,11 +98,11 @@ const Account = () => {
                     </motion.div>
                 )}
 
-{showForm && (
-  <div className="fixed inset-0 flex items-center justify-center bg-gray-500/50  bg-opacity-40">
-    <VerifyForm onClose={closeForm} />
-  </div>
-)}
+                {showForm && (
+                    <div className="fixed inset-0 h-auto flex items-center justify-center bg-gray-500/50  bg-opacity-40">
+                        <VerifyForm onClose={closeForm} />
+                    </div>
+                )}
 
 
             </div>

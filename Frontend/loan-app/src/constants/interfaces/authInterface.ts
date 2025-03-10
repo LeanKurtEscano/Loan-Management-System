@@ -34,3 +34,13 @@ export interface UserDetails {
     is_verified: boolean;
 }
 
+
+export interface VerifyData {
+    firstName: string;
+    middleName?:string;
+    lastName:string;
+    address: string;
+    contactNumber:string;
+    image: File;
+}
+
