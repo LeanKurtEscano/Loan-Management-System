@@ -28,7 +28,7 @@ class VerificationRequests(models.Model):
     contact_number = models.CharField(max_length=15)
     address = models.TextField()
     image = cloudinary.models.CloudinaryField("image") 
-    status = models.CharField(max_length=20, default="Pending")  
+    status = models.CharField(max_length=20, default="pending")  
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

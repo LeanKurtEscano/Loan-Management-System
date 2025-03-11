@@ -23,6 +23,8 @@ const Account = () => {
         ["userDetails"],
         getUserDetails
     );
+
+    console.log(data)
     const goToHome = () => {
         nav('/');
     }

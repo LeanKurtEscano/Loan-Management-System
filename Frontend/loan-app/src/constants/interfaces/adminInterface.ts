@@ -10,5 +10,11 @@ export interface ApplicationData {
     image: string;
     status: string;
     created_at: string;
-    user_id: number
+    user: number
+}
+
+
+export interface ApplicationId {
+    id:number;
+    user:number;
 }

@@ -5,6 +5,18 @@ import { motion } from "framer-motion";
 import { ApplicationData } from "../../constants/interfaces/adminInterface";
 import { useQuery } from "@tanstack/react-query";
 import { getUserDetails } from "../../services/admin/adminData";
+import { useNavigate } from "react-router-dom";
+interface User {
+    id: number;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    birth_date: string;
+    age: number;
+    status: "Pending" | "Approved";
+    submitted_date: string;
+}
+
 
 
 const cardVariants = {
@@ -31,6 +43,7 @@ const formatDate = (dateString:any) => {
 };
 
 const UserVerification: React.FC = () => {
+    const navigate = useNavigate();
  
     const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -39,7 +52,7 @@ const UserVerification: React.FC = () => {
     console.log(data);
 
     const handleSelect = (id: number) => {
-        setSelectedId(id);
+        navigate(`/dashboard/verify/${id}`);
         console.log("Selected User ID:", id);
     };
 
@@ -49,12 +62,7 @@ const UserVerification: React.FC = () => {
 
     return (
         <div className="p-5 w-auto min-h-screen max-w-4xl mx-auto">
-            {/* Statistic Cards */}
-
-
-
-
-            {/* Header */}
+      
             <motion.h2
             className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-transparent mb-3 text-center"
             initial={{ opacity: 0, scale: 0.8 }}
@@ -83,7 +91,7 @@ const UserVerification: React.FC = () => {
                                 {i === 0 ? "Total Applications" : i === 1 ? "Pending Applications" : "Approved Applications"}
                             </h3>
                             <p className="text-gray-700 text-base">
-                                {i === 0 ? data?.length : i === 1 ? data?.filter(user => user.status === "Pending").length : data?.filter(user => user.status === "Approved").length}
+                                {i === 0 ? data?.length : i === 1 ? data?.filter(user => user.status.trim() === "pending").length : data?.filter(user => user.status === "Approved").length}
                             </p>
                         </div>
                     </motion.div>

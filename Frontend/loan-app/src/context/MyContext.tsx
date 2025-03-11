@@ -1,16 +1,36 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { getUserDetails } from '../services/user/userData';
+import { useQuery } from '@tanstack/react-query';
+import { UserDetails } from '../constants/interfaces/authInterface';
 const MyContext = createContext<any>(null);
-
 export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
     !!localStorage.getItem("admin_token") // Read token on mount
   );
+
+  const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
+    ["userDetails"],
+    getUserDetails,
+    {
+      onSuccess: (fetchedData) => {
+        setUserDetails(fetchedData); 
+      },
+    }
+  );
+
+  console.log(userDetails);
+  
+
+  useEffect(() => {
+
+  })
   
   return (
-    <MyContext.Provider value={{ isAuthenticated, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, setIsVerified}}>
+    <MyContext.Provider value={{ isAuthenticated, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified}}>
       {children}
     </MyContext.Provider>
   );

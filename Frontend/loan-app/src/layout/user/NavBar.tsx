@@ -18,7 +18,7 @@ const menuItems = [
 ];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
-    const { setToggleModals, isAuthenticated, setIsAuthenticated, isVerified } = useMyContext();
+    const {  isAuthenticated, setIsAuthenticated,  userDetails } = useMyContext();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const toggleDropdown = () => setShowDropdown(!showDropdown);
@@ -118,7 +118,7 @@ const NavBar: React.FC = () => {
 
 
                             <div className="hidden md:block">
-                                {isVerified ? (
+                                {userDetails?.is_verified ? (
 
                                     null
 
@@ -200,7 +200,7 @@ const NavBar: React.FC = () => {
 
                 <div className="pl-40 items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
                     <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                        {["Home", "Support", "Loans", ...(isVerified ? ["Menu"] : [])].map((item) => (
+                        {["Home", "Support", "Loans", ...(userDetails?.is_verified ? ["Menu"] : [])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
                                     <button
@@ -222,7 +222,7 @@ const NavBar: React.FC = () => {
                                     </Link>
                                 )}
 
-                                {menuOpen && item === "Menu" && isVerified && (
+                                {menuOpen && item === "Menu" && userDetails?.is_verified && (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}

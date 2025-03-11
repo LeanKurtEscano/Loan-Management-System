@@ -19,6 +19,7 @@ import LoanApplication from './sections/user/LoanApplication';
 import AdminProtectedRoutes from './Routes/AdminProtectedRoutes';
 import Dashboard from './sections/admin/Dashboard';
 import UserVerification from './sections/admin/UserVerification';
+import Verification from './sections/admin/Verification';
 function App() {
 
   return (
@@ -51,6 +52,7 @@ const Main: React.FC = () => {
           }
         >
           <Route path="user-verification" element={<UserVerification />} />
+          <Route path="verify/:id" element={<Verification />} />
 
         </Route>
 

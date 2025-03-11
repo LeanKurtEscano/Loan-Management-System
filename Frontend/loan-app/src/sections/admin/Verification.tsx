@@ -1,9 +1,141 @@
-import React from 'react'
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getDetail, verifyUser } from "../../services/admin/adminData";
+import { motion } from "framer-motion";
+import { ApplicationData } from "../../constants/interfaces/adminInterface";
+import { cleanImageUrl } from "../../utils/imageClean";
+import Modal from "../../components/Modal";
+import ImageModal from "../../components/ImageModal";
+import { ApplicationId } from "../../constants/interfaces/adminInterface";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
-const Verification = () => {
-  return (
-    <div>Verification</div>
-  )
-}
+const Verification: React.FC = () => {
+    const { id } = useParams(); 
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const queryClient = useQueryClient();
 
-export default Verification
+    const { data, isLoading, isError } = useQuery<ApplicationData>({
+        queryKey: ["userDetail", id],
+        queryFn: () => getDetail(id!),
+        enabled: !!id,
+    });
+    console.log(data);
+
+    if (isLoading) return <p className="text-center text-gray-600 mt-10">Loading user details...</p>;
+    if (isError) return <p className="text-center text-red-500 mt-10">Error fetching user details.</p>;
+
+    const handleVerifyUser = async () => {
+        const details: ApplicationId = {
+            id: data.id,
+            user: data.user
+        };
+
+        try {
+            const response = await verifyUser(details);
+
+            if (response?.status === 200) {
+                setIsModalOpen(false);
+                queryClient.invalidateQueries(["userDetail", id]); 
+            }
+        } catch (error) {
+            alert("Something went wrong");
+        }
+    };
+
+    return (
+        <motion.div
+            className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-2xl">
+                {/* Image */}
+                <motion.img
+                    src={cleanImageUrl(data?.image)}
+                    alt="User"
+                    className="w-full h-48 sm:h-64 cursor-pointer object-cover border-b-2 border-gray-300"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    onClick={() => setIsImageModalOpen(true)} 
+                />
+
+                {/* Content Section */}
+                <div className="p-6">
+                    {/* Name Section */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-2xl font-bold text-gray-800">
+                                {data?.first_name} {data?.middle_name} {data?.last_name}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-5 border-t border-gray-200 pt-4">
+                        <p className="text-gray-600 font-medium">Birthdate</p>
+                        <p className="text-gray-500 text-sm">{data?.birthdate}</p>
+                    </div>
+
+                    <div className="mt-5 border-t border-gray-200 pt-4">
+                        <p className="text-gray-600 font-medium">Age</p>
+                        <p className="text-gray-500 text-sm">{data?.age}</p>
+                    </div>
+
+                    {/* Address Section */}
+                    <div className="mt-5 border-t border-gray-200 pt-4">
+                        <p className="text-gray-600 font-medium">Address</p>
+                        <p className="text-gray-500 text-sm">{data?.address}</p>
+                    </div>
+
+                    {/* Contact Section */}
+                    <div className="mt-3 border-t border-gray-200 pt-4">
+                        <p className="text-gray-600 font-medium">Contact Number</p>
+                        <p className="text-gray-500 text-sm">{data?.contact_number}</p>
+                    </div>
+                </div>
+
+                {/* Verification Section */}
+                <div className="p-4 flex justify-center">
+                    {data?.status.trim() === "pending" ? (
+                        <motion.button
+                            className="bg-blue-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-blue-600 active:scale-95"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setIsModalOpen(true)} 
+                        >
+                            Verify
+                        </motion.button>
+                    ) : (
+                        <div className="flex items-center text-blue-600 font-semibold text-lg">
+                            <FontAwesomeIcon icon={faCircleCheck} className="text-2xl mr-2" />
+                            Verified
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {isImageModalOpen && (
+                <ImageModal
+                    imageUrl={cleanImageUrl(data?.image)}
+                    isOpen={isImageModalOpen}
+                    onClose={() => setIsImageModalOpen(false)}
+                />
+            )}
+
+            {/* Confirmation Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                title="Confirm Verification"
+                message="Are you sure you want to verify this user?"
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleVerifyUser}
+            />
+        </motion.div>
+    );
+};
+
+export default Verification;

@@ -11,13 +11,40 @@ from django.core.cache import cache
 from .serializers import VerificationRequestsSerializer
 from user.models import VerificationRequests
 from user.email.emails import send_otp_to_email
-
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from user.models import VerificationRequests
+from user.models import VerificationRequests, CustomUser
 from .serializers import VerificationRequestsSerializer
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def verify_user(request):
+    try:
+        id = request.data.get("id") 
+        user_id = request.data.get("user")
+        
+        verification = get_object_or_404(VerificationRequests, id=int(id))
+        user = get_object_or_404(CustomUser, id=int(user_id))
+
+        verification.status = "Approved"
+        verification.save() 
+        user.is_verified = True
+        user.save()  
+
+        return Response({
+            "success": "User Verified"
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "error": "Something went wrong",
+            "details": str(e)  
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -37,6 +64,23 @@ def get_verify_data(request):
             "details": str(e)  # Return error details
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_verify(request,id):
+    try:
+        data = VerificationRequests.objects.get(id = int(id))
+        serializer = VerificationRequestsSerializer(data)
+        
+        return Response(
+          serializer.data  
+        , status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"{e}")
+        return Response({
+            "error": "Something went wrong",
+            "details": str(e)  
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(["POST"])
 def admin_login(request):
