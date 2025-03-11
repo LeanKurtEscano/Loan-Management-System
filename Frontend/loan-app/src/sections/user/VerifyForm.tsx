@@ -2,29 +2,76 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faUpload, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { sendVerifyData } from "../../services/user/userData";
+import { VerifyData } from "../../constants/interfaces/authInterface";
 
 export default function VerifyForm({ onClose }: { onClose: () => void }) {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
     middleName: "",
     lastName: "",
     address: "",
+    birthdate: "",
+    age: "",
     contactNumber: "",
-    image: null as File | null,
+    image: null ,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  console.log(formData);
+
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    // Validation logic here
+
+ 
+
+    try {
+      const response = await sendVerifyData(formData);
+
+      if(response?.status === 201) {
+        onClose();
+
+      }
+    } catch(error) {
+      alert("something went wrong");
+
+    }
+
   };
+  const today = new Date();
+  const maxDate = new Date(today);
+  maxDate.setFullYear(today.getFullYear() - 21); // 21 years ago
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "birthdate") {
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const dayDiff = today.getDate() - birthDate.getDate();
+  
+      // Adjust age if birthday hasn't occurred this year yet
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+      }
+  
+      if (age < 21) {
+        setErrors((prev) => ({ ...prev, birthdate: "You must be exactly 21 years or older." }));
+      } else {
+        setErrors((prev) => ({ ...prev, birthdate: "" }));
+        setFormData((prev) => ({ ...prev, age: age.toString() })); // Update the age field
+      }
+  
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
+  
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,7 +94,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
             const data = await response.json();
 
             if (data.display_name) {
-               setFormData((prev) => ({...prev, address: data.display_name}));
+              setFormData((prev) => ({ ...prev, address: data.display_name }));
 
             } else {
               console.error("No address found");
@@ -146,6 +193,49 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
             />
             {errors.lastName && (
               <p className="absolute text-red-500 text-xs mt-1">{errors.lastName}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="relative">
+            <label htmlFor="age" className="block text-gray-700 font-medium">
+              Age
+            </label>
+            <input
+              value={formData.age}
+              onChange={handleChange}
+              id="age"
+              name="age"
+              type="number"
+              placeholder="Enter Age"
+              className="border p-3 rounded w-full"
+              required
+              disabled
+            />
+            {errors.age && (
+              <p className="absolute text-red-500 text-xs mt-1">{errors.age}</p>
+            )}
+          </div>
+
+          <div className="relative">
+            <label htmlFor="birthdate" className="block text-gray-700 font-medium">
+              Birthdate
+            </label>
+            <input
+              value={formData.birthdate}
+              onChange={handleChange}
+              id="birthdate"
+              name="birthdate"
+              type="date"
+              className="border p-3 rounded w-full"
+              required
+              min={new Date(new Date().setFullYear(new Date().getFullYear() - 70)).toISOString().split("T")[0]}
+              max={new Date(new Date().setFullYear(new Date().getFullYear() - 21)).toISOString().split("T")[0]}
+            
+            />
+            {errors.birthdate && (
+              <p className="absolute text-red-500 text-xs mt-1">{errors.birthdate}</p>
             )}
           </div>
         </div>

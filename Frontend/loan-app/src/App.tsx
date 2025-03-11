@@ -2,7 +2,7 @@ import './App.css';
 import { useMyContext } from './context/MyContext';
 import { MyProvider } from './context/MyContext';
 import useTokenHandler from './hooks/useTokenHandler';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from './sections/user/Login';
 import OtpVerification from './sections/user/OtpVerification';
 import Home from './sections/user/Home';
@@ -16,8 +16,11 @@ import OtpRegister from './sections/user/OtpRegister';
 import Footer from './layout/user/Footer';
 import Account from './sections/user/Account';
 import LoanApplication from './sections/user/LoanApplication';
+import AdminProtectedRoutes from './Routes/AdminProtectedRoutes';
+import Dashboard from './sections/admin/Dashboard';
+import UserVerification from './sections/admin/UserVerification';
 function App() {
- 
+
   return (
     <MyProvider>
       <Main />
@@ -25,33 +28,49 @@ function App() {
   );
 }
 const Main: React.FC = () => {
- const {setIsAuthenticated} = useMyContext();
+  const { setIsAuthenticated, isAdminAuthenticated} = useMyContext();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/dashboard");
   useTokenHandler();
-  console.log("Access Token:", localStorage.getItem("access_token"));
+  console.log("Access Token:", localStorage.getItem("admin_token"));
+  console.log(isAdminAuthenticated);
 
   return (
 
     <>
-     <NavBar/>
-  
-      <Routes>
-     
-      <Route path="/" element={<Home />} />
-       <Route path="/login" element={<Login />} />
-       <Route path="/email-verification" element={<EmailForm/>} />
-       <Route path="/reset-password" element={<ResetPassword/>} />
-       <Route path="/admin-login" element={<AdminLogin />} />
-       <Route path="/otp-verify" element={<OtpVerification />} />
-       <Route path="/otp-reset" element={<OtpReset/>} />
-       <Route path="/otp-register" element={<OtpRegister/>} />
-       <Route path="/register" element={<Register/>} />
-       <Route path="/account" element={<Account/>} />
-       <Route path="/apply-loan" element={<LoanApplication/>} />
-      
-     </Routes>
+      {!isAdminRoute && <NavBar />}
 
-     <Footer/>
-      
+      <Routes>
+
+        <Route
+          path="/dashboard/*"
+          element={
+            <AdminProtectedRoutes>
+              <Dashboard />
+            </AdminProtectedRoutes>
+          }
+        >
+          <Route path="user-verification" element={<UserVerification />} />
+
+        </Route>
+
+
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/email-verification" element={<EmailForm />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/otp-verify" element={<OtpVerification />} />
+        <Route path="/otp-reset" element={<OtpReset />} />
+        <Route path="/otp-register" element={<OtpRegister />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/apply-loan" element={<LoanApplication />} />
+
+      </Routes>
+
+      {!isAdminRoute && <Footer />}
+
     </>
 
   );

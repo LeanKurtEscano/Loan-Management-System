@@ -8,9 +8,36 @@ from user.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 import os
 from django.core.cache import cache
-
-
+from .serializers import VerificationRequestsSerializer
+from user.models import VerificationRequests
 from user.email.emails import send_otp_to_email
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from user.models import VerificationRequests
+from .serializers import VerificationRequestsSerializer
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_verify_data(request):
+    try:
+        data = VerificationRequests.objects.all()
+        serializer = VerificationRequestsSerializer(data, many=True)
+        
+        return Response({
+            "success": "Data Sent",
+            "data": serializer.data  # Returning serialized data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "error": "Something went wrong",
+            "details": str(e)  # Return error details
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    
 @api_view(["POST"])
 def admin_login(request):
     try:

@@ -1,21 +1,26 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useMyContext } from "../context/MyContext";
+import useAdminTokenHandler from "../hooks/useAdminTokenHandler";
 
 interface AdminProtectedProps {
   children: React.ReactNode;
 }
 
 const AdminProtectedRoutes: React.FC<AdminProtectedProps> = ({ children }) => {
+  useAdminTokenHandler(); 
   const { isAdminAuthenticated } = useMyContext();
-  const adminToken = localStorage.getItem("admin_token"); 
 
-  
-  if (!isAdminAuthenticated || !adminToken) {
-    return <Navigate to="/admin-login" />; 
+  if (isAdminAuthenticated === null) {
+    return null; 
+  }
+
+  if (!isAdminAuthenticated) {
+    return <Navigate to="/admin-login" />;
   }
 
   return <>{children}</>;
 };
+
 
 export default AdminProtectedRoutes;

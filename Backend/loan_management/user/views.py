@@ -1,5 +1,6 @@
 from rest_framework.permissions import IsAuthenticated,AllowAny
-from rest_framework.decorators import permission_classes, api_view
+from rest_framework.decorators import permission_classes,parser_classes, api_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,10 +8,50 @@ from rest_framework import status
 from django.contrib.auth import authenticate, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
-from .models import CustomUser
+from .models import CustomUser, VerificationRequests
 from .email.emails import send_otp_to_email
 from .serializers import CustomUserSerializer
+import cloudinary.uploader
+@api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
+def verify_account(request):
+    try:
+        # Extract form data
+        first_name = request.data.get("firstName")
+        middle_name = request.data.get("middleName", "")
+        last_name = request.data.get("lastName")
+        birthdate = request.data.get("birthdate")
+        age = request.data.get("age")
+        contact_number = request.data.get("contactNumber")
+        address = request.data.get("address")
+        image = request.FILES.get("image")
 
+        if not first_name or not last_name or not birthdate or not contact_number or not address:
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+     
+        uploaded_image = cloudinary.uploader.upload(image)
+        image_url = uploaded_image.get("secure_url")
+
+      
+        VerificationRequests.objects.create(
+            user =request.user,
+            first_name=first_name,
+            middle_name=middle_name,
+            last_name=last_name,
+            birthdate=birthdate,
+            age=age,
+            contact_number=contact_number,
+            address=address,
+            image=image_url,
+            status="pending"
+        )
+
+        return Response({"success": "Data received and stored", "image_url": image_url}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 @api_view(["POST"])
 def user_email(request):
     try:

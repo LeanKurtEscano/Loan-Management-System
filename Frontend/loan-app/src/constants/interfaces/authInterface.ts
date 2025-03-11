@@ -37,10 +37,11 @@ export interface UserDetails {
 
 export interface VerifyData {
     firstName: string;
-    middleName?:string;
-    lastName:string;
+    middleName?: string;
+    lastName: string;
     address: string;
-    contactNumber:string;
-    image: File;
+    age: string;
+    birthdate: string;
+    contactNumber: string;
+    image: File | null;  // Allow null
 }
-

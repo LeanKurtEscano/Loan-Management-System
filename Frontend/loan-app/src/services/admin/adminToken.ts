@@ -18,7 +18,7 @@ const refreshAdminToken = async () => {
     }
 
     try {
-        const response = await adminAuth.post('/refresh/', {
+        const response = await adminAuth.post('/token/refresh/', {
             refresh: adminRefreshToken
         });
 
