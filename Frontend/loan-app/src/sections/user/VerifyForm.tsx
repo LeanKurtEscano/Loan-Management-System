@@ -4,11 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faUpload, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { sendVerifyData } from "../../services/user/userData";
 import { VerifyData } from "../../constants/interfaces/authInterface";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function VerifyForm({ onClose }: { onClose: () => void }) {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
     middleName: "",
@@ -31,6 +33,8 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
       const response = await sendVerifyData(formData);
 
       if(response?.status === 201) {
+        queryClient.invalidateQueries(["userDetails"]);
+
         onClose();
 
       }

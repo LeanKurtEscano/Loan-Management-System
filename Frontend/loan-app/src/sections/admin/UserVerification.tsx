@@ -3,19 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faTrash, faUsers, faClock, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { ApplicationData } from "../../constants/interfaces/adminInterface";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserDetails } from "../../services/admin/adminData";
 import { useNavigate } from "react-router-dom";
-interface User {
-    id: number;
-    first_name: string;
-    middle_name: string;
-    last_name: string;
-    birth_date: string;
-    age: number;
-    status: "Pending" | "Approved";
-    submitted_date: string;
-}
+import { adminApi} from "../../services/axiosConfig";
+import Modal from "../../components/Modal";
 
 
 
@@ -44,19 +36,44 @@ const formatDate = (dateString:any) => {
 
 const UserVerification: React.FC = () => {
     const navigate = useNavigate();
+
+    const queryClient = useQueryClient();
+
+    const deleteMutation = useMutation({
+        mutationFn: async(id: number) => {
+            const response = await adminApi.post('/reject/',{
+                id: selectedId
+            });
+
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries(["verifyData"]);
+
+        }
+    })
  
     const [selectedId, setSelectedId] = useState<number | null>(null);
-
     const {data, isLoading, isError,error} = useQuery<ApplicationData[]>(['verifyData'],getUserDetails);
+    const [ isModalOpen, setIsModalOpen] = useState(false);
 
-    console.log(data);
 
     const handleSelect = (id: number) => {
         navigate(`/dashboard/verify/${id}`);
         console.log("Selected User ID:", id);
     };
 
-    const handleDelete = (id: number) => {
+    
+    const handleSelectId = (id: number) => {
+        setIsModalOpen(true);
+        setSelectedId(id);
+    }
+
+    const handleDelete = async() => {
+        console.log(selectedId);
+       await deleteMutation.mutateAsync(selectedId ?? 0 );
+       setIsModalOpen(false);
+      
        
     };
 
@@ -127,16 +144,28 @@ const UserVerification: React.FC = () => {
                                     <button className="text-blue-500 cursor-pointer hover:text-blue-700 p-2" title="View" onClick={() => handleSelect(user.id)}>
                                         <FontAwesomeIcon icon={faEye} size="lg" />
                                     </button>
-                                    <button className="text-red-500 cursor-pointer hover:text-red-700 p-2 ml-3" title="Delete" onClick={() => handleDelete(user.id)}>
+                                    <button onClick={() => handleSelectId(user.id)} className="text-red-500 cursor-pointer hover:text-red-700 p-2 ml-3" title="Delete">
                                         <FontAwesomeIcon icon={faTrash} size="lg" />
                                     </button>
                                 </td>
+
+                                
                             </motion.tr>
                         ))}
                     </tbody>
 
                 </motion.table>
             </div>
+
+            {isModalOpen && selectedId !== null ? (
+              <Modal isOpen={isModalOpen} title="Reject Verification"  message="Are you sure you want to reject the application of this user?" 
+              onClose={() => setIsModalOpen(false)} onConfirm={handleDelete}/>
+
+            ) : (
+                null
+            )}
+
+            
         </div>
     );
 };

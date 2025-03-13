@@ -10,8 +10,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from .models import CustomUser, VerificationRequests
 from .email.emails import send_otp_to_email
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer,VerificationRequestsSerializer
 import cloudinary.uploader
+
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def verify_account(request):
@@ -25,7 +26,10 @@ def verify_account(request):
         contact_number = request.data.get("contactNumber")
         address = request.data.get("address")
         image = request.FILES.get("image")
-
+        
+        user = CustomUser.objects.get(id = request.user.id)
+        user.is_verified = "pending"
+        user.save()
         if not first_name or not last_name or not birthdate or not contact_number or not address:
             return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -77,13 +81,11 @@ def user_email(request):
 def register(request):
     
     try:
-        email = request.data.get('email')
-        print(email)
-        password = request.data.get('password')
+      
         username = request.data.get('username') 
         admin_pass = request.data.get('admin_pass')  
         
-        user = CustomUser.objects.create(email = email, password = make_password(password))
+      
         admin = CustomUser.objects.create(username = username, password= make_password(admin_pass))
 
         return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
@@ -329,7 +331,30 @@ def get_user_details(request):
         
     except Exception as e:
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print(f"{e}")
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_verify_details(request):
+    try:
+        
+        user =request.user.id
+       
+        request_data = VerificationRequests.objects.get(user=user)
+  
+        serializer = VerificationRequestsSerializer(request_data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
 """    
 @api_view(["POST"])
 @permission_classes([AllowAny])

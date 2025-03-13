@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDetail, verifyUser } from "../../services/admin/adminData";
 import { motion } from "framer-motion";
@@ -9,11 +9,12 @@ import Modal from "../../components/Modal";
 import ImageModal from "../../components/ImageModal";
 import { ApplicationId } from "../../constants/interfaces/adminInterface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 const Verification: React.FC = () => {
-    const { id } = useParams(); 
-    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const queryClient = useQueryClient();
 
@@ -22,7 +23,6 @@ const Verification: React.FC = () => {
         queryFn: () => getDetail(id!),
         enabled: !!id,
     });
-    console.log(data);
 
     if (isLoading) return <p className="text-center text-gray-600 mt-10">Loading user details...</p>;
     if (isError) return <p className="text-center text-red-500 mt-10">Error fetching user details.</p>;
@@ -30,7 +30,7 @@ const Verification: React.FC = () => {
     const handleVerifyUser = async () => {
         const details: ApplicationId = {
             id: data.id,
-            user: data.user
+            user: data.user,
         };
 
         try {
@@ -38,7 +38,7 @@ const Verification: React.FC = () => {
 
             if (response?.status === 200) {
                 setIsModalOpen(false);
-                queryClient.invalidateQueries(["userDetail", id]); 
+                queryClient.invalidateQueries(["userDetail", id]);
             }
         } catch (error) {
             alert("Something went wrong");
@@ -47,13 +47,23 @@ const Verification: React.FC = () => {
 
     return (
         <motion.div
-            className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6"
+            className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 relative"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
+            {/* Go Back Button */}
+            <button
+                onClick={() => navigate(-1)}
+                className="absolute top-4 left-4 md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+            >
+                <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+                Go Back
+            </button>
+
+            {/* User Card Container */}
             <div className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-2xl">
-                {/* Image */}
+                {/* User Image */}
                 <motion.img
                     src={cleanImageUrl(data?.image)}
                     alt="User"
@@ -61,40 +71,35 @@ const Verification: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    onClick={() => setIsImageModalOpen(true)} 
+                    onClick={() => setIsImageModalOpen(true)}
                 />
 
-                {/* Content Section */}
-                <div className="p-6">
-                    {/* Name Section */}
+                {/* User Details */}
+                <div className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
+                        <p className="text-2xl font-bold text-gray-800 text-center md:text-left w-full">
+                            {data?.first_name} {data?.middle_name} {data?.last_name}
+                        </p>
+                    </div>
+
+                    {/* User Info Section */}
+                    <div className="mt-5 border-t border-gray-200 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <p className="text-2xl font-bold text-gray-800">
-                                {data?.first_name} {data?.middle_name} {data?.last_name}
-                            </p>
+                            <p className="text-gray-600 font-medium">Birthdate</p>
+                            <p className="text-gray-500 text-sm">{data?.birthdate}</p>
                         </div>
-                    </div>
-
-                    <div className="mt-5 border-t border-gray-200 pt-4">
-                        <p className="text-gray-600 font-medium">Birthdate</p>
-                        <p className="text-gray-500 text-sm">{data?.birthdate}</p>
-                    </div>
-
-                    <div className="mt-5 border-t border-gray-200 pt-4">
-                        <p className="text-gray-600 font-medium">Age</p>
-                        <p className="text-gray-500 text-sm">{data?.age}</p>
-                    </div>
-
-                    {/* Address Section */}
-                    <div className="mt-5 border-t border-gray-200 pt-4">
-                        <p className="text-gray-600 font-medium">Address</p>
-                        <p className="text-gray-500 text-sm">{data?.address}</p>
-                    </div>
-
-                    {/* Contact Section */}
-                    <div className="mt-3 border-t border-gray-200 pt-4">
-                        <p className="text-gray-600 font-medium">Contact Number</p>
-                        <p className="text-gray-500 text-sm">{data?.contact_number}</p>
+                        <div>
+                            <p className="text-gray-600 font-medium">Age</p>
+                            <p className="text-gray-500 text-sm">{data?.age}</p>
+                        </div>
+                        <div className="sm:col-span-2">
+                            <p className="text-gray-600 font-medium">Address</p>
+                            <p className="text-gray-500 text-sm">{data?.address}</p>
+                        </div>
+                        <div className="sm:col-span-2">
+                            <p className="text-gray-600 font-medium">Contact Number</p>
+                            <p className="text-gray-500 text-sm">{data?.contact_number}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -105,7 +110,7 @@ const Verification: React.FC = () => {
                             className="bg-blue-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-blue-600 active:scale-95"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => setIsModalOpen(true)} 
+                            onClick={() => setIsModalOpen(true)}
                         >
                             Verify
                         </motion.button>
@@ -118,6 +123,7 @@ const Verification: React.FC = () => {
                 </div>
             </div>
 
+            {/* Image Modal */}
             {isImageModalOpen && (
                 <ImageModal
                     imageUrl={cleanImageUrl(data?.image)}

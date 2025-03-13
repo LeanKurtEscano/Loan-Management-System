@@ -35,3 +35,17 @@ export const sendVerifyData = async(data: VerifyData) => {
     }
 
 }
+
+
+export const getUserVerifyDetails = async() => {
+    try {
+
+        const response = await userApi.get(`/details/verify/`);
+
+        return response.data
+
+    } catch(error) {
+        console.log("Something Went Wrong");
+    }
+
+}

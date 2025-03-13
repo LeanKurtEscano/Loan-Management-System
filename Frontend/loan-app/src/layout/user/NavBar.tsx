@@ -7,7 +7,7 @@ import { logout } from "../../services/user/userAuth";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import useTokenHandler from "../../hooks/useTokenHandler";
-
+import { UserDetails } from "../../constants/interfaces/authInterface";
 import logo2 from '../../assets/logo2.png'
 
 
@@ -18,7 +18,7 @@ const menuItems = [
 ];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
-    const {  isAuthenticated, setIsAuthenticated,  userDetails } = useMyContext();
+    const { isAuthenticated, setIsAuthenticated, setUserDetails, userDetails } = useMyContext();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const toggleDropdown = () => setShowDropdown(!showDropdown);
@@ -47,15 +47,16 @@ const NavBar: React.FC = () => {
                 localStorage.removeItem("access_token");
                 setIsAuthenticated(false);
                 setShowDropdown(false);
+                setUserDetails((prev : UserDetails) => ({...prev, is_verified: "not applied"}))
 
-               
+
                 setTimeout(() => {
                 }, 2000)
                 nav('/login');
             }
 
         } catch (error: any) {
-           
+
         }
 
 
@@ -65,7 +66,7 @@ const NavBar: React.FC = () => {
         <nav className="bg-customWhite">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a href="/" className="flex items-center md:pl-[70px] space-x-3 rtl:space-x-reverse">
-                    <img  src = {logo2}className="h-10" alt=" Logo" />
+                    <img src={logo2} className="h-10" alt=" Logo" />
                     <span className="self-center text-xl bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent font-bold whitespace-nowrap"></span>
                 </a>
 
@@ -114,27 +115,16 @@ const NavBar: React.FC = () => {
 
                     {isAuthenticated ? (
                         <>
-
-
-
                             <div className="hidden md:block">
-                                {userDetails?.is_verified ? (
-
-                                    null
-
-                                ) : (
-                                    <>
-
-                                        <div
-                                            onClick={showAccount}
-                                            className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
-                                        >
-                                            Verify Your Account
-                                        </div>
-                                    </>
-                                )}
+                                {userDetails?.is_verified == "not applied" || userDetails?.is_verified == "pending" ? (
+                                    <div
+                                        onClick={showAccount}
+                                        className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
+                                    >
+                                        Verify Your Account
+                                    </div>
+                                ) : null}
                             </div>
-
                         </>
                     ) : null}
 
@@ -200,7 +190,7 @@ const NavBar: React.FC = () => {
 
                 <div className="pl-40 items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
                     <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                        {["Home", "Support", "Loans", ...(userDetails?.is_verified ? ["Menu"] : [])].map((item) => (
+                        {["Home", "Support", "Loans", ...(userDetails?.is_verified != "verified" ? [] : ["Menu"])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
                                     <button

@@ -7,6 +7,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [toggleLog, setToggleLog] = useState(false);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
     !!localStorage.getItem("admin_token") // Read token on mount
@@ -30,7 +31,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   })
   
   return (
-    <MyContext.Provider value={{ isAuthenticated, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified}}>
+    <MyContext.Provider value={{ isAuthenticated, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>
       {children}
     </MyContext.Provider>
   );

@@ -31,8 +31,22 @@ export interface UserDetails {
     email: string;
     contact_number?: string;
     address?: string;
-    is_verified: boolean;
+    is_verified: string;
 }
+
+export interface VerifiedUserDetails {
+
+    id: number;
+    first_name: string;
+    middle_name?: string; 
+    last_name: string;
+    age: number;
+    birthdate: string; 
+    contact_number: string;
+    address: string;
+    status: string;
+}
+
 
 
 export interface VerifyData {

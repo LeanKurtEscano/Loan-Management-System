@@ -20,6 +20,9 @@ import AdminProtectedRoutes from './Routes/AdminProtectedRoutes';
 import Dashboard from './sections/admin/Dashboard';
 import UserVerification from './sections/admin/UserVerification';
 import Verification from './sections/admin/Verification';
+import Modal from './components/Modal';
+import { logOutAdmin } from './services/admin/adminAuth';
+import { useNavigate } from 'react-router-dom';
 function App() {
 
   return (
@@ -29,12 +32,16 @@ function App() {
   );
 }
 const Main: React.FC = () => {
-  const { setIsAuthenticated, isAdminAuthenticated} = useMyContext();
+  const { setIsAuthenticated,toggleLog,setToggleLog,isAdminAuthenticated, setIsAdminAuthenticated} = useMyContext();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    logOutAdmin(setIsAdminAuthenticated, setToggleLog, navigate);
+  };
   const isAdminRoute = location.pathname.startsWith("/dashboard");
   useTokenHandler();
-  console.log("Access Token:", localStorage.getItem("admin_token"));
-  console.log(isAdminAuthenticated);
+  
 
   return (
 
@@ -53,9 +60,11 @@ const Main: React.FC = () => {
         >
           <Route path="user-verification" element={<UserVerification />} />
           <Route path="verify/:id" element={<Verification />} />
+        
 
         </Route>
-
+      
+    
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

@@ -23,6 +23,31 @@ from .serializers import VerificationRequestsSerializer
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+def reject_verification(request):
+    try:
+        id = request.data.get("id")
+        if not id:
+            return Response({"error": "ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        verification = get_object_or_404(VerificationRequests, id=int(id))
+        
+    
+        user = verification.user
+        user.is_verified = "not applied"
+        user.save()
+
+        verification.delete()
+
+        return Response({"success": "Verification application rejected"}, status=status.HTTP_200_OK)
+
+
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"Something went wrong: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def verify_user(request):
     try:
         id = request.data.get("id") 
@@ -33,7 +58,7 @@ def verify_user(request):
 
         verification.status = "Approved"
         verification.save() 
-        user.is_verified = True
+        user.is_verified = "verified"
         user.save()  
 
         return Response({

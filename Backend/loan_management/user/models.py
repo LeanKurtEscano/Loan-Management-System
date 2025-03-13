@@ -10,7 +10,7 @@ class IdType(models.Model):
     
 class CustomUser(AbstractUser):
     is_admin = models.BooleanField(default=False)  
-    is_verified = models.BooleanField(default=False) 
+    is_verified = models.CharField(max_length=20, default="not applied")  
     contact_number = models.CharField(max_length=255, unique=True, null=True, blank=True)
     middle_name = models.CharField(max_length=255,  null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)

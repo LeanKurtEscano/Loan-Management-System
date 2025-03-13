@@ -5,9 +5,13 @@ import { Link } from 'react-router-dom';
 import { faBars, faChartLine, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
+import Modal from '../../components/Modal';
+import { logOutAdmin } from '../../services/admin/adminAuth';
+
 
 const Sidebar: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const { setIsAuthenticated,toggleLog,setToggleLog, isAdminAuthenticated, setIsAdminAuthenticated} = useMyContext();
     const [toggle, setToggle] = useState<boolean>(true);
     // @ts-ignore
     const [toggleDboard, setToggleDboard] = useState(false);
@@ -16,8 +20,12 @@ const Sidebar: React.FC = () => {
         setToggleDboard((prevState) => !prevState);
     };
 
+     const handleLogout = () => {
+        logOutAdmin(setIsAdminAuthenticated, setToggleLog, navigate);
+      };
+
     const navigate = useNavigate();
-    const { setToggleLog } = useMyContext();
+
 
     const toUserProfile = () => {
         navigate('/dashboard/analytics');
@@ -25,16 +33,23 @@ const Sidebar: React.FC = () => {
     };
 
     const handleMenuClick = (index: number) => {
-        if (index === 6) {
-            const savedPath = localStorage.getItem('currentPath');
-            if (savedPath) {
-                navigate(savedPath);
-                setToggleLog(true);
-            }
-        } else {
-            setActiveIndex(index);
+        const selectedPath = menuItems[index]?.url;
+      
+        // If it's NOT index 5, navigate as usual
+        if (index !== 5 && selectedPath) {
+          navigate(selectedPath);
+          localStorage.setItem("currentPath", selectedPath);
+          setActiveIndex(index);
         }
-    };
+      
+        // If index is 5, open modal but stay on the same page (skip navigation)
+        if (index === 5) {
+          setToggleLog(true);
+          setActiveIndex(index);
+        }
+      };
+      
+
 
     const showSideBar = () => {
         setToggle(!toggle);
@@ -143,7 +158,19 @@ const Sidebar: React.FC = () => {
                     </div>
                 ))}
             </nav>
+
+            {toggleLog && (
+                <Modal
+                isOpen={toggleLog}
+                title="Confirm Verification"
+                message="Are you sure you want to verify this user?"
+                onClose={() => setToggleLog(false)}
+                onConfirm={handleLogout}
+            />
+              )}
         </aside>
+
+        
 
     );
 };
