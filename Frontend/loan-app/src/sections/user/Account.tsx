@@ -4,9 +4,13 @@ import { getUserDetails, getUserVerifyDetails } from "../../services/user/userDa
 import { UserDetails, VerifiedUserDetails } from "../../constants/interfaces/authInterface";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faCheckCircle, faTimes, faHourglassHalf, faUser, faEnvelope, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faCheckCircle, faTimes, faHourglassHalf, faUser, faEnvelope, faClock, faCheck } from "@fortawesome/free-solid-svg-icons";
 import VerifyForm from "./VerifyForm";
 import { useNavigate } from "react-router-dom";
+
+
+// Format the birthdate
+
 
 const Account: React.FC = () => {
     const fadeInUp = {
@@ -20,11 +24,17 @@ const Account: React.FC = () => {
 
     const nav = useNavigate();
     const { data, isLoading, isError } = useQuery<UserDetails>(
-        ["userDetails"],
+        ["userAccountDetails"],
         getUserDetails
     );
-
-
+   
+    const { data: userVerifyDetails, isLoading: isVerifyLoading, isError: isVerifyError } = useQuery<VerifiedUserDetails>(
+        ["userVerifyDetails"],
+        getUserVerifyDetails,
+        {
+          enabled: !!data && data.is_verified.trim() === "verified", 
+        }
+      );
 
     const goToHome = () => nav('/');
 
@@ -84,25 +94,62 @@ const Account: React.FC = () => {
                 );
 
             case "verified":
+               
                 return (
-                    <motion.div
-                    variants={fadeInUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: false, amount: 0.2 }}
-                    className="container mx-auto px-6 w-1/2 text-center mt-16 bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-8 rounded-lg flex flex-col items-center justify-center gap-2 shadow-xl"
-                >
-                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-1">
-                        🎉 Account Verified!
-                        <FontAwesomeIcon 
-                            icon={faCheckCircle} 
-                            className="text-white text-2xl " 
-                        />
-                    </h2>
-                    <p className="text-lg mt-2">You're all set! Enjoy full access to our services.</p>
-                </motion.div>
-                
+                    <>
+                        {/* Display User Verified Details */}
+                        <motion.div
+                            variants={fadeInUp}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: false, amount: 0.2 }}
+                            className="container mx-auto px-6 w-full sm:w-1/2 mt-8 bg-white shadow-md border border-gray-200 rounded-xl p-6 flex flex-col items-center gap-4"
+                        >
+                            <h2 className="text-2xl font-bold mb-2 flex items-center gap-2 text-gray-800">
+                                <FontAwesomeIcon icon={faCheckCircle} className="text-blue-500 text-2xl" />
+                                Verified User Details
+                            </h2>
 
+                            {/* User Info Section */}
+                            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 text-center sm:text-left mt-2">
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Full Name</p>
+                                    <p className="text-gray-800 text-base font-semibold">{`${userVerifyDetails?.first_name} ${userVerifyDetails?.middle_name} ${userVerifyDetails?.last_name}`}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Age</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.age}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Birthdate</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.birthdate}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Contact</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.contact_number}</p>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Address</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.address}</p>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Verified Card */}
+                        <motion.div
+                            variants={fadeInUp}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: false, amount: 0.2 }}
+                            className="container mx-auto px-6 w-1/2 text-center mt-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-8 rounded-lg flex flex-col items-center justify-center gap-2 shadow-xl"
+                        >
+                            <h2 className="text-2xl font-bold mb-2 flex items-center gap-1">
+                                🎉 Account Verified!
+                                <FontAwesomeIcon icon={faCheckCircle} className="text-white text-2xl" />
+                            </h2>
+                            <p className="text-lg mt-2">You're all set! Enjoy full access to our services.</p>
+                        </motion.div>
+                    </>
                 );
 
             default:
@@ -112,13 +159,17 @@ const Account: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col min-h-screen px-8 bg-white text-gray-900">
-            <button onClick={goToHome} className="self-start cursor-pointer pl-32 flex items-center text-lg text-gray-600 hover:text-gray-900 transition-all mb-8">
-                <FontAwesomeIcon icon={faArrowLeft} className="mr-2 text-2xl" />
-                <span className="text-xl cursor-pointer font-semibold">Go Back</span>
+        <div className="flex flex-col min-h-screen mb-12 px-8 bg-white text-gray-900">
+         <button
+                onClick={() => nav('/')}
+                className="absolute top-20 left-4 md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+            >
+                <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+                Go Back
             </button>
 
-            <div className="flex items-center justify-center flex-col">
+
+            <div className="flex items-center justify-center pt-20 flex-col">
                 <h1 className="text-4xl font-bold mb-6 pr-36">Profile</h1>
 
                 <div className="flex flex-col gap-4 ">

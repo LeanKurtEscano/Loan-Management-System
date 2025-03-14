@@ -23,6 +23,10 @@ import Verification from './sections/admin/Verification';
 import Modal from './components/Modal';
 import { logOutAdmin } from './services/admin/adminAuth';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getUserDetails } from './services/user/userData';
+import { UserDetails } from './constants/interfaces/authInterface';
+import { useEffect } from 'react';
 function App() {
 
   return (
@@ -32,16 +36,40 @@ function App() {
   );
 }
 const Main: React.FC = () => {
-  const { setIsAuthenticated,toggleLog,setToggleLog,isAdminAuthenticated, setIsAdminAuthenticated} = useMyContext();
+  const {  toggleLog, setToggleLog,isAuthenticated,userDetails, isAdminAuthenticated, setUserDetails, setIsAdminAuthenticated } = useMyContext();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
+  useEffect(() => {
+
+    const handleGetUserDetails = async () => {
+      const response = await getUserDetails();
+
+      if (response.status === 200) {
+        setUserDetails(response.data);
+      }
+    }
+    handleGetUserDetails();
+
+  }, [isAuthenticated,userDetails])
+
+  {/* const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
+      ["userDetails"],
+      getUserDetails,
+      {
+        onSuccess: (fetchedData) => {
+          setUserDetails(fetchedData); 
+        },
+      }
+    )*/}
+
+
   const handleLogout = () => {
     logOutAdmin(setIsAdminAuthenticated, setToggleLog, navigate);
   };
   const isAdminRoute = location.pathname.startsWith("/dashboard");
   useTokenHandler();
-  
+
 
   return (
 
@@ -49,6 +77,8 @@ const Main: React.FC = () => {
       {!isAdminRoute && <NavBar />}
 
       <Routes>
+
+      <Route path="/admin-login" element={<AdminLogin />} />
 
         <Route
           path="/dashboard/*"
@@ -60,23 +90,25 @@ const Main: React.FC = () => {
         >
           <Route path="user-verification" element={<UserVerification />} />
           <Route path="verify/:id" element={<Verification />} />
-        
-
         </Route>
-      
-    
+
+        
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/email-verification" element={<EmailForm />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/otp-verify" element={<OtpVerification />} />
         <Route path="/otp-reset" element={<OtpReset />} />
         <Route path="/otp-register" element={<OtpRegister />} />
         <Route path="/register" element={<Register />} />
         <Route path="/account" element={<Account />} />
         <Route path="/apply-loan" element={<LoanApplication />} />
+
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+
+        
+        
 
       </Routes>
 

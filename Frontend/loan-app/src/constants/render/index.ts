@@ -18,3 +18,10 @@ export const menuItems = [
     { icon: faCreditCard, text: "Manage Payments", url: "/dashboard/repayments" },
     { icon: faSignOutAlt, text: "Logout" }
 ];
+
+
+export const navMenuItems = [
+    { name: "Transactions", path: "/my-transactions" },
+    { name: "My Loans", path: "/my-Loans" },
+    { name: "Apply for Loan", path: "/apply-loan" },
+];

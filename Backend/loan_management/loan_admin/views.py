@@ -18,6 +18,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from user.models import VerificationRequests, CustomUser
 from .serializers import VerificationRequestsSerializer
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 
 
@@ -46,6 +49,7 @@ def reject_verification(request):
         print(f"{e}")
         return Response({"error": f"Something went wrong: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def verify_user(request):
@@ -61,15 +65,30 @@ def verify_user(request):
         user.is_verified = "verified"
         user.save()  
 
+       
+        subject = "You're now verified!"
+        html_content = render_to_string("email/verification_success.html", {
+            "username": user.username,
+            "account_link": "http://localhost:5173/account"
+        })
+        plain_message = strip_tags(html_content)
+
+        # Send email
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
         return Response({
-            "success": "User Verified"
+            "success": "User Verified and email sent!"
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
+        print(f"{e}")
         return Response({
             "error": "Something went wrong",
-            "details": str(e)  
+            "details": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

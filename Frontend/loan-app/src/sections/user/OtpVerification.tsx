@@ -71,13 +71,15 @@ const OtpVerification: React.FC = () => {
         localStorage.setItem("refresh_token", response.data.refresh_token);
         setIsAuthenticated(true);
         sessionStorage.removeItem("password");
-        sessionStorage.removeItem("email");;
+        sessionStorage.removeItem("email");
         setTimer(120);
-        navigate('/');
-
-
-
+      
+        setTimeout(() => {
+          navigate('/');  
+      }, 200); 
+      
       }
+      
 
     } catch (error: any) {
       const { status, data } = error.response;

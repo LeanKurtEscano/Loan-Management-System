@@ -9,16 +9,19 @@ import { useNavigate } from "react-router-dom";
 import useTokenHandler from "../../hooks/useTokenHandler";
 import { UserDetails } from "../../constants/interfaces/authInterface";
 import logo2 from '../../assets/logo2.png'
-
-
+import useUserDetails from "../../hooks/useUserDetails";
+import { navMenuItems } from "../../constants/render";
+import { useQueryClient } from "@tanstack/react-query";
 const menuItems = [
     { name: "Transactions", path: "/my-transactions" },
     { name: "My Loans", path: "/my-Loans" },
-    { name: "Apply for Loan", path: "/apply" },
+    { name: "Apply for Loan", path: "/apply-loan" },
 ];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
-    const { isAuthenticated, setIsAuthenticated, setUserDetails, userDetails } = useMyContext();
+    const { isAuthenticated, setIsAuthenticated,setUserDetails } = useMyContext();
+    const {userDetails, isLoading, isError, error} = useUserDetails();
+    const queryClient = useQueryClient();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const toggleDropdown = () => setShowDropdown(!showDropdown);
@@ -47,12 +50,21 @@ const NavBar: React.FC = () => {
                 localStorage.removeItem("access_token");
                 setIsAuthenticated(false);
                 setShowDropdown(false);
-                setUserDetails((prev : UserDetails) => ({...prev, is_verified: "not applied"}))
 
+                // Ensure user details reset fully
+                setUserDetails((prev: UserDetails) => ({
+                    ...prev,
+                    is_verified:"not applied".trim(),
+                }));
 
-                setTimeout(() => {
-                }, 2000)
-                nav('/login');
+                queryClient.invalidateQueries(["userDetails"]);
+
+                // Wait for state to apply, then navigate
+                
+        setTimeout(() => {
+            nav('/login');  
+        }, 200); 
+        
             }
 
         } catch (error: any) {
@@ -190,7 +202,7 @@ const NavBar: React.FC = () => {
 
                 <div className="pl-40 items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
                     <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                        {["Home", "Support", "Loans", ...(userDetails?.is_verified != "verified" ? [] : ["Menu"])].map((item) => (
+                        {["Home", "Support", "Loans", ...(userDetails?.is_verified.trim() !== "verified" ? [] : ["Menu"])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
                                     <button

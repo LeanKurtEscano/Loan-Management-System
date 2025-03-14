@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            padding: 20px;
+            text-align: center;
+            margin: 0;
+        }
+
+        /* Container styling */
+        .container {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+            width: 60%;
+            animation: fadeIn 1s ease-in;
+        }
+
+        /* Header styling */
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #a8e6ff;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        /* Paragraph styling */
+        p {
+            color: #e0e0e0;
+            font-size: 1.1em;
+            line-height: 1.6;
+            animation: fadeIn 1.2s ease-in;
+        }
+
+        /* Button styling */
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin-top: 20px;
+            color: #1e3c72;
+            background-color: #a8e6ff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            animation: bounceIn 1s ease-in-out;
+        }
+
+        .button:hover {
+            background-color: #72c2f1;
+            transform: scale(1.05);
+        }
+
+        /* Subtle animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        /* Footer text styling */
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #b0bec5;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Congratulations, {{ username }}!!!</h1>
+        <p>Your account has been successfully verified. You can now explore all our platform’s features.</p>
+        <a href="{{ account_link }}" class="button">Go to Your Account</a>
+        <p class="footer">Thank you for being part of our community!</p>
+    </div>
+</body>
+</html>
