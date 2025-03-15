@@ -20,7 +20,8 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     income: "",
   })
 
-  const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
+  {/* 
+     const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
     ["userDetails"],
     getUserDetails,
     {
@@ -30,8 +31,11 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }
   );
 
-  console.log(userDetails);
-  
+    
+    */}
+
+ 
+
 
   return (
     <MyContext.Provider value={{ isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>

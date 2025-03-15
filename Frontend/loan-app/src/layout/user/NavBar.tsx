@@ -19,7 +19,7 @@ const menuItems = [
 ];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
-    const { isAuthenticated, setIsAuthenticated,setUserDetails } = useMyContext();
+    const { isAuthenticated, setIsAuthenticated } = useMyContext();
     const {userDetails, isLoading, isError, error} = useUserDetails();
     const queryClient = useQueryClient();
 
@@ -41,38 +41,33 @@ const NavBar: React.FC = () => {
     }
 
 
-
     const handleLogout = async () => {
         try {
             const response = await logout();
             if (response?.status === 200) {
+           
                 localStorage.removeItem("refresh_token");
                 localStorage.removeItem("access_token");
+    
+              
                 setIsAuthenticated(false);
                 setShowDropdown(false);
-
-                // Ensure user details reset fully
-                setUserDetails((prev: UserDetails) => ({
-                    ...prev,
-                    is_verified:"not applied".trim(),
-                }));
-
-                queryClient.invalidateQueries(["userDetails"]);
-
-                // Wait for state to apply, then navigate
-                
-        setTimeout(() => {
-            nav('/login');  
-        }, 200); 
-        
+    
+               
+                queryClient.removeQueries(["userDetails"]);
+    
+             
+                setTimeout(() => {
+                    nav('/login');
+                }, 200);
             }
-
         } catch (error: any) {
-
+            console.error("Logout failed:", error);
         }
+    };
+    
 
-
-    }
+    
 
     return (
         <nav className="bg-customWhite">
@@ -83,46 +78,7 @@ const NavBar: React.FC = () => {
                 </a>
 
                 <div className="flex items-center space-x-4 md:order-2 pr-12">
-                    {/* 
-                           {isAuthenticated ? (
-                        <>
-
-                            <div className="w-10 h-10 rounded-full cursor-pointer flex justify-center items-center hover:bg-orange-500 transition duration-200 hover:text-white">
-                                <FontAwesomeIcon icon={faBell} className="w-6 h-6" />
-                            </div>
-                        
-                            <div className="hidden md:block">
-                                {details.is_veterinarian ? (
-
-                                    <div
-                                        onClick={changeUserRole}
-                                        className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
-                                    >
-                                        {role === "User" ? "Switch to Veterinarian" : "Switch to Pet Owner"}
-                                    </div>
-                                ) : (
-                                    <>
-
-                                        <div
-                                            onClick={goToLanding}
-                                            className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
-                                        >
-                                            Vet Your Clinic
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-
-                        </>
-                    ) : null}
-
-
-                            
-                            
-                            
-                            
-                            
-                            */}
+                   
 
 
                     {isAuthenticated ? (

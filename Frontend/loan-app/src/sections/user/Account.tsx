@@ -27,14 +27,14 @@ const Account: React.FC = () => {
         ["userAccountDetails"],
         getUserDetails
     );
-   
+
     const { data: userVerifyDetails, isLoading: isVerifyLoading, isError: isVerifyError } = useQuery<VerifiedUserDetails>(
         ["userVerifyDetails"],
         getUserVerifyDetails,
         {
-          enabled: !!data && data.is_verified.trim() === "verified", 
+            enabled: !!data && data.is_verified.trim() === "verified",
         }
-      );
+    );
 
     const goToHome = () => nav('/');
 
@@ -94,7 +94,7 @@ const Account: React.FC = () => {
                 );
 
             case "verified":
-               
+
                 return (
                     <>
                         {/* Display User Verified Details */}
@@ -106,8 +106,9 @@ const Account: React.FC = () => {
                             className="container mx-auto px-6 w-full sm:w-1/2 mt-8 bg-white shadow-md border border-gray-200 rounded-xl p-6 flex flex-col items-center gap-4"
                         >
                             <h2 className="text-2xl font-bold mb-2 flex items-center gap-2 text-gray-800">
-                                <FontAwesomeIcon icon={faCheckCircle} className="text-blue-500 text-2xl" />
+                               
                                 Verified User Details
+                                <FontAwesomeIcon icon={faCheckCircle} className="text-blue-500 text-2xl" />
                             </h2>
 
                             {/* User Info Section */}
@@ -160,7 +161,7 @@ const Account: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen mb-12 px-8 bg-white text-gray-900">
-         <button
+            <button
                 onClick={() => nav('/')}
                 className="absolute top-20 left-4 md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
             >
@@ -168,31 +169,41 @@ const Account: React.FC = () => {
                 Go Back
             </button>
 
-
             <div className="flex items-center justify-center pt-20 flex-col">
-                <h1 className="text-4xl font-bold mb-6 pr-36">Profile</h1>
+                {/* User Info Section */}
+                <h1 className="text-4xl font-bold mb-5 pr-20">Profile</h1>
+                <div className="flex items-center gap-4 mb-6">
 
-                <div className="flex flex-col gap-4 ">
-                    <div className="flex items-center gap-3 text-gray-800 text-2xl font-medium">
-                        <FontAwesomeIcon icon={faUser} className="text-blue-500 text-2xl" />
-                        <span>{data?.username}</span>
+                    <div className="w-12 h-12 bg-blue-500 text-white text-xl font-bold flex items-center justify-center rounded-full shadow-md">
+                        {data?.username?.charAt(0).toUpperCase()}
                     </div>
 
-                    <div className="flex items-center gap-3 text-gray-500 text-lg">
-                        <FontAwesomeIcon icon={faEnvelope} className="text-gray-500 text-2xl" />
-                        <span>{data?.email}</span>
+
+                    {/* User Details */}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3 text-gray-800 text-2xl font-medium">
+                            <FontAwesomeIcon icon={faUser} className="text-blue-500 text-2xl" />
+                            <span>{data?.username}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 text-gray-500 text-lg">
+                            <FontAwesomeIcon icon={faEnvelope} className="text-gray-500 text-2xl" />
+                            <span>{data?.email}</span>
+                        </div>
                     </div>
                 </div>
 
                 {renderVerificationStatus()}
 
                 {showForm && (
-                    <div className="fixed inset-0 h-auto flex items-center justify-center bg-gray-500/50  bg-opacity-40">
+                    <div className="fixed inset-0 h-auto flex items-center justify-center bg-gray-500/50 bg-opacity-40">
                         <VerifyForm onClose={closeForm} />
                     </div>
                 )}
             </div>
         </div>
+
+
     );
 };
 

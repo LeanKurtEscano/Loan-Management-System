@@ -50,7 +50,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
         <div className="flex justify-between mt-6 gap-2">
           <button
             type="button"
-            className="w-1/2 bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-md hover:bg-blue-600 transition-all duration-300 ease-in-out"
+            className="w-1/2 cursor-pointer bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-md hover:bg-blue-600 transition-all duration-300 ease-in-out"
             onClick={prevStep}
           >
             Back
@@ -58,7 +58,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
 
           <button
             type="button"
-            className={`w-1/2 py-3 rounded-xl font-semibold shadow-md transition-all duration-300 ease-in-out
+            className={`w-1/2 py-3 cursor-pointer rounded-xl font-semibold shadow-md transition-all duration-300 ease-in-out
           ${status ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 cursor-not-allowed'}`}
             onClick={nextStep}
             disabled={!status}
