@@ -36,10 +36,12 @@ const Step5 = ({
     queryFn: () => fetchLoanData("plans"),
   });
 
-  const handleSelect = (id: number) => {
+  const handleSelect = (id: number,interest: string, term: string, frequency: string) => {
+    const formattedText = `${interest}% Interest ${term} months | ${frequency}`;
     setSelectedPlanId(id);
     setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, plan: id }));
     sessionStorage.setItem("plan", id.toString());
+    sessionStorage.setItem("userPlan",formattedText);
   };
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const Step5 = ({
                   ? "bg-blue-500 text-white border-blue-500"
                   : "border-gray-300 hover:bg-blue-100"
               }`}
-              onClick={() => handleSelect(plan.id)}
+              onClick={() => handleSelect(plan.id,plan.interest, plan.repayment_term.toString(), plan.payment_frequency )}
             >
               <FontAwesomeIcon
                 icon={iconMap[plan.interest] || faCoins}

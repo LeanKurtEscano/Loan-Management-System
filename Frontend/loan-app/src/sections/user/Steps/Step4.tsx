@@ -43,10 +43,13 @@ const Step4 = ({
     queryFn: () => fetchLoanData("types"),
   });
 
-  const handleSelect = (id: number) => {
+  const handleSelect = (id: number, type: string) => {
     setSelectedLoanId(id);
+
+
     setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: id }));
     sessionStorage.setItem("type", id.toString());
+    sessionStorage.setItem("userType", type);
   };
 
   useEffect(() => {
@@ -76,7 +79,7 @@ const Step4 = ({
                   ? "bg-blue-500 text-white border-blue-500"
                   : "border-gray-300 hover:bg-blue-100"
               }`}
-              onClick={() => handleSelect(type.id)}
+              onClick={() => handleSelect(type.id, type.name)}
             >
               <FontAwesomeIcon
                 icon={iconMap[type.name] || faUser}
@@ -95,7 +98,7 @@ const Step4 = ({
           ))}
         </div>
 
-        {/* Back & Next Buttons */}
+     
         <div className="flex justify-between mt-6">
           <button
             onClick={prevStep}

@@ -17,8 +17,8 @@ const Step7 = ({ prevStep }: { prevStep: () => void; }) => {
     { label: "ID Number", value: loanApplication.idNumber, icon: faIdCard },
     { label: "Employment", value: loanApplication.employment, icon: faBriefcase },
     { label: "Income", value: loanApplication.income, icon: faPesoSign },
-    { label: "Loan Type", value: loanApplication.type || "Not selected", icon: faClipboardList },
-    { label: "Plan", value: loanApplication.plan || "Not selected", icon: faClipboardList },
+    { label: "Loan Type", value: sessionStorage.getItem("userType") || "Not selected", icon: faClipboardList },
+    { label: "Plan", value: sessionStorage.getItem("userPlan") || "Not selected", icon: faClipboardList },
     { label: "Amount", value: formatCurrency(loanApplication.amount), icon: faPesoSign },
   ];
 
