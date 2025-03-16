@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLoanData } from "../../../services/user/loan";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useMyContext } from "../../../context/MyContext";
+import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
 import {
   faUser,
   faBriefcase,
@@ -12,7 +14,6 @@ import {
   faHeartbeat,
   faTools,
 } from "@fortawesome/free-solid-svg-icons";
-
 
 const iconMap: { [key: string]: any } = {
   "Personal Loan": faUser,
@@ -32,18 +33,29 @@ const Step4 = ({
   nextStep: () => void;
   prevStep: () => void;
 }) => {
-  const [selectedLoanId, setSelectedLoanId] = useState<number | null>(null);
+  const [selectedLoanId, setSelectedLoanId] = useState<number | null>(
+    Number(sessionStorage.getItem("type")) || null
+  );
+  const { loanApplication, setLoanApplication } = useMyContext();
 
- 
   const loanTypesQuery = useQuery({
     queryKey: ["loanTypes"],
     queryFn: () => fetchLoanData("types"),
   });
 
- 
   const handleSelect = (id: number) => {
-    setSelectedLoanId((prevId) => (prevId === id ? null : id));
+    setSelectedLoanId(id);
+    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: id }));
+    sessionStorage.setItem("type", id.toString());
   };
+
+  useEffect(() => {
+    const storedType = Number(sessionStorage.getItem("type"));
+    if (storedType && !loanApplication.type) {
+      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: storedType }));
+      setSelectedLoanId(storedType);
+    }
+  }, [loanApplication.type]);
 
   return (
     <div className="flex items-start max-w-6xl justify-center h-screen">
@@ -52,40 +64,35 @@ const Step4 = ({
           Select Your Loan Type
         </h1>
 
-    
         {loanTypesQuery.isLoading && <p>Loading loan types...</p>}
         {loanTypesQuery.isError && <p>Error loading loan types.</p>}
 
         <div className="grid grid-cols-2 gap-4">
-          {loanTypesQuery.data?.map(
-            (type: { id: number; name: string }) => (
-              <div
-                key={type.id}
-                className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
-                  selectedLoanId === type.id
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "border-gray-300 hover:bg-blue-100"
+          {loanTypesQuery.data?.map((type: { id: number; name: string }) => (
+            <div
+              key={type.id}
+              className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
+                selectedLoanId === type.id
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "border-gray-300 hover:bg-blue-100"
+              }`}
+              onClick={() => handleSelect(type.id)}
+            >
+              <FontAwesomeIcon
+                icon={iconMap[type.name] || faUser}
+                className={`text-3xl ${
+                  selectedLoanId === type.id ? "text-white" : "text-blue-500"
                 }`}
-                onClick={() => handleSelect(type.id)}
+              />
+              <h2
+                className={`mt-2 font-medium ${
+                  selectedLoanId === type.id ? "text-white" : "text-gray-700"
+                }`}
               >
-                <FontAwesomeIcon
-                  icon={iconMap[type.name] || faUser}
-                  className={`text-3xl ${
-                    selectedLoanId === type.id ? "text-white" : "text-blue-500"
-                  }`}
-                />
-                <h2
-                  className={`mt-2 font-medium ${
-                    selectedLoanId === type.id
-                      ? "text-white"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {type.name}
-                </h2>
-              </div>
-            )
-          )}
+                {type.name}
+              </h2>
+            </div>
+          ))}
         </div>
 
         {/* Back & Next Buttons */}

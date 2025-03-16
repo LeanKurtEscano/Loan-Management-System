@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMyContext } from '../../../context/MyContext';
 import { faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { LoanApplicationDetails } from '../../../constants/interfaces/loanInterface';
 
 const incomeRanges = [
   'Less than PHP 60,000',
@@ -14,17 +15,24 @@ const incomeRanges = [
 ];
 
 const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
-  const { setLoanApplication } = useMyContext();
-  const [selectedRange, setSelectedRange] = React.useState('');
+  const { loanApplication, setLoanApplication } = useMyContext();
+  const [selectedRange, setSelectedRange] = useState(sessionStorage.getItem("incomeRange") || '');
 
   const handleSelect = (range: string) => {
     setSelectedRange(range);
-    setLoanApplication((prev: any) => ({ ...prev, incomeRange: range }));
+    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, income: range }));
+    sessionStorage.setItem("incomeRange", range);
   };
+
+  useEffect(() => {
+    if (selectedRange && !loanApplication.income) {
+      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, income: selectedRange }));
+    }
+  }, [selectedRange, loanApplication.income, setLoanApplication]);
 
   return (
     <div className="flex items-start max-w-6xl justify-center h-screen">
-      <div className="p-8 bg-white  border border-gray-200  rounded-2xl shadow-lg w-[700px]">
+      <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg w-[700px]">
         <h1 className="text-2xl font-bold text-center mb-4 text-gray-800">Select Your Income Range</h1>
         <div className="grid grid-cols-2 gap-4 mb-6">
           {incomeRanges.map((range, index) => (
@@ -34,7 +42,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
               className={`flex cursor-pointer items-center whitespace-nowrap p-4 border-2 border-gray-300 shadow-sm rounded-xl text-lg transition ${selectedRange === range ? 'bg-blue-500 text-white border-blue-500 shadow-md' : 'bg-gray-100 text-gray-800 hover:bg-blue-100'}`}
             >
               <FontAwesomeIcon icon={faMoneyBillWave} className={`${selectedRange === range ? 'text-white' : 'text-blue-500'} mr-2 transition`} />
-              <span className="text-sm sm:text-base  md:text-lg">{range}</span>
+              <span className="text-sm sm:text-base md:text-lg">{range}</span>
             </button>
           ))}
         </div>

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLoanData } from "../../../services/user/loan";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
+import { useMyContext } from "../../../context/MyContext";
 import {
   faHandHoldingUsd,
   faCoins,
@@ -9,7 +11,6 @@ import {
   faCreditCard,
   faWallet,
 } from "@fortawesome/free-solid-svg-icons";
-
 
 const iconMap: { [key: string]: any } = {
   "6.00": faHandHoldingUsd,
@@ -26,25 +27,31 @@ const Step5 = ({
   nextStep: () => void;
   prevStep: () => void;
 }) => {
-  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
-
-  
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(
+    Number(sessionStorage.getItem("plan")) || null
+  );
+  const { loanApplication, setLoanApplication } = useMyContext();
   const loanPlansQuery = useQuery({
     queryKey: ["loanPlans"],
     queryFn: () => fetchLoanData("plans"),
   });
 
-  
   const handleSelect = (id: number) => {
-    setSelectedPlanId((prevId) => (prevId === id ? null : id));
+    setSelectedPlanId(id);
+    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, plan: id }));
+    sessionStorage.setItem("plan", id.toString());
   };
+
+  useEffect(() => {
+    if (selectedPlanId && !loanApplication.plan) {
+      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, plan: selectedPlanId }));
+    }
+  }, [selectedPlanId, loanApplication.plan]);
 
   return (
     <div className="flex items-start max-w-6xl justify-center h-screen">
-      <div className="bg-white p-8  border border-gray-200 rounded-2xl shadow-lg w-[700px]">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Select Your Loan Plan
-        </h1>
+      <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Select Your Loan Plan</h1>
 
         {/* Loading & Error States */}
         {loanPlansQuery.isLoading && <p>Loading loan plans...</p>}
@@ -52,51 +59,38 @@ const Step5 = ({
 
         {/* Loan Plans Grid */}
         <div className="grid grid-cols-2 gap-4">
-          {loanPlansQuery.data?.map(
-            (plan: {
-              id: number;
-              interest: string;
-              repayment_term: number;
-              payment_frequency: string;
-            }) => (
-              <div
-                key={plan.id}
-                className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
-                  selectedPlanId === plan.id
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "border-gray-300 hover:bg-blue-100"
+          {loanPlansQuery.data?.map((plan: { id: number; interest: string; repayment_term: number; payment_frequency: string; }) => (
+            <div
+              key={plan.id}
+              className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
+                selectedPlanId === plan.id
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "border-gray-300 hover:bg-blue-100"
+              }`}
+              onClick={() => handleSelect(plan.id)}
+            >
+              <FontAwesomeIcon
+                icon={iconMap[plan.interest] || faCoins}
+                className={`text-3xl ${
+                  selectedPlanId === plan.id ? "text-white" : "text-blue-500"
                 }`}
-                onClick={() => handleSelect(plan.id)}
+              />
+              <h2
+                className={`mt-2 font-medium ${
+                  selectedPlanId === plan.id ? "text-white" : "text-gray-700"
+                }`}
               >
-                <FontAwesomeIcon
-                  icon={iconMap[plan.interest] || faCoins}
-                  className={`text-3xl ${
-                    selectedPlanId === plan.id
-                      ? "text-white"
-                      : "text-blue-500"
-                  }`}
-                />
-                <h2
-                  className={`mt-2 font-medium ${
-                    selectedPlanId === plan.id
-                      ? "text-white"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {plan.interest}% Interest
-                </h2>
-                <p
-                  className={`text-sm ${
-                    selectedPlanId === plan.id
-                      ? "text-white"
-                      : "text-gray-600"
-                  }`}
-                >
-                  {plan.repayment_term} months | {plan.payment_frequency}
-                </p>
-              </div>
-            )
-          )}
+                {plan.interest}% Interest
+              </h2>
+              <p
+                className={`text-sm ${
+                  selectedPlanId === plan.id ? "text-white" : "text-gray-600"
+                }`}
+              >
+                {plan.repayment_term} months | {plan.payment_frequency}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Back & Next Buttons */}

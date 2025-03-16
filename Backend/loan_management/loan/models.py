@@ -14,9 +14,10 @@ class LoanPlan(models.Model):
 
 
 class LoanApplication(models.Model):
-    user_id = models.CharField(max_length=255)
+    id_number= models.CharField(max_length=255)
     employment_status = models.CharField(max_length=255)
     income_range = models.CharField(max_length=255)
+    status = models.CharField(max_length=30)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     type = models.ForeignKey(LoanTypes, on_delete=models.CASCADE)
     plan = models.ForeignKey(LoanPlan, on_delete=models.CASCADE)

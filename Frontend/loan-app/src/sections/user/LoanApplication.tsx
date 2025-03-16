@@ -21,7 +21,7 @@ const LoanApplication: React.FC = () => {
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white  rounded-lg">
+    <div className="max-w-3xl mx-auto p-6 mb-7 bg-white  rounded-lg">
       <div className='mb-16'>
       <button
         onClick={() => nav('/')}

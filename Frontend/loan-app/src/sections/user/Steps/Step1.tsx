@@ -32,7 +32,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
     if (storedIdNumber && !loanApplication.idNumber) {
       setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, idNumber: storedIdNumber }));
     }
-  }, [storedIdNumber, loanApplication.idNumber, setLoanApplication]);
+  }, [storedIdNumber, loanApplication.idNumber]);
 
   return (
     <div className="flex  justify-center min-h-screen bg-gradient-to-br ">
