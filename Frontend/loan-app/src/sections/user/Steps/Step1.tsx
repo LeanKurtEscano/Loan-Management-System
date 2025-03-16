@@ -35,8 +35,8 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   }, [storedIdNumber, loanApplication.idNumber, setLoanApplication]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br ">
-      <div className="bg-white p-10 rounded-3xl shadow-2xl w-[500px] h-[500px] transform transition-transform hover:scale-105 duration-300">
+    <div className="flex  justify-center min-h-screen bg-gradient-to-br ">
+      <div className="bg-white p-10  shadow-md border border-gray-200 rounded-xl w-[500px] h-[400px] duration-300">
         <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">Let’s Get Started</h1>
         <p className="text-gray-500 mb-6 text-center">Enter your ID number to continue</p>
 

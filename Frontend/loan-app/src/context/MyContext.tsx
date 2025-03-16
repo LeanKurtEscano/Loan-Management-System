@@ -18,23 +18,11 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     idNumber: "",
     employment: "",
     income: "",
+    type: null,
+    plan:null,
+    amount:"",
   })
 
-  {/* 
-     const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
-    ["userDetails"],
-    getUserDetails,
-    {
-      onSuccess: (fetchedData) => {
-        setUserDetails(fetchedData); 
-      },
-    }
-  );
-
-    
-    */}
-
- 
 
 
   return (

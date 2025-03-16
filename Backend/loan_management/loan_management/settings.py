@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'user',
     'cloudinary',
     'loan_admin',
+    'loan',
     'cloudinary_storage',
 ]
 

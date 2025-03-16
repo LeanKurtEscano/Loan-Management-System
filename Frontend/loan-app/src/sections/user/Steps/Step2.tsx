@@ -6,19 +6,19 @@ import { useMyContext } from '../../../context/MyContext';
 const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
   const [status, setStatus] = useState<string | null>(null);
   const { loanApplication, setLoanApplication } = useMyContext();
-  
+
   const handleSelect = (value: string) => {
-    if(value === status) {
+    if (value === status) {
       setStatus(null);
-      setLoanApplication((prev : LoanApplicationDetails) => ({...prev, status: status}))
+      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, status: status }))
     } else {
       setStatus(value);
-      sessionStorage.setItem("status", loanApplication.status );
+      sessionStorage.setItem("status", loanApplication.status);
     }
-    
+
   }
-    
-   
+
+
 
   const employmentOptions = [
     { label: 'Employed', icon: faBriefcase },
@@ -27,8 +27,8 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br p-4">
-      <div className="bg-white p-8 rounded-3xl shadow-2xl w-[500px] transform transition-transform hover:scale-105 duration-300">
+    <div className="flex flex-col items-center  min-h-screen bg-gradient-to-br ">
+      <div className=" p-8 rounded-3xl bg-white shadow-md border border-gray-200  w-[500px]  duration-300">
         <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">Employment Status</h1>
         <p className="text-gray-500 mb-6 text-center">Select your employment status</p>
 
@@ -41,7 +41,11 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
               ${status === option.label ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-blue-500 text-gray-700 hover:text-white'}
               `}
             >
-              <FontAwesomeIcon icon={option.icon} className="text-3xl" />
+              <FontAwesomeIcon
+                icon={option.icon}
+                className={`text-3xl ${status === option.label ? 'text-white' : 'text-blue-500'}`}
+              />
+
               <span>{option.label}</span>
             </div>
           ))}

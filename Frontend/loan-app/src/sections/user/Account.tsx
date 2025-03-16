@@ -142,7 +142,7 @@ const Account: React.FC = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: false, amount: 0.2 }}
-                            className="container mx-auto px-6 w-1/2 text-center mt-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-8 rounded-lg flex flex-col items-center justify-center gap-2 shadow-xl"
+                            className="container w-full mx-auto px-6 md:w-1/2 text-center mt-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-8 rounded-lg flex flex-col items-center justify-center gap-2 shadow-xl"
                         >
                             <h2 className="text-2xl font-bold mb-2 flex items-center gap-1">
                                 🎉 Account Verified!

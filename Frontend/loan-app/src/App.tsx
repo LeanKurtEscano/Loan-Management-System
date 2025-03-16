@@ -20,12 +20,11 @@ import AdminProtectedRoutes from './Routes/AdminProtectedRoutes';
 import Dashboard from './sections/admin/Dashboard';
 import UserVerification from './sections/admin/UserVerification';
 import Verification from './sections/admin/Verification';
-import Modal from './components/Modal';
 import { logOutAdmin } from './services/admin/adminAuth';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import UserProtectedRoutes from './Routes/UserProtectedRoutes';
 import { getUserDetails } from './services/user/userData';
-import { UserDetails } from './constants/interfaces/authInterface';
+
 import { useEffect } from 'react';
 function App() {
 
@@ -91,6 +90,8 @@ const Main: React.FC = () => {
           <Route path="user-verification" element={<UserVerification />} />
           <Route path="verify/:id" element={<Verification />} />
         </Route>
+
+
 
         
 

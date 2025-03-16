@@ -36,9 +36,6 @@ const NavBar: React.FC = () => {
 
 
 
-    const goToLanding = () => {
-        nav('/landing-vet')
-    }
 
 
     const handleLogout = async () => {
@@ -115,7 +112,7 @@ const NavBar: React.FC = () => {
 
 
                                 <div className="w-7 h-7 bg-blue-500 text-white flex items-center justify-center rounded-full">
-                                    <FontAwesomeIcon icon={faUser} className="w-3 h-3" />
+                                   <p className="font-bold">{userDetails?.username?.charAt(0).toUpperCase()}</p> 
                                 </div>
                             </div>
 
