@@ -74,7 +74,7 @@ const Step4 = ({
           {loanTypesQuery.data?.map((type: { id: number; name: string }) => (
             <div
               key={type.id}
-              className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
+              className={`flex flex-col items-center  justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
                 selectedLoanId === type.id
                   ? "bg-blue-500 text-white border-blue-500"
                   : "border-gray-300 hover:bg-blue-100"

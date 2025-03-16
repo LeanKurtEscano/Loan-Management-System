@@ -55,12 +55,11 @@ const Step5 = ({
       <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Select Your Loan Plan</h1>
 
-        {/* Loading & Error States */}
+        
         {loanPlansQuery.isLoading && <p>Loading loan plans...</p>}
         {loanPlansQuery.isError && <p>Error loading loan plans.</p>}
 
-        {/* Loan Plans Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4  ">
           {loanPlansQuery.data?.map((plan: { id: number; interest: string; repayment_term: number; payment_frequency: string; }) => (
             <div
               key={plan.id}
