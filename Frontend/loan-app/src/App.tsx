@@ -28,6 +28,7 @@ import { getUserDetails } from './services/user/userData';
 import { useEffect } from 'react';
 import Loan from './sections/user/Loan';
 import UsersLoanApplication from './sections/admin/UsersLoanApplication';
+import VerifyApplication from './sections/admin/VerifyApplication';
 function App() {
 
   return (
@@ -92,6 +93,7 @@ const Main: React.FC = () => {
           <Route path="user-verification" element={<UserVerification />} />
           <Route path="loan-applications" element={<UsersLoanApplication />} />
           <Route path="verify/:id" element={<Verification />} />
+          <Route path="verify/application/:id" element={<VerifyApplication />} />
         </Route>
 
 

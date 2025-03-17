@@ -21,3 +21,16 @@ export const sendLoanApplication = async(data: LoanApplicationDetails) => {
     throw error;
   }
 }
+
+
+export const getDetail = async (id: string, endpoint: string) => {
+  try {
+    const response = await loanApi.get(`/${endpoint}/${id}/`);
+
+    console.log("API Response:", response.data); // Debugging log
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching data:", error?.response?.data || error.message);
+    throw new Error(error?.response?.data?.error || "Something went wrong");
+  }
+};

@@ -17,10 +17,10 @@ const Verification: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const queryClient = useQueryClient();
-
+    const endpoint = "users"
     const { data, isLoading, isError } = useQuery<ApplicationData>({
         queryKey: ["userDetail", id],
-        queryFn: () => getDetail(id!),
+        queryFn: () => getDetail(id!,endpoint),
         enabled: !!id,
     });
 

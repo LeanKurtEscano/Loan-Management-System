@@ -14,10 +14,10 @@ export const getUserDetails = async() => {
 
 }
 
-export const getDetail = async(id:string) => {
+export const getDetail = async(id:string, endpoint:  string) => {
     try {
 
-        const response = await adminApi.get(`/users/${id}`);
+        const response = await adminApi.get(`/${endpoint}/${id}/`);
 
         return response.data
 

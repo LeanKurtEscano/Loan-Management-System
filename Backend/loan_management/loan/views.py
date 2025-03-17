@@ -24,11 +24,6 @@ def loan_plans_list(request):
     serializer = LoanPlansSerializer(loan_plans, many=True)
     return Response(serializer.data)
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from .models import LoanApplication
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -63,3 +58,18 @@ def get_all_loan_applications(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)
+    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_application(request,id):
+    try:
+      
+        loan_applications = LoanApplication.objects.get(id = int(id))
+        serializer = LoanApplicationSerializer(loan_applications)
+        print(serializer.data)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)
+
