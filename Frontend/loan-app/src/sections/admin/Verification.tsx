@@ -47,22 +47,26 @@ const Verification: React.FC = () => {
 
     return (
         <motion.div
-            className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 relative"
+            className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 relative"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            {/* Go Back Button */}
+            
+            <div className="mb-6 w-1/2">
             <button
                 onClick={() => navigate(-1)}
-                className="absolute top-4 left-4 md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+                className="top-4 left-3 md:left-40  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
             >
                 <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
                 Go Back
             </button>
 
+            </div>
+           
+
             {/* User Card Container */}
-            <div className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-2xl">
+            <div className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-xl">
                 {/* User Image */}
                 <motion.img
                     src={cleanImageUrl(data?.image)}

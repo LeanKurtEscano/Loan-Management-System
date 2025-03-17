@@ -34,6 +34,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
 
       if(response?.status === 201) {
         queryClient.invalidateQueries(["userDetails"]);
+        queryClient.invalidateQueries(["userAccountDetails"]);
 
         onClose();
 

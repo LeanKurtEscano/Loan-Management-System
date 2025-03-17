@@ -8,11 +8,10 @@ import { useMyContext } from '../../context/MyContext';
 import Modal from '../../components/Modal';
 import { logOutAdmin } from '../../services/admin/adminAuth';
 
-
-const Sidebar: React.FC = () => {
+  const Sidebar: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
-    const { setIsAuthenticated,toggleLog,setToggleLog, isAdminAuthenticated, setIsAdminAuthenticated} = useMyContext();
-    const [toggle, setToggle] = useState<boolean>(true);
+    const { setIsAuthenticated,toggleLog,setToggleLog,toggle,setToggle, setIsAdminAuthenticated} = useMyContext();
+    
     // @ts-ignore
     const [toggleDboard, setToggleDboard] = useState(false);
     // @ts-ignore
@@ -53,6 +52,8 @@ const Sidebar: React.FC = () => {
 
     const showSideBar = () => {
         setToggle(!toggle);
+      
+
     };
 
     return (

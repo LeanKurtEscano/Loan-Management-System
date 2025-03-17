@@ -22,6 +22,6 @@ export const menuItems = [
 
 export const navMenuItems = [
     { name: "Transactions", path: "/my-transactions" },
-    { name: "My Loans", path: "/my-Loans" },
+    { name: "My Loans", path: "/my-loans" },
     { name: "Apply for Loan", path: "/apply-loan" },
 ];

@@ -94,7 +94,6 @@ const Step5 = ({
           ))}
         </div>
 
-        {/* Back & Next Buttons */}
         <div className="flex justify-between mt-6">
           <button
             onClick={prevStep}

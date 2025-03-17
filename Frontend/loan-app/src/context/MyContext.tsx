@@ -13,7 +13,8 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
     !!localStorage.getItem("admin_token") 
   );
-
+  
+  const [ toggle, setToggle] = useState(false);
   const [loanApplication, setLoanApplication] = useState<LoanApplicationDetails>({
     idNumber: "",
     employment: "",
@@ -26,7 +27,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
 
   return (
-    <MyContext.Provider value={{ isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>
+    <MyContext.Provider value={{ toggle, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>
       {children}
     </MyContext.Provider>
   );

@@ -26,6 +26,8 @@ import UserProtectedRoutes from './Routes/UserProtectedRoutes';
 import { getUserDetails } from './services/user/userData';
 
 import { useEffect } from 'react';
+import Loan from './sections/user/Loan';
+import UsersLoanApplication from './sections/admin/UsersLoanApplication';
 function App() {
 
   return (
@@ -88,6 +90,7 @@ const Main: React.FC = () => {
           }
         >
           <Route path="user-verification" element={<UserVerification />} />
+          <Route path="loan-applications" element={<UsersLoanApplication />} />
           <Route path="verify/:id" element={<Verification />} />
         </Route>
 
@@ -97,6 +100,7 @@ const Main: React.FC = () => {
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/my-loans" element={<Loan />} />
         <Route path="/email-verification" element={<EmailForm />} />
         <Route path="/otp-verify" element={<OtpVerification />} />
         <Route path="/otp-reset" element={<OtpReset />} />

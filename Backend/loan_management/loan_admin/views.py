@@ -63,6 +63,9 @@ def verify_user(request):
         verification.status = "Approved"
         verification.save() 
         user.is_verified = "verified"
+        user.first_name = verification.first_name
+        user.middle_name = verification.middle_name
+        user.last_name = verification.last_name
         user.save()  
 
        

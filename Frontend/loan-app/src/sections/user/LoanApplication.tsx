@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+
 const LoanApplication: React.FC = () => {
   const nav = useNavigate();
   const [step, setStep] = useState(1);

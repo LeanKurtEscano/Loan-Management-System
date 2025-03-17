@@ -2,15 +2,29 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faIdCard, faBriefcase, faDollarSign, faClipboardList, faPesoSign } from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../../context/MyContext";
-
+import { sendLoanApplication } from "../../../services/user/loan";
+import { useNavigate } from "react-router-dom";
 const Step7 = ({ prevStep }: { prevStep: () => void; }) => {
   const { loanApplication } = useMyContext();
+  const nav = useNavigate();
+  console.log(loanApplication);
 
   const formatCurrency = (amount: string) => {
     return `₱${parseFloat(amount).toLocaleString("en-PH")}`;
   };
   const handleSubmit = async() => {
+     try {
 
+      const response = await sendLoanApplication(loanApplication);
+
+      if(response.status === 201) {
+        sessionStorage.clear();
+        nav('/my-loans');
+      }
+
+     } catch (error:any) {
+       console.log("Something Wrong")
+     }
   }
 
   const fields = [

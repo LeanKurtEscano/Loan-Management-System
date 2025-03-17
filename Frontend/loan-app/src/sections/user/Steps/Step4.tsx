@@ -10,32 +10,24 @@ import {
   faGraduationCap,
   faCar,
   faHome,
-  faPlane,
-  faHeartbeat,
-  faTools,
+
 } from "@fortawesome/free-solid-svg-icons";
 
+// Icon mapping
 const iconMap: { [key: string]: any } = {
   "Personal Loan": faUser,
   "Business Loan": faBriefcase,
   "Educational Loan": faGraduationCap,
   "Car Loan": faCar,
   "Mortgage Loan": faHome,
-  "Travel Loan": faPlane,
-  "Medical Loan": faHeartbeat,
-  "Home Renovation Loan": faTools,
+
 };
 
-const Step4 = ({
-  nextStep,
-  prevStep,
-}: {
-  nextStep: () => void;
-  prevStep: () => void;
-}) => {
+const Step4 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
   const [selectedLoanId, setSelectedLoanId] = useState<number | null>(
     Number(sessionStorage.getItem("type")) || null
   );
+
   const { loanApplication, setLoanApplication } = useMyContext();
 
   const loanTypesQuery = useQuery({
@@ -43,29 +35,27 @@ const Step4 = ({
     queryFn: () => fetchLoanData("types"),
   });
 
+  console.log(loanTypesQuery.data);
+
   const handleSelect = (id: number, type: string) => {
     setSelectedLoanId(id);
-
-
     setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: id }));
     sessionStorage.setItem("type", id.toString());
     sessionStorage.setItem("userType", type);
   };
-
+  const storedType = Number(sessionStorage.getItem("type"));
   useEffect(() => {
-    const storedType = Number(sessionStorage.getItem("type"));
+   
     if (storedType && !loanApplication.type) {
       setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: storedType }));
       setSelectedLoanId(storedType);
     }
-  }, [loanApplication.type]);
+  }, [selectedLoanId, loanApplication.type]);
 
   return (
     <div className="flex items-start max-w-6xl justify-center h-screen">
       <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Select Your Loan Type
-        </h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Select Your Loan Type</h1>
 
         {loanTypesQuery.isLoading && <p>Loading loan types...</p>}
         {loanTypesQuery.isError && <p>Error loading loan types.</p>}
@@ -74,7 +64,7 @@ const Step4 = ({
           {loanTypesQuery.data?.map((type: { id: number; name: string }) => (
             <div
               key={type.id}
-              className={`flex flex-col items-center  justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
+              className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
                 selectedLoanId === type.id
                   ? "bg-blue-500 text-white border-blue-500"
                   : "border-gray-300 hover:bg-blue-100"
@@ -98,7 +88,6 @@ const Step4 = ({
           ))}
         </div>
 
-     
         <div className="flex justify-between mt-6">
           <button
             onClick={prevStep}
