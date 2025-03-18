@@ -70,7 +70,7 @@ const Verification: React.FC = () => {
 
 
 
-            <div onClick={() => setIsImageModalOpen(true)} className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-xl relative">
+            <div  className="bg-white p-8 shadow-xl rounded-lg overflow-hidden w-full max-w-xl relative">
 
                 <motion.img
                     src={cleanImageUrl(data?.image)}
@@ -83,7 +83,7 @@ const Verification: React.FC = () => {
 
                 />
                   <button
-                    className="absolute top-4 right-4 hover:bg-blue-600 bg-blue-500 px-3 cursor-pointer bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all duration-300"
+                    className="absolute top-9 right-9 hover:bg-blue-600 bg-blue-500 px-3 cursor-pointer bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all duration-300"
                     onClick={() => setIsImageModalOpen(true)}
                 >
                     <FontAwesomeIcon icon={faCamera} />

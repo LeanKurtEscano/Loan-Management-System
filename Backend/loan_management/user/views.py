@@ -311,6 +311,7 @@ def log_out_user(request):
         if refresh_token:
             token = RefreshToken(refresh_token)
             token.blacklist() 
+    
         logout(request)
         return Response({'success': 'Logged out successfully'}, status=status.HTTP_200_OK)
     except Exception as e:
