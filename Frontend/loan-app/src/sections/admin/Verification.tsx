@@ -57,10 +57,10 @@ const Verification: React.FC = () => {
             transition={{ duration: 0.5 }}
         >
 
-            <div className="mb-6 w-1/2">
+            <div className="mb-6 md:pl-7 w-1/2">
                 <button
                     onClick={() => navigate(-1)}
-                    className="top-4 left-3 md:left-40  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+                    className="top-4  left-3 md:left-40  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
                 >
                     <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
                     Go Back
