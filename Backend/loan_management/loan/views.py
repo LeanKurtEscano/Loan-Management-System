@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
 from datetime import  timedelta
-
+from dateutil.relativedelta import relativedelta
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -88,15 +88,13 @@ def verify_loan_application(request) :
     
     try:
         id = request.data.get("id")
-        print(id)
-       
+     
         application = get_object_or_404(LoanApplication, id=int(id))
 
         repayment_term = int(application.plan.repayment_term)
 
         user = application.user
-        end_date = now() + timedelta(days=repayment_term * 30)
-
+        end_date = now() + relativedelta(months=repayment_term)
         application.status = "Approved"
         application.end_date = end_date
         application.save()

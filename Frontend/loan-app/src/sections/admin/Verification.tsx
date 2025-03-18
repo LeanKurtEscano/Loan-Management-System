@@ -9,7 +9,7 @@ import Modal from "../../components/Modal";
 import ImageModal from "../../components/ImageModal";
 import { ApplicationId } from "../../constants/interfaces/adminInterface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck, faArrowLeft, faCamera } from "@fortawesome/free-solid-svg-icons";
 
 const Verification: React.FC = () => {
     const { id } = useParams();
@@ -17,10 +17,11 @@ const Verification: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const queryClient = useQueryClient();
+    const [loading, setLoading] = useState(false);
     const endpoint = "users"
     const { data, isLoading, isError } = useQuery<ApplicationData>({
         queryKey: ["userDetail", id],
-        queryFn: () => getDetail(id!,endpoint),
+        queryFn: () => getDetail(id!, endpoint),
         enabled: !!id,
     });
 
@@ -28,6 +29,7 @@ const Verification: React.FC = () => {
     if (isError) return <p className="text-center text-red-500 mt-10">Error fetching user details.</p>;
 
     const handleVerifyUser = async () => {
+        setLoading(true);
         const details: ApplicationId = {
             id: data.id,
             user: data.user,
@@ -38,9 +40,11 @@ const Verification: React.FC = () => {
 
             if (response?.status === 200) {
                 setIsModalOpen(false);
+                setLoading(false);
                 queryClient.invalidateQueries(["userDetail", id]);
             }
         } catch (error) {
+            setLoading(false);
             alert("Something went wrong");
         }
     };
@@ -52,22 +56,22 @@ const Verification: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            
+
             <div className="mb-6 w-1/2">
-            <button
-                onClick={() => navigate(-1)}
-                className="top-4 left-3 md:left-40  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
-            >
-                <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
-                Go Back
-            </button>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="top-4 left-3 md:left-40  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+                >
+                    <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+                    Go Back
+                </button>
 
             </div>
-           
 
-           
-            <div className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-xl">
-               
+
+
+            <div onClick={() => setIsImageModalOpen(true)} className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-xl relative">
+
                 <motion.img
                     src={cleanImageUrl(data?.image)}
                     alt="User"
@@ -76,9 +80,17 @@ const Verification: React.FC = () => {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
                     onClick={() => setIsImageModalOpen(true)}
-                />
 
-              
+                />
+                  <button
+                    className="absolute top-4 right-4 hover:bg-blue-600 bg-blue-500 px-3 cursor-pointer bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all duration-300"
+                    onClick={() => setIsImageModalOpen(true)}
+                >
+                    <FontAwesomeIcon icon={faCamera} />
+                </button>
+
+
+
                 <div className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                         <p className="text-2xl font-bold text-gray-800 text-center md:text-left w-full">
@@ -106,7 +118,7 @@ const Verification: React.FC = () => {
                     </div>
                 </div>
 
-               
+
                 <div className="p-4 flex justify-center">
                     {data?.status.trim() === "pending" ? (
                         <motion.button
@@ -136,6 +148,7 @@ const Verification: React.FC = () => {
 
             {/* Confirmation Modal */}
             <Modal
+                loading={loading}
                 isOpen={isModalOpen}
                 title="Confirm Verification"
                 message="Are you sure you want to verify this user?"

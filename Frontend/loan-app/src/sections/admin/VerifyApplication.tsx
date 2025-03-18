@@ -18,6 +18,7 @@ const VerifyApplication = () => {
   const endpoint = "application";
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { data, isLoading, isError } = useQuery({
     queryKey: ["userApplication", id],
     queryFn: () => getDetail(id!, endpoint),
@@ -29,6 +30,7 @@ const VerifyApplication = () => {
 
 
   const handleVerifyApplication = async () => {
+    setLoading(true);
     const details: ApplicationId = {
       id: data.id
     };
@@ -37,11 +39,13 @@ const VerifyApplication = () => {
       const response = await verifyApplication(details);
 
       if (response?.status === 200) {
+        setLoading(false);
         setIsModalOpen(false);
         queryClient.invalidateQueries(["userApplication", id]);
       }
     } catch (error) {
       alert("Something went wrong");
+      setLoading(false);
     }
   };
 
@@ -119,6 +123,15 @@ const VerifyApplication = () => {
               <h2 className="text-gray-600">Application Date</h2>
               <p className="font-medium">{new Date(data?.created_at).toLocaleDateString()}</p>
             </div>
+            {
+              data?.status.trim() !== "Pending" ? (
+                <div>
+                <h2 className="text-gray-600">End Date</h2>
+                <p className="font-medium">{new Date(data?.end_date).toLocaleDateString()}</p>
+              </div>
+              ): (null)
+            }
+            
           </div>
           <div className="flex items-center justify-center">
             <div className="p-4 flex justify-center">
@@ -141,6 +154,7 @@ const VerifyApplication = () => {
           </div>
 
           <Modal
+          loading={loading}
             isOpen={isModalOpen}
             title="Approved Loan Application?"
             message="Are you sure you want to approved this loan application?"
