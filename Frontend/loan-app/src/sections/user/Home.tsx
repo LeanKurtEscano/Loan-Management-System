@@ -54,7 +54,7 @@ const Home = () => {
   }
 
   return (
-    <motion.div className="min-h-screen bg-white text-gray-900">
+    <motion.div className="min-h-screen  bg-white text-gray-900">
       {/* Hero Section */}
       <motion.div
         variants={fadeInUp}

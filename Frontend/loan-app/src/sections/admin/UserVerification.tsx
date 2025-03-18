@@ -100,14 +100,14 @@ const UserVerification: React.FC = () => {
                         variants={cardVariants}
                         initial="hidden"
                         animate="visible"
-                        className="bg-white shadow-lg rounded-lg p-4 flex items-center w-full max-w-xs mx-auto sm:mx-0"
+                        className="bg-white shadow-lg rounded-lg p-6 text-center flex items-center gap-4"
                     >
-                        <FontAwesomeIcon icon={icon} className="text-2xl text-blue-500 mr-3" />
+                        <FontAwesomeIcon icon={icon} className="text-4xl text-blue-500 " />
                         <div>
-                            <h3 className="text-sm font-semibold">
+                            <h3 className="text-md font-semibold">
                                 {i === 0 ? "Total Applications" : i === 1 ? "Pending Applications" : "Approved Applications"}
                             </h3>
-                            <p className="text-gray-700 text-base">
+                            <p className="text-gray-700 text-md text-semibold">
                                 {i === 0 ? data?.length : i === 1 ? data?.filter(user => user.status.trim() === "pending").length : data?.filter(user => user.status === "Approved").length}
                             </p>
                         </div>

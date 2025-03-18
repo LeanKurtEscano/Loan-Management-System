@@ -45,26 +45,26 @@ const UsersLoanApplication: React.FC = () => {
       </motion.h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-5">
-  {['Total Applications', 'Pending Applications', 'Approved Applications'].map((title, index) => (
-    <motion.div
-      key={index}
-      className="bg-white shadow-lg rounded-lg p-6 text-center flex items-center gap-4"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.2 }}
-    >
-      <FontAwesomeIcon icon={cardIcons[index]} className="text-blue-500 text-4xl" />
-      <div className="text-left">
-        <h3 className="text-md font-semibold">{title}</h3>
-        <p className="text-xl font-bold text-blue-600">
-          {title === 'Total Applications' ? loanApplications?.length || 0 :
-            title === 'Approved Applications' ? loanApplications?.filter((app: any) => app.status === 'Approved').length || 0 :
-            loanApplications?.filter((app: any) => app.status === 'Pending').length || 0}
-        </p>
+        {['Total Applications', 'Pending Applications', 'Approved Applications'].map((title, index) => (
+          <motion.div
+            key={index}
+            className="bg-white shadow-lg rounded-lg p-6 text-center flex items-center gap-4"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.2 }}
+          >
+            <FontAwesomeIcon icon={cardIcons[index]} className="text-blue-500 text-4xl" />
+            <div className="">
+              <h3 className="text-md font-semibold">{title}</h3>
+              <p className="text-md font-semibold ">
+                {title === 'Total Applications' ? loanApplications?.length || 0 :
+                  title === 'Approved Applications' ? loanApplications?.filter((app: any) => app.status === 'Approved').length || 0 :
+                    loanApplications?.filter((app: any) => app.status === 'Pending').length || 0}
+              </p>
+            </div>
+          </motion.div>
+        ))}
       </div>
-    </motion.div>
-  ))}
-</div>
 
 
 

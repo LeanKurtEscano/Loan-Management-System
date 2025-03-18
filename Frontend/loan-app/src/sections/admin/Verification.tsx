@@ -65,9 +65,9 @@ const Verification: React.FC = () => {
             </div>
            
 
-            {/* User Card Container */}
+           
             <div className="bg-white shadow-xl rounded-lg overflow-hidden w-full max-w-xl">
-                {/* User Image */}
+               
                 <motion.img
                     src={cleanImageUrl(data?.image)}
                     alt="User"
@@ -78,7 +78,7 @@ const Verification: React.FC = () => {
                     onClick={() => setIsImageModalOpen(true)}
                 />
 
-                {/* User Details */}
+              
                 <div className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                         <p className="text-2xl font-bold text-gray-800 text-center md:text-left w-full">
@@ -86,7 +86,6 @@ const Verification: React.FC = () => {
                         </p>
                     </div>
 
-                    {/* User Info Section */}
                     <div className="mt-5 border-t border-gray-200 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <p className="text-gray-600 font-medium">Birthdate</p>

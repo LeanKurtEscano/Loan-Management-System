@@ -70,13 +70,8 @@ const OtpRegister: React.FC = () => {
 
       if (response.status === 201) {
         setLoading(false);
-        localStorage.setItem("access_token", response.data.access_token);
-        localStorage.setItem("refresh_token", response.data.refresh_token);
-        setIsAuthenticated(true);
-        sessionStorage.removeItem("password");
-        sessionStorage.removeItem("email");;
         setTimer(120);
-        navigate('/');
+        navigate('/login');
 
 
 
