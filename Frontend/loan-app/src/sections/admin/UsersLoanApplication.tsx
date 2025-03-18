@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLoanData } from "../../services/user/loan";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEye, faClipboardList, faCheckCircle, faClock } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import EmailModal from "../../components/EmailModal";
 
 const rowVariants = {
   hidden: { opacity: 0, y: -10 },
@@ -14,6 +15,9 @@ const rowVariants = {
 const cardIcons = [faClipboardList, faCheckCircle, faClock];
 
 const UsersLoanApplication: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<Number | null>(null);
+  const [loading, setLoading] = useState(false);
   const { data: loanApplications, isLoading, isError } = useQuery({
     queryKey: ["loanApplications"],
     queryFn: () => fetchLoanData("applications"),
@@ -25,9 +29,16 @@ const UsersLoanApplication: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading data!</div>;
 
-  const handleDelete = (id: number) => {
-    console.log(`Deleting loan application with id: ${id}`);
+  const handleDelete = () => {
+ 
+   
   };
+
+  const selectDelete = (id: number) => {
+    setSelectedId(id);
+    setIsModalOpen(true);
+  };
+
 
   const handleView = (id: number) => {
     nav(`/dashboard/verify/application/${id}`);
@@ -116,7 +127,7 @@ const UsersLoanApplication: React.FC = () => {
                       <FontAwesomeIcon icon={faEye} size="lg" />
                     </button>
                     <button
-                      onClick={() => handleDelete(loan.id)}
+                      onClick={() => selectDelete(loan.id)}
                       className="text-red-500 cursor-pointer hover:text-red-700 p-1 sm:p-2 ml-2"
                     >
                       <FontAwesomeIcon icon={faTrash} size="lg" />
@@ -125,6 +136,14 @@ const UsersLoanApplication: React.FC = () => {
                 </motion.tr>
               ))}
             </tbody>
+
+            {isModalOpen && selectedId !== null ? (
+              <EmailModal loading={loading} isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} heading="Reject Loan Application?" buttonText="Reject Loan Application"/>
+
+            ) : (
+                null
+            )}
           </motion.table>
         )}
       </div>

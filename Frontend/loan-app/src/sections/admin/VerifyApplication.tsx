@@ -52,7 +52,7 @@ const VerifyApplication = () => {
 
   return (
     <motion.div
-      className="flex justify-center items-center min-h-screen bg-gray-100 p-4"
+      className="flex justify-center pt-8 items-center min-h-screen bg-gray-100 p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}

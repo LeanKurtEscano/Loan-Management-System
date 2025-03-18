@@ -56,6 +56,7 @@ const UserVerification: React.FC = () => {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const {data, isLoading, isError,error} = useQuery<ApplicationData[]>(['verifyData'],getUserDetails);
     const [ isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
 
     const handleSelect = (id: number) => {
@@ -98,8 +99,9 @@ const UserVerification: React.FC = () => {
                         key={i}
                         custom={i}
                         variants={cardVariants}
-                        initial="hidden"
-                        animate="visible"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: i * 0.2 }}
                         className="bg-white shadow-lg rounded-lg p-6 text-center flex items-center gap-4"
                     >
                         <FontAwesomeIcon icon={icon} className="text-4xl text-blue-500 " />
@@ -158,7 +160,7 @@ const UserVerification: React.FC = () => {
             </div>
 
             {isModalOpen && selectedId !== null ? (
-              <Modal isOpen={isModalOpen} title="Reject Verification"  message="Are you sure you want to reject the application of this user?" 
+              <Modal loading={loading} isOpen={isModalOpen} title="Reject Verification"  message="Are you sure you want to reject the application of this user?" 
               onClose={() => setIsModalOpen(false)} onConfirm={handleDelete}/>
 
             ) : (
