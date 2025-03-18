@@ -106,7 +106,7 @@ const Verification: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Verification Section */}
+               
                 <div className="p-4 flex justify-center">
                     {data?.status.trim() === "pending" ? (
                         <motion.button
@@ -126,7 +126,6 @@ const Verification: React.FC = () => {
                 </div>
             </div>
 
-            {/* Image Modal */}
             {isImageModalOpen && (
                 <ImageModal
                     imageUrl={cleanImageUrl(data?.image)}

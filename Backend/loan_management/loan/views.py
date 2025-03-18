@@ -1,12 +1,19 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import LoanTypes, LoanPlan, LoanApplication
 from .serializers import LoanTypesSerializer, LoanPlansSerializer
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
-from .models import LoanApplication
 from .serializers import LoanApplicationSerializer
+from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
+from .models import LoanApplication
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail, EmailMultiAlternatives
+from datetime import  timedelta
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def loan_types_list(request):
@@ -72,4 +79,54 @@ def get_user_application(request,id):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)
+    
+    
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def verify_loan_application(request) :
+    
+    try:
+        id = request.data.get("id")
+        print(id)
+       
+        application = get_object_or_404(LoanApplication, id=int(id))
+
+        repayment_term = int(application.plan.repayment_term)
+
+        user = application.user
+        end_date = now() + timedelta(days=repayment_term * 30)
+
+        application.status = "Approved"
+        application.end_date = end_date
+        application.save()
+        
+        formatted_end_date = end_date.strftime("%B %d, %Y")
+
+        print(formatted_end_date)
+        
+        subject = "You're Loan Application has been approved!"
+        html_content = render_to_string("email/loanapplication_success.html", {
+            "loan_type":application.type.name,
+            "end_date": formatted_end_date,
+            "repayment_term": application.plan.repayment_term,
+            "payment_frequency": application.plan.payment_frequency,
+            "interest":application.plan.interest,
+        })
+        plain_message = strip_tags(html_content)
+
+    
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+      
+       
+
+        return Response({
+            "success": "Loan application verified",
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)

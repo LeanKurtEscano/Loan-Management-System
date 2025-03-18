@@ -16,5 +16,5 @@ export interface ApplicationData {
 
 export interface ApplicationId {
     id:number;
-    user:number;
+    user?:number;
 }

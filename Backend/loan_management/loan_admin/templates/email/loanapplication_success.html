@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application Approved</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        h1 {
+            color: #1e90ff;
+        }
+        p {
+            color: #555555;
+            font-size: 16px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 25px;
+            background: linear-gradient(45deg, #1e90ff, #007bff);
+            color: #fff !important; /* Force white text */
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.5); /* Optional: slight shadow for contrast */
+        }
+        .btn:hover {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Congratulations! 🎉</h1>
+        <p>Your loan application has been <strong>approved!</strong></p>
+        <p>We’re thrilled to support you on your financial journey. Here are the details of your approved loan:</p>
+        <p><strong>Loan Type:</strong> {{ loan_type }}</p>
+        <p><strong>Payment Frequency:</strong> {{ payment_frequency }}</p>
+        <p><strong>Interest Rate:</strong> {{ interest }}%</p>
+        <p><strong>Repayment Term:</strong> {{ repayment_term }} months</p>
+        <p><strong>End Date:</strong> {{ end_date }}</p>
+        <a href="http://localhost:5173/my-Loans" class="btn">Go to My Loan Account</a>
+        <p>If you have any questions, feel free to contact our support team.</p>
+        <p>Best regards, <br> The tu-loan team</p>
+    </div>
+</body>
+</html>

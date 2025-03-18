@@ -23,5 +23,5 @@ class LoanApplication(models.Model):
     plan = models.ForeignKey(LoanPlan, on_delete=models.CASCADE)
     amount = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    end_date = models.DateTimeField(null=True, blank=True)
     
