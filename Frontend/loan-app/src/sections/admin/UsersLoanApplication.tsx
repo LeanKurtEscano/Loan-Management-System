@@ -45,7 +45,7 @@ const UsersLoanApplication: React.FC = () => {
   };
 
   return (
-    <div className="p-5 w-auto min-h-screen max-w-5xl mx-auto">
+    <div className="p-5 w-auto min-h-screen max-w-6xl mx-auto">
       <motion.h2
         className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-transparent mb-3 text-center"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -96,7 +96,7 @@ const UsersLoanApplication: React.FC = () => {
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Last Name</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Loan Type</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Amount</th>
-                <th className="p-2 sm:p-3 text-left whitespace-nowrap">Frequency</th>
+              
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Duration</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Interest Rate</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Status</th>
@@ -115,7 +115,7 @@ const UsersLoanApplication: React.FC = () => {
                   <td className="p-2 sm:p-3 truncate whitespace-nowrap">{loan.user.last_name}</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.type.name}</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">PHP {loan.amount.toLocaleString()}</td>
-                  <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.payment_frequency}</td>
+                
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.repayment_term} months</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.interest}%</td>
                   <td className={`p-2 sm:p-3 ${loan.status === "Approved" ? "text-green-600" : "text-yellow-600"} whitespace-nowrap`}>{loan.status}</td>

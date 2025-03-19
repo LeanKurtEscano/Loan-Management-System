@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,logout
 from user.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 import os
@@ -173,6 +173,20 @@ def admin_login(request):
     except Exception as e:
         print(f"Login Error: {e}")
         return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def log_out_admin(request):
+    try:
+        refresh_token = request.data.get("refresh")  
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist() 
+    
+        logout(request)
+        return Response({'success': 'Logged out successfully'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)        
 
 @api_view(["POST"])
 @permission_classes([AllowAny])

@@ -1,5 +1,5 @@
 
-import { adminAuth } from "../axiosConfig";
+import { adminApi, adminAuth } from "../axiosConfig";
 
 
 
@@ -34,26 +34,20 @@ export const loginAdmin = async (data: LoginData) => {
 
 
   export const logOutAdmin = async (
-    setIsAdminAuthenticated: (value: boolean) => void,
-    setToggleLog: (value: boolean) => void,
-    navigate: (path: string) => void
   ) => {
     try {
-      const accessToken = localStorage.getItem("access_token");
-      const refreshToken = localStorage.getItem("refresh_token");
+      const accessToken = localStorage.getItem("admin_token");
+      const refreshToken = localStorage.getItem("admin_refresh_token");
   
       if (!accessToken) {
         throw new Error("No access token found.");
       }
   
-      const response = await adminAuth.post("/logout/", { refresh: refreshToken });
-  
+      const response = await adminApi.post("/logout/", { refresh: refreshToken });
       if (response.status === 200) {
-        setIsAdminAuthenticated(false);
-        setToggleLog(false);
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/admin-login");
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_refresh_token");
+        
       }
   
       return response;

@@ -38,7 +38,7 @@ function App() {
   );
 }
 const Main: React.FC = () => {
-  const {  toggleLog, setToggleLog,isAuthenticated,userDetails, isAdminAuthenticated, setUserDetails, setIsAdminAuthenticated } = useMyContext();
+  const { toggleLog, setToggleLog, isAuthenticated, userDetails, isAdminAuthenticated, setUserDetails, setIsAdminAuthenticated } = useMyContext();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -53,7 +53,7 @@ const Main: React.FC = () => {
     }
     handleGetUserDetails();
 
-  }, [isAuthenticated,userDetails])
+  }, [isAuthenticated, userDetails])
 
   {/* const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
       ["userDetails"],
@@ -66,9 +66,7 @@ const Main: React.FC = () => {
     )*/}
 
 
-  const handleLogout = () => {
-    logOutAdmin(setIsAdminAuthenticated, setToggleLog, navigate);
-  };
+
   const isAdminRoute = location.pathname.startsWith("/dashboard");
   useTokenHandler();
 
@@ -80,7 +78,7 @@ const Main: React.FC = () => {
 
       <Routes>
 
-      <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
 
         <Route
           path="/dashboard/*"
@@ -96,26 +94,33 @@ const Main: React.FC = () => {
           <Route path="verify/application/:id" element={<VerifyApplication />} />
         </Route>
 
+        <Route
+          path="/user"
+          element={<UserProtectedRoutes />}
+        >
+          <Route path="my-loans" element={<Loan />} />
+          <Route path="account" element={<Account />} />
+          <Route path="apply-loan" element={<LoanApplication />} />
+        </Route>
 
 
-        
+
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/my-loans" element={<Loan />} />
+
         <Route path="/email-verification" element={<EmailForm />} />
         <Route path="/otp-verify" element={<OtpVerification />} />
         <Route path="/otp-reset" element={<OtpReset />} />
         <Route path="/otp-register" element={<OtpRegister />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/apply-loan" element={<LoanApplication />} />
+
 
         <Route path="/reset-password" element={<ResetPassword />} />
 
 
-        
-        
+
+
 
       </Routes>
 

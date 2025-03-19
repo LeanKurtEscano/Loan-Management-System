@@ -47,7 +47,7 @@ export const userApi = axios.create({
  
    loanApi.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("access_token");
+      const token = localStorage.getItem("admin_token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -72,13 +72,23 @@ export const adminRefresh = axios.create({
      withCredentials: true,
    });
  
-export const adminToken = localStorage.getItem("admin_token");
+
    export const adminApi = axios.create({
      baseURL: "http://localhost:8000/loan-admin",
      headers: {
        "Content-Type": "application/json",
-       "Authorization": `Bearer ${adminToken}`
+     
      },
       
    });
-   
+
+  adminApi.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("admin_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );

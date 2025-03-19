@@ -59,8 +59,9 @@ def create_loan_application(request):
 def get_all_loan_applications(request):
     try:
       
-        loan_applications = LoanApplication.objects.filter(user=request.user)
+        loan_applications = LoanApplication.objects.all()
         serializer = LoanApplicationSerializer(loan_applications, many=True)
+        print(serializer.data)
         return Response(serializer.data, status=200)
     except Exception as e:
         print(f"{e}")

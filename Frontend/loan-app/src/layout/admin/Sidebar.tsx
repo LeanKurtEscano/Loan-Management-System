@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { menuItems } from '../../constants/render';
 import { Link } from 'react-router-dom';
-import { faBars, faChartLine, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChartLine, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 import Modal from '../../components/Modal';
 import { logOutAdmin } from '../../services/admin/adminAuth';
 
-  const Sidebar: React.FC = () => {
+const Sidebar: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
-    const { setIsAuthenticated,toggleLog,setToggleLog,toggle,setToggle, setIsAdminAuthenticated} = useMyContext();
-    
+    const { setIsAuthenticated, toggleLog, setToggleLog, toggle, setToggle, setIsAdminAuthenticated } = useMyContext();
+
     // @ts-ignore
     const [toggleDboard, setToggleDboard] = useState(false);
     // @ts-ignore
@@ -19,9 +19,10 @@ import { logOutAdmin } from '../../services/admin/adminAuth';
         setToggleDboard((prevState) => !prevState);
     };
 
-     const handleLogout = () => {
-        logOutAdmin(setIsAdminAuthenticated, setToggleLog, navigate);
-      };
+    const handleLogout = (index: number) => {
+        setToggleLog(true);
+        setActiveIndex(index);
+    };
 
     const navigate = useNavigate();
 
@@ -33,26 +34,41 @@ import { logOutAdmin } from '../../services/admin/adminAuth';
 
     const handleMenuClick = (index: number) => {
         const selectedPath = menuItems[index]?.url;
-      
+
         // If it's NOT index 5, navigate as usual
         if (index !== 5 && selectedPath) {
-          navigate(selectedPath);
-          localStorage.setItem("currentPath", selectedPath);
-          setActiveIndex(index);
+            navigate(selectedPath);
+            localStorage.setItem("currentPath", selectedPath);
+            setActiveIndex(index);
         }
-      
-        // If index is 5, open modal but stay on the same page (skip navigation)
-        if (index === 5) {
-          setToggleLog(true);
-          setActiveIndex(index);
+
+
+    };
+
+    const adminLogout = async () => {
+        try {
+            const response = await logOutAdmin();
+
+            if (response?.status === 200) {
+                navigate('/admin-login');
+                setIsAdminAuthenticated(false);
+                setToggleLog(false);
+            }
+
+        } catch (error) {
+            alert("Something Went Wrong")
         }
-      };
-      
+    }
+
+    const handleClose = () => {
+        setToggleLog(false);
+        setActiveIndex(null);
+    };
 
 
     const showSideBar = () => {
         setToggle(!toggle);
-      
+
 
     };
 
@@ -127,51 +143,64 @@ import { logOutAdmin } from '../../services/admin/adminAuth';
                 </div>
 
 
-                {menuItems.map((item, index) => (
-                    <div
-                        key={index}
-                        onClick={() => handleMenuClick(index)}
-                        className={`flex flex-row items-center  w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
+                {
+                    menuItems.map((item, index) => (
+                        <div
+                            key={index}
+                            onClick={() => (index === 5 ? handleLogout(index) : handleMenuClick(index))}
+                            className={`flex flex-row items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
             ${activeIndex === index ? 'bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white group'}
             ${toggle ? 'w-full h-11 pr-8' : ''}`}
-                    >
-                        <div className='mr-0'>
-                            <Link to={item.url ?? "/"}>
-                                <FontAwesomeIcon
-                                    icon={item.icon}
-                                    className={`transition-colors duration-300 
-                  ${activeIndex === index ? 'text-white' : ' text-blue-500 group-hover:text-white'}`}
-                                />
-                            </Link>
-                        </div>
-
-                        <div
-                            className={`flex justify-center items-center w-full pr-5 overflow-hidden  
-              ${toggle ? 'max-w-0 opacity-0' : 'max-w-full opacity-100'}`}
                         >
-                            <p
-                                className={`pl-2 duration-500 whitespace-nowrap transition-opacity  // Reduced padding-left
-                ${activeIndex === index ? 'text-white' : ' group-hover:text-white'}`}
+                            <div className='mr-0'>
+                                {index !== 5 ? (
+                                    <Link to={item.url ?? "/"}>
+                                        <FontAwesomeIcon
+                                            icon={item.icon}
+                                            className={`transition-colors duration-300 
+                  ${activeIndex === index ? '' : ' text-blue-500 group-hover:text-white'}`}
+                                        />
+                                    </Link>
+                                ) : (
+                                    <FontAwesomeIcon
+                                        icon={faSignOutAlt}
+                                        className="pl-1 text-blue-500 group-hover:text-white"
+                                    />
+                                )}
+                            </div>
+
+                            <div
+                                className={`flex justify-center items-center w-full pr-5 overflow-hidden  
+              ${toggle ? 'max-w-0 opacity-0' : 'max-w-full opacity-100'}`}
                             >
-                                <Link to={item.url ?? "/"}>{item.text}</Link>
-                            </p>
+                                <p
+                                    className={`pl-2 duration-500 whitespace-nowrap transition-opacity
+                ${activeIndex === index ? 'text-white' : ' group-hover:text-white'}`}
+                                >
+                                    {index !== 5 ? (
+                                        <Link to={item.url ?? "/"}>{item.text}</Link>
+                                    ) : (
+                                        <span className=" cursor-pointer">Logout</span>
+                                    )}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                }
             </nav>
 
             {toggleLog && (
                 <Modal
-                isOpen={toggleLog}
-                title="Confirm Verification"
-                message="Are you sure you want to verify this user?"
-                onClose={() => setToggleLog(false)}
-                onConfirm={handleLogout}
-            />
-              )}
+                    isOpen={toggleLog}
+                    title="Confirm Verification"
+                    message="Are you sure you want to verify this user?"
+                    onClose={handleClose}
+                    onConfirm={adminLogout}
+                />
+            )}
         </aside>
 
-        
+
 
     );
 };

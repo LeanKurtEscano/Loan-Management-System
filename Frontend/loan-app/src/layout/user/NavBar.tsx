@@ -1,21 +1,20 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faCalendarCheck, faChevronDown, faBars, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {  faCalendarCheck, faChevronDown, faBars, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../context/MyContext";
 import { motion } from "framer-motion";
 import { logout } from "../../services/user/userAuth";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import useTokenHandler from "../../hooks/useTokenHandler";
-import { UserDetails } from "../../constants/interfaces/authInterface";
+
 import logo2 from '../../assets/logo2.png'
 import useUserDetails from "../../hooks/useUserDetails";
-import { navMenuItems } from "../../constants/render";
+
 import { useQueryClient } from "@tanstack/react-query";
 const menuItems = [
-    { name: "Transactions", path: "/my-transactions" },
-    { name: "My Loans", path: "/my-Loans" },
-    { name: "Apply for Loan", path: "/apply-loan" },
+    { name: "Transactions", path: "/user/my-transactions" },
+    { name: "My Loans", path: "/user/my-Loans" },
+    { name: "Apply for Loan", path: "/user/apply-loan" },
 ];
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -31,7 +30,7 @@ const NavBar: React.FC = () => {
     }
 
     const showAccount = () => {
-        nav('/account');
+        nav('/user/account');
     }
 
 
@@ -124,7 +123,7 @@ const NavBar: React.FC = () => {
                                     transition={{ duration: 0.2, ease: "easeInOut" }}
                                     className="absolute right-0 mt-2 w-48 bg-white rounded-lg overflow-hidden z-50 border border-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
                                 >
-                                    <Link to="/account"
+                                    <Link to="/user/account"
 
                                         className=" px-4 py-3 text-gray-700 hover:bg-gray-100 flex items-center"
                                     >
