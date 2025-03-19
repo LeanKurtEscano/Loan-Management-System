@@ -70,7 +70,7 @@ const Verification: React.FC = () => {
 
 
 
-            <div  className="bg-white p-8 shadow-xl rounded-lg overflow-hidden w-full max-w-xl relative">
+            <div  className="bg-white p-8 shadow-xl rounded-lg overflow-hidden w-full max-w-3xl relative">
 
                 <motion.img
                     src={cleanImageUrl(data?.image)}
