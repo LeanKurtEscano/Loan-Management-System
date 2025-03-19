@@ -102,13 +102,13 @@ def get_verify_data(request):
         
         return Response({
             "success": "Data Sent",
-            "data": serializer.data  # Returning serialized data
+            "data": serializer.data  
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({
             "error": "Something went wrong",
-            "details": str(e)  # Return error details
+            "details": str(e)  
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET"])
