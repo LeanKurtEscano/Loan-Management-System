@@ -9,7 +9,6 @@ import VerifyForm from "./VerifyForm";
 import { useNavigate } from "react-router-dom";
 import { LoadingAnimation } from "../../components/LoadingAnimation";
 
-// Format the birthdate
 
 
 const Account: React.FC = () => {

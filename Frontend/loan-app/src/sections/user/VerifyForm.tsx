@@ -1,26 +1,22 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { sendVerifyData } from "../../services/user/userData";
 import { VerifyData } from "../../constants/interfaces/authInterface";
 import { useQueryClient } from "@tanstack/react-query";
-import TermsCheckbox from "../../components/TermsCheckbox";
-
-const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
+import { formFields } from "../../constants/render";
+const VerifyForm = ({ onClose }: { onClose: () => void }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const queryClient = useQueryClient();
-   const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
 
-   const closeTermsModal = () => [
-      
-   ]
-  
-    const handleCheckboxChange = () => {
-      setIsChecked(!isChecked);
-    };
+
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+  };
   const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
     middleName: "",
@@ -29,28 +25,28 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
     birthdate: "",
     age: "",
     contactNumber: "",
-    tinNumber:"",
-    image: null ,
+    tinNumber: "",
+    image: null,
   });
 
   console.log(formData);
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
- 
+
 
     try {
       const response = await sendVerifyData(formData);
 
-      if(response?.status === 201) {
+      if (response?.status === 201) {
         queryClient.invalidateQueries(["userDetails"]);
         queryClient.invalidateQueries(["userAccountDetails"]);
 
         onClose();
 
       }
-    } catch(error) {
+    } catch (error) {
       alert("something went wrong");
 
     }
@@ -62,35 +58,35 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  
+
     const today = new Date();
     let updatedFormData = { ...formData, [name]: value };
-  
+
     if (name === "birthdate") {
       const birthDate = new Date(value);
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
       const dayDiff = today.getDate() - birthDate.getDate();
-  
+
       // Adjust age if birthday hasn't happened this year
       if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
         age--;
       }
-  
+
       if (age < 21) {
         setErrors((prev) => ({ ...prev, birthdate: "You must be exactly 21 years or older." }));
       } else {
         setErrors((prev) => ({ ...prev, birthdate: "" }));
-        updatedFormData = { ...updatedFormData, age: age.toString() }; // Include the age in formData
+        updatedFormData = { ...updatedFormData, age: age.toString() }; 
       }
     }
-  
+
     setFormData(updatedFormData);
-  
+
     // Save to localStorage
     localStorage.setItem("formData", JSON.stringify(updatedFormData));
   };
-  
+
 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +138,7 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
               First Name
             </label>
             <input
-              value={formData.firstName  }
+              value={formData.firstName}
               id="firstName"
               type="text"
               name="firstName"
@@ -161,7 +157,7 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
               Middle Name (Optional)
             </label>
             <input
-              value={formData.middleName }
+              value={formData.middleName}
               onChange={handleChange}
               id="middleName"
               name="middleName"
@@ -197,7 +193,7 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
               Age
             </label>
             <input
-              value={formData.age }
+              value={formData.age}
               onChange={handleChange}
               id="age"
               name="age"
@@ -226,7 +222,7 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
               required
               min={new Date(new Date().setFullYear(new Date().getFullYear() - 90)).toISOString().split("T")[0]}
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 21)).toISOString().split("T")[0]}
-            
+
             />
             {errors.birthdate && (
               <p className="absolute text-red-500 text-xs mt-1">{errors.birthdate}</p>
@@ -252,7 +248,7 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
                 className="border p-3 rounded w-full pr-12"
                 required
               />
-            
+
             </div>
             {errors.address && (
               <p className="absolute text-red-500 text-xs mt-1">{errors.address}</p>
@@ -343,6 +339,32 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
           </div>
         )}
 
+        <label className="flex items-start gap-2 text-sm text-gray-700 mt-2">
+          <input type="checkbox" className="mt-1 cursor-pointer" />
+          <span>
+            I certify that I am at least 21 years old and that I agree to the{" "}
+            <a
+              href="/terms"
+              className="text-blue-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Terms and Policies
+            </a>{" "}
+            and{" "}
+            <a
+              href="/privacy"
+              className="text-blue-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy
+            </a>
+            . This service is for the Philippines only.
+          </span>
+        </label>
+
+
 
         <button
           type="submit"
@@ -350,9 +372,9 @@ const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
         >
           Submit
         </button>
-       
 
-        
+
+
       </form>
     </motion.div>
   );

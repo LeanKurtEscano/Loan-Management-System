@@ -24,12 +24,13 @@ import { logOutAdmin } from './services/admin/adminAuth';
 import { useNavigate } from 'react-router-dom';
 import UserProtectedRoutes from './Routes/UserProtectedRoutes';
 import { getUserDetails } from './services/user/userData';
-
+import Terms from './sections/user/Terms';
 import { useEffect } from 'react';
 import Loan from './sections/user/Loan';
 import UsersLoanApplication from './sections/admin/UsersLoanApplication';
 import VerifyApplication from './sections/admin/VerifyApplication';
 import UserPage from './sections/admin/UserPage';
+import PrivacyPolicy from './sections/user/PrivacyPolicy';
 function App() {
 
   return (
@@ -120,8 +121,13 @@ const Main: React.FC = () => {
         <Route path="/otp-register" element={<OtpRegister />} />
         <Route path="/register" element={<Register />} />
 
-
+    
         <Route path="/reset-password" element={<ResetPassword />} />
+        
+        <Route path="/terms" element={<Terms />} />
+
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        
 
 
 
