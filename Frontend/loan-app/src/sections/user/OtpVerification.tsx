@@ -10,7 +10,7 @@ const OtpVerification: React.FC = () => {
 
   const [timer, setTimer] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
-  const {setIsAuthenticated} = useMyContext();
+  const {isAuthenticated,setIsAuthenticated} = useMyContext();
   // @ts-ignore
   const [expired, setExpired] = useState(false);
   const [toggleNotif, setToggleNotif] = useState(false);
@@ -99,6 +99,13 @@ const OtpVerification: React.FC = () => {
   
 
   };
+
+
+    useEffect(() => {
+      if(isAuthenticated){
+        navigate('/');
+      }
+    },[])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && otpValues[index] === '') {

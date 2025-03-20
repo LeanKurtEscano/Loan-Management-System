@@ -55,6 +55,27 @@ export const userApi = axios.create({
     },
     (error) => Promise.reject(error)
   );
+
+
+
+  export const userLoanApi = axios.create({
+    baseURL: "http://localhost:8000/loan",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  
+ 
+   userLoanApi.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
   
 
 export const adminAuth = axios.create({

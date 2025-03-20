@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { fetchLoanData } from "../../services/user/loan";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEye, faClipboardList, faCheckCircle, faClock } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import EmailModal from "../../components/EmailModal";
+import { loanApi } from "../../services/axiosConfig";
+import Modal from "../../components/Modal";
+
 
 const rowVariants = {
   hidden: { opacity: 0, y: -10 },
@@ -15,8 +17,25 @@ const rowVariants = {
 const cardIcons = [faClipboardList, faCheckCircle, faClock];
 
 const UsersLoanApplication: React.FC = () => {
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await loanApi.post('/reject/', {
+        id: id
+      });
+
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(['loanApplications']);
+    }
+  })
+
+
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<Number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { data: loanApplications, isLoading, isError } = useQuery({
     queryKey: ["loanApplications"],
@@ -24,14 +43,20 @@ const UsersLoanApplication: React.FC = () => {
   });
   const nav = useNavigate();
 
+  const queryClient = useQueryClient();
+
   console.log(loanApplications);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading data!</div>;
 
-  const handleDelete = () => {
- 
-   
+
+  
+
+  const handleDelete = async () => {
+    setSelectedId(null);
+    await deleteMutation.mutateAsync(selectedId ?? 0);
+    setIsModalOpen(false);
   };
 
   const selectDelete = (id: number) => {
@@ -96,7 +121,7 @@ const UsersLoanApplication: React.FC = () => {
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Last Name</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Loan Type</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Amount</th>
-              
+
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Duration</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Interest Rate</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Status</th>
@@ -115,7 +140,7 @@ const UsersLoanApplication: React.FC = () => {
                   <td className="p-2 sm:p-3 truncate whitespace-nowrap">{loan.user.last_name}</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.type.name}</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">PHP {loan.amount.toLocaleString()}</td>
-                
+
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.repayment_term} months</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.interest}%</td>
                   <td className={`p-2 sm:p-3 ${loan.status === "Approved" ? "text-green-600" : "text-yellow-600"} whitespace-nowrap`}>{loan.status}</td>
@@ -137,14 +162,34 @@ const UsersLoanApplication: React.FC = () => {
               ))}
             </tbody>
 
-            {isModalOpen && selectedId !== null ? (
+
+            {/* 
+        
+         {isModalOpen && selectedId !== null ? (
               <EmailModal loading={loading} isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} heading="Reject Loan Application?" buttonText="Reject Loan Application"/>
 
             ) : (
                 null
             )}
+
+        
+        
+        */}
+
+
+
+            {isModalOpen && selectedId !== null ? (
+              <Modal loading={loading} isOpen={isModalOpen} title="Reject this Loan Application?" message="Are you sure you want to reject the loan application of this user?"
+                onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} />
+
+            ) : (
+              null
+            )}
           </motion.table>
+
+
+
         )}
       </div>
     </div>

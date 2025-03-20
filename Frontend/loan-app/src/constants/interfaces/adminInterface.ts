@@ -11,6 +11,7 @@ export interface ApplicationData {
     status: string;
     created_at: string;
     user: number
+    tin_number: string;
 }
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { loginAuth } from '../../services/user/userAuth';
@@ -9,7 +9,7 @@ import logo2 from '../../assets/logo2.png'
 
 const Login: React.FC = () => {
   const [show, setShow] = useState(false);
-  const { setIsAuthenticated } = useMyContext();
+  const {isAuthenticated, setIsAuthenticated } = useMyContext();
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,7 +53,13 @@ const Login: React.FC = () => {
   const goToVerification = () => {
     navigate('/email-verification');
   }
+   
 
+  useEffect(() => {
+    if(isAuthenticated){
+      navigate('/');
+    }
+  },[])
   return (
     <section className="h-screen w-full flex  justify-center items-center">
       <div className="flex flex-col p-6 border-gray-300 bg-white border-2 rounded-lg shadow-xl w-96">

@@ -53,7 +53,7 @@ const Step4 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
   }, [selectedLoanId, loanApplication.type]);
 
   return (
-    <div className="flex items-start max-w-6xl justify-center h-screen">
+    <div className="flex items-start max-w-6xl pl-44 justify-center h-screen">
       <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Select Your Loan Type</h1>
 

@@ -1,5 +1,5 @@
 
-import { loanApi } from "../axiosConfig";
+import { loanApi,userLoanApi } from "../axiosConfig";
 import { LoanApplicationDetails } from "../../constants/interfaces/loanInterface";
 export const fetchLoanData = async (endpoint: string) => {
     try {
@@ -14,7 +14,7 @@ export const fetchLoanData = async (endpoint: string) => {
 
 export const sendLoanApplication = async(data: LoanApplicationDetails) => {
   try {
-    const response = await loanApi.post(`/loan/apply/`, data);
+    const response = await userLoanApi.post(`/loan/apply/`, data);
     return response;
   } catch (error) {
     console.error("Error fetching loan data:", error);

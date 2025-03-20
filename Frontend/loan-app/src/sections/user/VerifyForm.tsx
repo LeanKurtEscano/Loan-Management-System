@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faUpload, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { sendVerifyData } from "../../services/user/userData";
 import { VerifyData } from "../../constants/interfaces/authInterface";
 import { useQueryClient } from "@tanstack/react-query";
+import TermsCheckbox from "../../components/TermsCheckbox";
 
-export default function VerifyForm({ onClose }: { onClose: () => void }) {
+const  VerifyForm = ({ onClose }: { onClose: () => void }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const queryClient = useQueryClient();
+   const [isChecked, setIsChecked] = useState(false);
+
+
+   const closeTermsModal = () => [
+      
+   ]
+  
+    const handleCheckboxChange = () => {
+      setIsChecked(!isChecked);
+    };
   const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
     middleName: "",
@@ -19,6 +29,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
     birthdate: "",
     age: "",
     contactNumber: "",
+    tinNumber:"",
     image: null ,
   });
 
@@ -52,13 +63,16 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
   
+    const today = new Date();
+    let updatedFormData = { ...formData, [name]: value };
+  
     if (name === "birthdate") {
       const birthDate = new Date(value);
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
       const dayDiff = today.getDate() - birthDate.getDate();
   
-      // Adjust age if birthday hasn't occurred this year yet
+      // Adjust age if birthday hasn't happened this year
       if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
         age--;
       }
@@ -67,13 +81,14 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
         setErrors((prev) => ({ ...prev, birthdate: "You must be exactly 21 years or older." }));
       } else {
         setErrors((prev) => ({ ...prev, birthdate: "" }));
-        setFormData((prev) => ({ ...prev, age: age.toString() })); // Update the age field
+        updatedFormData = { ...updatedFormData, age: age.toString() }; // Include the age in formData
       }
-  
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  
+    setFormData(updatedFormData);
+  
+    // Save to localStorage
+    localStorage.setItem("formData", JSON.stringify(updatedFormData));
   };
   
 
@@ -83,41 +98,15 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
       const file = e.target.files[0];
       setFormData((prev) => ({ ...prev, image: file }));
       setPreview(URL.createObjectURL(file));
+      e.target.value = "";
     }
   };
-  const getLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ lat: latitude, lng: longitude });
-
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-            );
-            const data = await response.json();
-
-            if (data.display_name) {
-              setFormData((prev) => ({ ...prev, address: data.display_name }));
-
-            } else {
-              console.error("No address found");
-            }
-          } catch (error) {
-            console.error("Error fetching address:", error);
-          }
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by this browser.");
+  useEffect(() => {
+    const savedData = localStorage.getItem("formData");
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
     }
-  };
-
-
+  }, []);
 
 
   return (
@@ -153,7 +142,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
               First Name
             </label>
             <input
-              value={formData.firstName}
+              value={formData.firstName  }
               id="firstName"
               type="text"
               name="firstName"
@@ -172,7 +161,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
               Middle Name (Optional)
             </label>
             <input
-              value={formData.middleName}
+              value={formData.middleName }
               onChange={handleChange}
               id="middleName"
               name="middleName"
@@ -208,7 +197,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
               Age
             </label>
             <input
-              value={formData.age}
+              value={formData.age }
               onChange={handleChange}
               id="age"
               name="age"
@@ -235,7 +224,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
               type="date"
               className="border p-3 rounded w-full"
               required
-              min={new Date(new Date().setFullYear(new Date().getFullYear() - 70)).toISOString().split("T")[0]}
+              min={new Date(new Date().setFullYear(new Date().getFullYear() - 90)).toISOString().split("T")[0]}
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 21)).toISOString().split("T")[0]}
             
             />
@@ -263,13 +252,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
                 className="border p-3 rounded w-full pr-12"
                 required
               />
-              <button
-                type="button"
-                onClick={getLocation}
-                className="absolute top-1/2 right-3 transform cursor-pointer -translate-y-1/2 px-2.5 bg-blue-600 text-white p-1 rounded-full shadow-md hover:bg-blue-700"
-              >
-                <FontAwesomeIcon icon={faMapMarkerAlt} />
-              </button>
+            
             </div>
             {errors.address && (
               <p className="absolute text-red-500 text-xs mt-1">{errors.address}</p>
@@ -287,6 +270,25 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
               name="contactNumber"
               type="tel"
               placeholder="Contact Number"
+              className="border p-3 rounded w-full"
+              required
+            />
+            {errors.contactNumber && (
+              <p className="absolute text-red-500 text-xs mt-1">{errors.contactNumber}</p>
+            )}
+          </div>
+
+          <div className="relative">
+            <label htmlFor="contactNumber" className="block text-gray-700 font-medium">
+              TIN number
+            </label>
+            <input
+              value={formData.tinNumber}
+              onChange={handleChange}
+              id="tinNumber"
+              name="tinNumber"
+              type="tel"
+              placeholder="Tin Number"
               className="border p-3 rounded w-full"
               required
             />
@@ -336,7 +338,7 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
               className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center cursor-pointer bg-red-500 text-white rounded-full hover:bg-red-600 transition"
               aria-label="Remove Image"
             >
-              ✕
+              X
             </button>
           </div>
         )}
@@ -348,7 +350,12 @@ export default function VerifyForm({ onClose }: { onClose: () => void }) {
         >
           Submit
         </button>
+       
+
+        
       </form>
     </motion.div>
   );
 }
+
+export default VerifyForm

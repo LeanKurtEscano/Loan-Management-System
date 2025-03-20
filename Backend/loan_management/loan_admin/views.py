@@ -72,7 +72,7 @@ def verify_user(request):
         subject = "You're now verified!"
         html_content = render_to_string("email/verification_success.html", {
             "username": user.username,
-            "account_link": "http://localhost:5173/account"
+            "account_link": "http://localhost:5173/user/account"
         })
         plain_message = strip_tags(html_content)
 

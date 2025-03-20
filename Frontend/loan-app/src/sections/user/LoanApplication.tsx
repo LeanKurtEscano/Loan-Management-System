@@ -22,19 +22,21 @@ const LoanApplication: React.FC = () => {
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="max-w-3xl mx-auto p-6 mb-7 bg-white  rounded-lg">
-      <div className='mb-16'>
-      <button
-        onClick={() => nav('/')}
-        className="absolute top-20 left-4 md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
-      >
-        <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
-        Go Back
-      </button>
+    <div className=" mx-auto p-6 mb-7 bg-white  rounded-lg">
+      <div className=" mb-5 pl-24">
+        <button
+          onClick={() => nav('/')}
+          className=" md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+          Go Back
+        </button>
 
       </div>
-
+      <div className='w-1/2 mx-auto flex items-center'>
       <ProgressBar step={step} totalSteps={totalSteps} />
+      </div>
+    
 
       <motion.div
         key={step}

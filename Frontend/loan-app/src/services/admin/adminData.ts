@@ -41,5 +41,18 @@ export const verifyUser = async(data: ApplicationId) => {
 }
 
 
+export const searching = async(searchParam: string, endpoint: string) => {
+    try {
+
+        const response = await adminApi.get(`/search/${endpoint}/${searchParam}`)
+        return response
+
+    } catch (error) {
+        console.log("Awit sayo")
+
+    }
+}
+
+
 
 

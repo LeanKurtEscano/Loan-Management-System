@@ -148,7 +148,7 @@ const Sidebar: React.FC = () => {
                         <div
                             key={index}
                             onClick={() => (index === 5 ? handleLogout(index) : handleMenuClick(index))}
-                            className={`flex flex-row items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
+                            className={`flex flex-row  cursor-pointer items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
             ${activeIndex === index ? 'bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white group'}
             ${toggle ? 'w-full h-11 pr-8' : ''}`}
                         >
@@ -192,8 +192,8 @@ const Sidebar: React.FC = () => {
             {toggleLog && (
                 <Modal
                     isOpen={toggleLog}
-                    title="Confirm Verification"
-                    message="Are you sure you want to verify this user?"
+                    title="Confirm Logout"
+                    message="Are you sure you want to logout?"
                     onClose={handleClose}
                     onConfirm={adminLogout}
                 />

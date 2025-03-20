@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-
+import Logo from '../../assets/logo2.png'
 import { useNavigate, Link } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 import { loginAdmin } from '../../services/admin/adminAuth';
 import { sendEmailAdmin } from '../../services/admin/adminAuth';
 const AdminLogin: React.FC = () => {
   const [show, setShow] = useState(false);
-  const { setIsAdminAuthenticated } = useMyContext();
+  const {isAdminAuthenticated, setIsAdminAuthenticated } = useMyContext();
   const [loading, setLoading] = useState(false)
   const [username , setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -51,11 +51,19 @@ const AdminLogin: React.FC = () => {
   };
 
 
+  useEffect(() => {
+    if(isAdminAuthenticated) {
+      navigate('/dashboard/analytics');
+    }
+
+  },[])
+
+
   return (
     <section className="h-screen w-full flex justify-center items-center">
       <div className="flex flex-col p-6 border-gray-300 bg-white border-2 rounded-lg shadow-xl w-96">
         <div className="flex justify-center mb-3">
-          <img alt="Logo" className="h-10" />
+          <img alt="Logo" src={Logo} className="h-10" />
         </div>
         <h2 className="text-2xl font-semibold text-center text-gray-800">
           Welcome Admin!

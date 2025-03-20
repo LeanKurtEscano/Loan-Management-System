@@ -51,7 +51,7 @@ const Step5 = ({
   }, [selectedPlanId, loanApplication.plan]);
 
   return (
-    <div className="flex items-start max-w-6xl justify-center h-screen">
+    <div className="flex items-start pl-44 max-w-6xl justify-center h-screen">
       <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Select Your Loan Plan</h1>
 

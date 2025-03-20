@@ -36,7 +36,7 @@ const Account: React.FC = () => {
         }
     );
 
-    const goToHome = () => nav('/');
+   
 
     const [showForm, setShowForm] = useState(false);
 
@@ -160,16 +160,20 @@ const Account: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col min-h-screen mb-12 px-8 bg-white text-gray-900">
+        <div className="flex flex-col min-h-screen mb-12  px-8 bg-white text-gray-900">
+            <div className="pl-24">
             <button
                 onClick={() => nav('/')}
-                className="absolute top-20 left-4 md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+                className=" md:left-40 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
             >
                 <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
                 Go Back
             </button>
 
-            <div className="flex items-center justify-center pt-20 flex-col">
+            </div>
+           
+
+            <div className="flex items-center justify-center  flex-col">
                 {/* User Info Section */}
                 <h1 className="text-4xl font-bold mb-5 pr-20">Profile</h1>
                 <div className="flex items-center gap-4 mb-6">

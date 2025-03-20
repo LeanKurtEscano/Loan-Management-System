@@ -9,7 +9,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ step, totalSteps }) => {
   const progress = (step / totalSteps) * 100;
 
   return (
-    <div className="w-full flex flex-col items-center mb-6">
+    <div className="w-full justify-center  flex flex-col items-center mb-6">
       <div className="w-full h-2 bg-gray-300 rounded-full relative overflow-hidden">
         <div
           className="h-2 bg-blue-500 rounded-full transition-all duration-300 ease-in-out"

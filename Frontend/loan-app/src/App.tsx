@@ -29,6 +29,7 @@ import { useEffect } from 'react';
 import Loan from './sections/user/Loan';
 import UsersLoanApplication from './sections/admin/UsersLoanApplication';
 import VerifyApplication from './sections/admin/VerifyApplication';
+import UserPage from './sections/admin/UserPage';
 function App() {
 
   return (
@@ -40,7 +41,9 @@ function App() {
 const Main: React.FC = () => {
   const { toggleLog, setToggleLog, isAuthenticated, userDetails, isAdminAuthenticated, setUserDetails, setIsAdminAuthenticated } = useMyContext();
   const location = useLocation();
-  const navigate = useNavigate();
+   
+
+  useTokenHandler();
 
   useEffect(() => {
 
@@ -68,8 +71,7 @@ const Main: React.FC = () => {
 
 
   const isAdminRoute = location.pathname.startsWith("/dashboard");
-  useTokenHandler();
-
+ 
 
   return (
 
@@ -96,7 +98,10 @@ const Main: React.FC = () => {
 
         <Route
           path="/user"
-          element={<UserProtectedRoutes />}
+          element={<UserProtectedRoutes>
+             <UserPage/>
+            </UserProtectedRoutes>
+            }
         >
           <Route path="my-loans" element={<Loan />} />
           <Route path="account" element={<Account />} />

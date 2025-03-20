@@ -45,12 +45,12 @@ const Home = () => {
   }
 
   const goToAccount = () => {
-    nav('/account');
+    nav('/user/account');
   }
 
 
   const goToLoan = () => {
-    nav('/apply-loan');
+    nav('/user/apply-loan');
   }
 
   return (
@@ -65,7 +65,7 @@ const Home = () => {
       >
         {/* Left Section */}
         <motion.div variants={fadeInUp} className="md:w-1/2  md:pl-14 text-center md:text-left">
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">Huwag nang patagalin pa</h1>
+          <h1 className="text-2xl md:text-4xl cursor-default select-none font-bold mb-2">Huwag nang patagalin pa</h1>
           <h2 className="text-2xl md:text-4xl font-bold text-blue-600 mb-4">To-Loan mo na 'yan!</h2>
           <p className="text-gray-600 mb-6">Best Interest Rates | Effortless Applications | Expert Service</p>
 

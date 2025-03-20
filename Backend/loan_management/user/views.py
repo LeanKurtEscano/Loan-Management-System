@@ -26,6 +26,7 @@ def verify_account(request):
         contact_number = request.data.get("contactNumber")
         address = request.data.get("address")
         image = request.FILES.get("image")
+        tin_number = request.data.get("tinNumber")
         
         user = CustomUser.objects.get(id = request.user.id)
         user.is_verified = "pending"
@@ -47,6 +48,7 @@ def verify_account(request):
             age=age,
             contact_number=contact_number,
             address=address,
+            tin_number = tin_number,
             image=image_url,
             status="pending"
         )

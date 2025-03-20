@@ -38,6 +38,10 @@ def create_loan_application(request):
     try:
         data = request.data
         
+        
+        print(request.data)
+        
+        
         loan_application = LoanApplication.objects.create(
             id_number=data['idNumber'],
             employment_status=data['employment'],
@@ -61,7 +65,7 @@ def get_all_loan_applications(request):
       
         loan_applications = LoanApplication.objects.all()
         serializer = LoanApplicationSerializer(loan_applications, many=True)
-        print(serializer.data)
+       
         return Response(serializer.data, status=200)
     except Exception as e:
         print(f"{e}")
@@ -129,3 +133,25 @@ def verify_loan_application(request) :
     except Exception as e:
         print(f"Error: {e}")
         return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def reject_loan_application(request):
+    try:
+        
+        
+        id = request.data.get("id")
+        
+        print(id)
+        loan_application = LoanApplication.objects.get(id = int(id))
+        loan_application.delete()
+
+        
+        
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)

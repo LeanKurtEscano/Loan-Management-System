@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+
+
+
+* {
+    @apply cursor-default select-none;
+  }

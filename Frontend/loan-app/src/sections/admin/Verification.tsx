@@ -57,7 +57,7 @@ const Verification: React.FC = () => {
             transition={{ duration: 0.5 }}
         >
 
-            <div className="mb-6 md:pl-7 w-1/2">
+            <div className="mb-6 md:pl-60  w-full">
                 <button
                     onClick={() => navigate(-1)}
                     className="top-4  left-3 md:left-40  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
@@ -114,6 +114,10 @@ const Verification: React.FC = () => {
                         <div className="sm:col-span-2">
                             <p className="text-gray-600 font-medium">Contact Number</p>
                             <p className="text-gray-500 text-sm">{data?.contact_number}</p>
+                        </div>
+                        <div className="sm:col-span-2">
+                            <p className="text-gray-600 font-medium">TIN Number</p>
+                            <p className="text-gray-500 text-sm">{data?.tin_number}</p>
                         </div>
                     </div>
                 </div>

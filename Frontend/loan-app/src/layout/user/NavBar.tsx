@@ -6,8 +6,8 @@ import { motion } from "framer-motion";
 import { logout } from "../../services/user/userAuth";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
-import logo2 from '../../assets/logo2.png'
+import Modal from "../../components/Modal";
+import logo2 from '../../assets/tuloan3.png'
 import useUserDetails from "../../hooks/useUserDetails";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ const menuItems = [
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const { isAuthenticated, setIsAuthenticated } = useMyContext();
+    const [ toggleLog, setToggleLog] = useState(false);
     const {userDetails, isLoading, isError, error} = useUserDetails();
     const queryClient = useQueryClient();
 
@@ -32,6 +33,12 @@ const NavBar: React.FC = () => {
     const showAccount = () => {
         nav('/user/account');
     }
+
+
+    const handleClose = () => {
+        setToggleLog(false);
+       
+    };
 
 
 
@@ -48,6 +55,8 @@ const NavBar: React.FC = () => {
               
                 setIsAuthenticated(false);
                 setShowDropdown(false);
+
+                setToggleLog(false);
     
                
                 queryClient.removeQueries(["userDetails"]);
@@ -66,10 +75,10 @@ const NavBar: React.FC = () => {
     
 
     return (
-        <nav className="bg-customWhite">
+        <nav className=" ">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a href="/" className="flex items-center md:pl-[70px] space-x-3 rtl:space-x-reverse">
-                    <img src={logo2} className="h-10" alt=" Logo" />
+                    <img src={logo2} className="h-20" alt=" Logo" />
                     <span className="self-center text-xl bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent font-bold whitespace-nowrap"></span>
                 </a>
 
@@ -132,7 +141,7 @@ const NavBar: React.FC = () => {
                                     </Link>
                                     <button
                                         className="w-full text-gray-700 cursor-pointer hover:bg-gray-100 flex items-center px-4 py-3"
-                                        onClick={handleLogout}
+                                        onClick={()=> setToggleLog(true)}
                                     >
                                         <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
                                         Logout
@@ -153,12 +162,12 @@ const NavBar: React.FC = () => {
                 </div>
 
                 <div className="pl-40 items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-                    <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                    <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                         {["Home", "Support", "Loans", ...(userDetails?.is_verified.trim() !== "verified" ? [] : ["Menu"])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
                                     <button
-                                        className="flex cursor-pointer items-center gap-1 py-2 px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
+                                        className="flex cursor-pointer  select-none items-center gap-1 py-2 px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
                                         onClick={() => setMenuOpen(!menuOpen)}
                                     >
                                         {item}
@@ -170,7 +179,7 @@ const NavBar: React.FC = () => {
                                 ) : (
                                     <Link
                                         to={item === "Home" ? "/" : item.toLowerCase()}
-                                        className="block py-2 px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
+                                        className="block cursor-default select-none px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
                                     >
                                         {item}
                                     </Link>
@@ -182,13 +191,13 @@ const NavBar: React.FC = () => {
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         transition={{ duration: 0.2 }}
-                                        className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-gray-200 z-50 overflow-hidden"
+                                        className="absolute cursor-default select-none left-0 mt-2 w-56 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-gray-200 z-50 overflow-hidden"
                                     >
                                         {menuItems.map((menuItem, index) => (
                                             <div key={menuItem.path}>
                                                 <Link
                                                     to={menuItem.path}
-                                                    className="block px-5 py-3 text-gray-700 text-sm font-medium hover:bg-gray-100 transition"
+                                                    className="block px-5 py-3 text-gray-700 text-md font-medium hover:bg-gray-100 transition"
                                                 >
                                                     {menuItem.name}
                                                 </Link>
@@ -204,6 +213,17 @@ const NavBar: React.FC = () => {
                 </div>
 
             </div>
+
+
+            {toggleLog && (
+                <Modal
+                    isOpen={toggleLog}
+                    title="Confirm Logout"
+                    message="Are you sure you want to logout?"
+                    onClose={handleClose}
+                    onConfirm={handleLogout}
+                />
+            )}
         </nav>
     );
 };

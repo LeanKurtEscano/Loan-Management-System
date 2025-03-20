@@ -142,12 +142,12 @@ const VerifyApplication = () => {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsModalOpen(true)}
                 >
-                  Verify
+                  Approved
                 </motion.button>
               ) : (
                 <div className="flex items-center text-blue-600 font-semibold text-lg">
                   <FontAwesomeIcon icon={faCircleCheck} className="text-2xl mr-2" />
-                  Verified
+                  Approved
                 </div>
               )}
             </div>

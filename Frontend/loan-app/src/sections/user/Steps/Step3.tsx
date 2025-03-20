@@ -31,7 +31,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
   }, [selectedRange, loanApplication.income, setLoanApplication]);
 
   return (
-    <div className="flex items-start max-w-6xl justify-center h-screen">
+    <div className="flex items-start pl-44 max-w-6xl justify-center h-screen">
       <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg w-[700px]">
         <h1 className="text-2xl font-bold text-center mb-4 text-gray-800">Select Your Income Range</h1>
         <div className="grid grid-cols-2 gap-4 mb-6">
