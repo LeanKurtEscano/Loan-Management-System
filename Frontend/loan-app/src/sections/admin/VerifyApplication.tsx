@@ -1,4 +1,4 @@
-import React from "react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,16 +9,39 @@ import { useState } from "react";
 import { verifyApplication } from "../../services/admin/adminLoanManagement";
 import { ApplicationId } from "../../constants/interfaces/adminInterface";
 import Modal from "../../components/Modal";
-
-
-
+import EmailModal from "../../components/EmailModal";
+import { useMutation } from "@tanstack/react-query";
+import { useMyContext } from "../../context/MyContext";
+import { loanApi } from "../../services/axiosConfig";
 const VerifyApplication = () => {
+
+  const rejectMutation = useMutation({
+    mutationFn: async (id: number) => {
+      setLoading2(true);
+      const response = await loanApi.post('/reject/', {
+        id: id,
+        subject: emailDetails.subject,
+        description: emailDetails.description
+      });
+
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userApplication']);
+      setLoading2(false);
+      setIsReject(false)
+    }
+  })
   const { id } = useParams();
   const navigate = useNavigate();
   const endpoint = "application";
   const queryClient = useQueryClient();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { emailDetails } = useMyContext();
+  const [isReject, setIsReject] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const { data, isLoading, isError } = useQuery({
     queryKey: ["userApplication", id],
     queryFn: () => getDetail(id!, endpoint),
@@ -28,6 +51,13 @@ const VerifyApplication = () => {
   if (isLoading) return <div>Loading...</div>;
   if (isError || !data) return <div>No data found!</div>;
 
+
+
+
+  const openReject = (id: number) => {
+    setIsReject(true);
+    setSelectedId(id);
+  }
 
   const handleVerifyApplication = async () => {
     setLoading(true);
@@ -49,6 +79,11 @@ const VerifyApplication = () => {
     }
   };
 
+  const handleReject = async () => {
+    
+    rejectMutation.mutateAsync(selectedId ?? 0);
+   
+  }
 
   return (
     <motion.div
@@ -126,24 +161,36 @@ const VerifyApplication = () => {
             {
               data?.status.trim() !== "Pending" ? (
                 <div>
-                <h2 className="text-gray-600">End Date</h2>
-                <p className="font-medium">{new Date(data?.end_date).toLocaleDateString()}</p>
-              </div>
-              ): (null)
+                  <h2 className="text-gray-600">End Date</h2>
+                  <p className="font-medium">{new Date(data?.end_date).toLocaleDateString()}</p>
+                </div>
+              ) : (null)
             }
-            
+
           </div>
           <div className="flex items-center justify-center">
-            <div className="p-4 flex justify-center">
-              {data?.status.trim() === "Pending" ? (
-                <motion.button
-                  className="bg-blue-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-blue-600 active:scale-95"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Approved
-                </motion.button>
+            <div className="p-4 flex gap-3 justify-center">
+              {data?.status.trim() === "Pending" || data?.status.trim() === "Rejected" ? (
+                <>
+                  <motion.button
+                    className="bg-blue-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-blue-600 active:scale-95"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    Approve
+                  </motion.button>
+
+                  <motion.button
+                    className="bg-red-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-red-600 active:scale-95"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => openReject(data?.id)}
+                  >
+                    Reject
+                  </motion.button>
+                </>
+
               ) : (
                 <div className="flex items-center text-blue-600 font-semibold text-lg">
                   <FontAwesomeIcon icon={faCircleCheck} className="text-2xl mr-2" />
@@ -154,7 +201,7 @@ const VerifyApplication = () => {
           </div>
 
           <Modal
-          loading={loading}
+            loading={loading}
             isOpen={isModalOpen}
             title="Approved Loan Application?"
             message="Are you sure you want to approved this loan application?"
@@ -164,6 +211,19 @@ const VerifyApplication = () => {
 
         </div>
       </motion.div>
+
+
+      {isReject && selectedId !== null ? (
+        <EmailModal loading={loading2} isOpen={isReject}
+          onClose={() => setIsReject(false)} onConfirm={handleReject} heading="Reject Loan Application?" buttonText="Reject Loan Application" />
+
+      ) : (
+        null
+      )}
+
+
+
+
     </motion.div>
   );
 };

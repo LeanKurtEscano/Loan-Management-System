@@ -139,7 +139,7 @@ const UserVerification: React.FC = () => {
                                 <td className="p-3 max-w-[100px] truncate whitespace-nowrap">{user.last_name}</td>
                                 <td className="p-3 whitespace-nowrap">{user.birthdate}</td>
                                 <td className={`p-3 font-medium ${user.status === "Approved" ? "text-green-600" : "text-yellow-600"}`}>
-                                    {user.status}
+                                  {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                                 </td>
                                 <td className="p-3 whitespace-nowrap">{formatDate(user.created_at)}</td>
                                 <td className="p-3 text-center whitespace-nowrap">

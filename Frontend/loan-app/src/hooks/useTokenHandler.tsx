@@ -11,31 +11,19 @@ const useTokenHandler = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-          console.warn("No token found");
-          setIsAuthenticated(false);
-          setLoading(false);
-          navigate("/login");
-          return;
-        }
+       
 
         const isAuthenticated = await userAuth();
 
         if (isAuthenticated) {
           setIsAuthenticated(true);
-        } else {
-          console.warn("Token is invalid");
-          localStorage.removeItem("access_token");
-          setIsAuthenticated(false);
-          navigate("/login");
-        }
+        } 
+        
       } catch (error) {
         console.error("Auth check failed:", error);
         localStorage.removeItem("access_token");
         setIsAuthenticated(false);
-        navigate("/login");
+      
       } finally {
         setLoading(false); 
       }

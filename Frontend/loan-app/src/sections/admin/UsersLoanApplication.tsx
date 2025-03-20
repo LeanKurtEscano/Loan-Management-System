@@ -20,7 +20,7 @@ const UsersLoanApplication: React.FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await loanApi.post('/reject/', {
+      const response = await loanApi.post('/remove/', {
         id: id
       });
 
@@ -51,7 +51,7 @@ const UsersLoanApplication: React.FC = () => {
   if (isError) return <div>Error loading data!</div>;
 
 
-  
+
 
   const handleDelete = async () => {
     setSelectedId(null);
@@ -143,7 +143,17 @@ const UsersLoanApplication: React.FC = () => {
 
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.repayment_term} months</td>
                   <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.interest}%</td>
-                  <td className={`p-2 sm:p-3 ${loan.status === "Approved" ? "text-green-600" : "text-yellow-600"} whitespace-nowrap`}>{loan.status}</td>
+                  <td
+                    className={`p-2 sm:p-3 ${loan.status === "Approved"
+                        ? "text-green-600"
+                        : loan.status === "Rejected"
+                          ? "text-red-600"
+                          : "text-yellow-600"
+                      } whitespace-nowrap`}
+                  >
+                    {loan.status}
+                  </td>
+
                   <td className="p-2 sm:p-3 text-center whitespace-nowrap">
                     <button
                       className="text-blue-500 cursor-pointer hover:text-blue-700 p-1 sm:p-2"
@@ -180,7 +190,7 @@ const UsersLoanApplication: React.FC = () => {
 
 
             {isModalOpen && selectedId !== null ? (
-              <Modal loading={loading} isOpen={isModalOpen} title="Reject this Loan Application?" message="Are you sure you want to reject the loan application of this user?"
+              <Modal loading={loading} isOpen={isModalOpen} title="Delete this Loan Application?" message="Are you sure you want to Delete the loan application of this user?"
                 onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} />
 
             ) : (

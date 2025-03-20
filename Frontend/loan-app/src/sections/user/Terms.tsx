@@ -9,7 +9,7 @@ const Terms = () => {
       transition={{ duration: 0.8 }}
       className="p-6 bg-white min-h-screen text-gray-800 font-sans"
     >
-      <h1 className="text-4xl font-bold mb-6 text-center">Tu-Loan Terms and Conditions</h1>
+      <h1 className="text-4xl font-bold mb-6 text-center">To-Loan Terms and Conditions</h1>
 
       <section className="mb-8 max-w-3xl mx-auto">
         <h2 className="text-2xl font-semibold mb-3">1. Introduction</h2>

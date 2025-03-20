@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* Body Styling */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        /* Email Card Styling */
+        .email-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        /* Header Styling */
+        h1 {
+            color: #ff5a5f;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* Message Styling */
+        .message {
+            font-size: 18px;
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        /* Description Block */
+        .description {
+            font-size: 16px;
+            color: #555;
+            padding: 15px;
+            border-left: 4px solid #ff5a5f;
+            background: #fef3f3;
+            border-radius: 8px;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #ff5a5f;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #e1484d;
+        }
+
+        /* Footer Section */
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .email-card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .message,
+            .description {
+                font-size: 14px;
+            }
+
+            .cta-button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Card Starts -->
+        <div class="email-card">
+            <h1>{{ subject }}</h1>
+            <p class="message">Dear {{ user_name }},</p>
+            <p class="description">{{ description }}</p>
+
+        
+        </div>
+        <!-- Card Ends -->
+
+        <p class="footer">
+            If you think this was a mistake, feel free to <a href="mailto:support@tu-loan.com">contact us</a>.<br />
+            Best regards,<br />
+            <strong>Tu-Loan Support Team</strong>
+        </p>
+    </div>
+</body>
+
+</html>
