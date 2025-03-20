@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCheckCircle, faTimes, faHourglassHalf, faUser, faEnvelope, faClock, faCheck } from "@fortawesome/free-solid-svg-icons";
 import VerifyForm from "./VerifyForm";
 import { useNavigate } from "react-router-dom";
-
+import { LoadingAnimation } from "../../components/LoadingAnimation";
 
 // Format the birthdate
 
@@ -42,7 +42,7 @@ const Account: React.FC = () => {
 
     const closeForm = () => setShowForm(false);
 
-    if (isLoading) return <p>Loading...</p>;
+    if (isLoading) return <LoadingAnimation />;
     if (isError) return <p>Something went wrong...</p>;
 
     const renderVerificationStatus = () => {
