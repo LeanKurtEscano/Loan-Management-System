@@ -6,7 +6,7 @@ import { ApplicationData } from "../../constants/interfaces/adminInterface";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserDetails } from "../../services/admin/adminData";
 import { useNavigate } from "react-router-dom";
-import { adminApi} from "../../services/axiosConfig";
+import { adminApi } from "../../services/axiosConfig";
 import Modal from "../../components/Modal";
 
 
@@ -21,7 +21,7 @@ const rowVariants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
-const formatDate = (dateString:any) => {
+const formatDate = (dateString: any) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
         year: "numeric",
@@ -40,8 +40,8 @@ const UserVerification: React.FC = () => {
     const queryClient = useQueryClient();
 
     const deleteMutation = useMutation({
-        mutationFn: async(id: number) => {
-            const response = await adminApi.post('/remove/',{
+        mutationFn: async (id: number) => {
+            const response = await adminApi.post('/remove/', {
                 id: selectedId
             });
 
@@ -52,10 +52,10 @@ const UserVerification: React.FC = () => {
 
         }
     })
- 
+
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    const {data, isLoading, isError,error} = useQuery<ApplicationData[]>(['verifyData'],getUserDetails);
-    const [ isModalOpen, setIsModalOpen] = useState(false);
+    const { data, isLoading, isError, error } = useQuery<ApplicationData[]>(['verifyData'], getUserDetails);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
 
@@ -64,31 +64,31 @@ const UserVerification: React.FC = () => {
         console.log("Selected User ID:", id);
     };
 
-    
+
     const handleSelectId = (id: number) => {
         setIsModalOpen(true);
         setSelectedId(id);
     }
 
-    const handleDelete = async() => {
+    const handleDelete = async () => {
         console.log(selectedId);
-       await deleteMutation.mutateAsync(selectedId ?? 0 );
-       setIsModalOpen(false);
-      
-       
+        await deleteMutation.mutateAsync(selectedId ?? 0);
+        setIsModalOpen(false);
+
+
     };
 
     return (
         <div className="p-5 w-auto min-h-screen max-w-6xl mx-auto">
-      
+
             <motion.h2
-            className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-transparent mb-3 text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-            User Verification Portal
-        </motion.h2>
+                className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-transparent mb-3 text-center"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+                User Verification Portal
+            </motion.h2>
             <p className="text-gray-700 text-center mb-5">
             </p>
 
@@ -138,8 +138,13 @@ const UserVerification: React.FC = () => {
                                 <td className="p-3 max-w-[100px] truncate whitespace-nowrap">{user.middle_name}</td>
                                 <td className="p-3 max-w-[100px] truncate whitespace-nowrap">{user.last_name}</td>
                                 <td className="p-3 whitespace-nowrap">{user.birthdate}</td>
-                                <td className={`p-3 font-medium ${user.status === "Approved" ? "text-green-600" : "text-yellow-600"}`}>
-                                  {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                                <td className={`p-2 sm:p-3 ${user.status === "Approved"
+                                    ? "text-green-600"
+                                    : user.status === "Rejected"
+                                        ? "text-red-600"
+                                        : "text-yellow-600"
+                                    } whitespace-nowrap`}>
+                                    {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                                 </td>
                                 <td className="p-3 whitespace-nowrap">{formatDate(user.created_at)}</td>
                                 <td className="p-3 text-center whitespace-nowrap">
@@ -151,7 +156,7 @@ const UserVerification: React.FC = () => {
                                     </button>
                                 </td>
 
-                                
+
                             </motion.tr>
                         ))}
                     </tbody>
@@ -160,14 +165,14 @@ const UserVerification: React.FC = () => {
             </div>
 
             {isModalOpen && selectedId !== null ? (
-              <Modal loading={loading} isOpen={isModalOpen} title="Reject Verification"  message="Are you sure you want to reject the application of this user?" 
-              onClose={() => setIsModalOpen(false)} onConfirm={handleDelete}/>
+                <Modal loading={loading} isOpen={isModalOpen} title="Reject Verification" message="Are you sure you want to reject the application of this user?"
+                    onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} />
 
             ) : (
                 null
             )}
 
-            
+
         </div>
     );
 };

@@ -246,7 +246,10 @@ def reject_user_verification(request):
         loan_app.status = "Rejected"
         loan_app.save()
         user = loan_app.user
-        subject = "You're Loan Application has been rejected"
+        
+        user.is_verified = "not applied"
+        user.save()
+        subject = "Your Account Verification Was Unsuccessful"
         html_content = render_to_string("email/rejection_email.html", {
             "subject":subject_heading,
             "user_name": user.username,
