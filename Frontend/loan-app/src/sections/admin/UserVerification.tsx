@@ -41,7 +41,7 @@ const UserVerification: React.FC = () => {
 
     const deleteMutation = useMutation({
         mutationFn: async(id: number) => {
-            const response = await adminApi.post('/reject/',{
+            const response = await adminApi.post('/remove/',{
                 id: selectedId
             });
 

@@ -8,6 +8,7 @@ urlpatterns = [
     path('users/', views.get_verify_data, name="get_verify_data"),
     path('users/<int:id>/', views.get_verify, name="get_verify"),
     path('verify/', views.verify_user, name="verify"),
-    path('reject/', views.reject_verification, name="reject"),
+    path('remove/', views.remove_verification, name="remove"),
+    path('reject/', views.reject_user_verification, name="reject"),
 
 ]

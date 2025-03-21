@@ -26,7 +26,7 @@ from django.utils.html import strip_tags
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def reject_verification(request):
+def remove_verification(request):
     try:
         id = request.data.get("id")
         if not id:
@@ -228,4 +228,41 @@ def reset_password_admin_email(request):
         print(f"{e}")
         return Response({"error": "Something went wrong"}, status=500)
     
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def reject_user_verification(request):
+    try:
         
+        
+        id = request.data.get("id")
+        subject_heading = request.data.get("subject")
+        
+        desc = request.data.get("description")
+        
+        loan_app = VerificationRequests.objects.get(id = int(id))
+        loan_app.status = "Rejected"
+        loan_app.save()
+        user = loan_app.user
+        subject = "You're Loan Application has been rejected"
+        html_content = render_to_string("email/rejection_email.html", {
+            "subject":subject_heading,
+            "user_name": user.username,
+            "description": desc
+        })
+        plain_message = strip_tags(html_content)
+
+    
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)

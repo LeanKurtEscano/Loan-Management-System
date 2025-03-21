@@ -10,13 +10,39 @@ import ImageModal from "../../components/ImageModal";
 import { ApplicationId } from "../../constants/interfaces/adminInterface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck, faArrowLeft, faCamera } from "@fortawesome/free-solid-svg-icons";
-
+import { useMutation } from "@tanstack/react-query";
+import { useMyContext } from "../../context/MyContext";
+import { adminApi } from "../../services/axiosConfig";
+import EmailModal from "../../components/EmailModal";
 const Verification: React.FC = () => {
+
+
+    const rejectMutation = useMutation({
+        mutationFn: async (id: number) => {
+            setLoading2(true);
+            const response = await adminApi.post('/reject/', {
+                id: id,
+                subject: emailDetails.subject,
+                description: emailDetails.description
+            });
+
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries(['userDetail', id]);
+            setLoading2(false);
+            setIsReject(false)
+        }
+    })
     const { id } = useParams();
+    const [isReject, setIsReject] = useState(false);
     const navigate = useNavigate();
+    const [loading2, setLoading2] = useState(false);
+    const { emailDetails } = useMyContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const queryClient = useQueryClient();
+    const [selectedId, setSelectedId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const endpoint = "users"
     const { data, isLoading, isError } = useQuery<ApplicationData>({
@@ -49,6 +75,19 @@ const Verification: React.FC = () => {
         }
     };
 
+    const openReject = (id: number) => {
+        setIsReject(true);
+        setSelectedId(id);
+    }
+
+
+    const handleReject = async () => {
+
+        rejectMutation.mutateAsync(selectedId ?? 0);
+
+    }
+
+
     return (
         <motion.div
             className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 relative"
@@ -70,7 +109,7 @@ const Verification: React.FC = () => {
 
 
 
-            <div  className="bg-white p-8 shadow-xl rounded-lg overflow-hidden w-full max-w-3xl relative">
+            <div className="bg-white p-8 shadow-xl rounded-lg overflow-hidden w-full max-w-3xl relative">
 
                 <motion.img
                     src={cleanImageUrl(data?.image)}
@@ -82,7 +121,7 @@ const Verification: React.FC = () => {
                     onClick={() => setIsImageModalOpen(true)}
 
                 />
-                  <button
+                <button
                     className="absolute top-9 right-9 hover:bg-blue-600 bg-blue-500 px-3 cursor-pointer bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all duration-300"
                     onClick={() => setIsImageModalOpen(true)}
                 >
@@ -123,16 +162,28 @@ const Verification: React.FC = () => {
                 </div>
 
 
-                <div className="p-4 flex justify-center">
-                    {data?.status.trim() === "pending" ? (
-                        <motion.button
-                            className="bg-blue-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-blue-600 active:scale-95"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            Verify
-                        </motion.button>
+                <div className="p-4 flex gap-4 justify-center">
+                    {data?.status.trim() === "pending" || data?.status.trim() === "Rejected" ? (
+                        <>
+                            <motion.button
+                                className="bg-blue-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-blue-600 active:scale-95"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Approve
+                            </motion.button>
+
+                            <motion.button
+                                className="bg-red-500 cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all hover:bg-red-600 active:scale-95"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => openReject(data?.id)}
+                            >
+                                Reject
+                            </motion.button>
+                        </>
+
                     ) : (
                         <div className="flex items-center text-blue-600 font-semibold text-lg">
                             <FontAwesomeIcon icon={faCircleCheck} className="text-2xl mr-2" />
@@ -150,7 +201,7 @@ const Verification: React.FC = () => {
                 />
             )}
 
-            {/* Confirmation Modal */}
+         
             <Modal
                 loading={loading}
                 isOpen={isModalOpen}
@@ -159,6 +210,15 @@ const Verification: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={handleVerifyUser}
             />
+
+
+            {isReject && selectedId !== null ? (
+                <EmailModal loading={loading2} isOpen={isReject}
+                    onClose={() => setIsReject(false)} onConfirm={handleReject} heading="Reject User Verification?" buttonText="Reject User Verification" />
+
+            ) : (
+                null
+            )}
         </motion.div>
     );
 };
