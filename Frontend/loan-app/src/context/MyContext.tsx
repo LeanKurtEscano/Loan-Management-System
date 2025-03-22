@@ -23,13 +23,23 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   
   const [ toggle, setToggle] = useState(false);
   const [loanApplication, setLoanApplication] = useState<LoanApplicationDetails>({
-    idNumber: "",
+     front:null,
+     back:null,
+    idType: "",
+    educationLevel: "",
     employment: "",
-    income: "",
-    type: null,
-    plan:null,
-    amount:"",
-  })
+    totalIncome: "",
+    sourceOfIncome: "",
+    otherSourcesofIncome: "",
+    frequency: "",
+    primarySource: "",
+    moneyReceive: "",
+    totalSpend: "",
+    outstanding: "",
+    purpose: "",
+    explanation: "",
+  });
+  
 
 
 

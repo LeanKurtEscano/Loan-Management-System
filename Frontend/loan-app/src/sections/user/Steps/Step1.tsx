@@ -1,147 +1,152 @@
-import React, { useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faIdCard } from '@fortawesome/free-solid-svg-icons';
-import { useMyContext } from '../../../context/MyContext';
-import { LoanApplicationDetails } from '../../../constants/interfaces/loanInterface';
-
+import React from "react";
+import { useMyContext } from "../../../context/MyContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCloudUploadAlt, faTimesCircle, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
 const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   const { loanApplication, setLoanApplication } = useMyContext();
-  
-  const storedIdNumber = sessionStorage.getItem("idNumber");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  // Handle file uploads
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: "front" | "back") => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [side]: file }));
+      e.target.value = "";
+    }
+
+  };
+
+
+
+
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLoanApplication((prev: LoanApplicationDetails) => ({
       ...prev,
-      [name]: value
+      idType: e.target.value,
     }));
   };
 
-    {/* 
+  // Handle removing uploaded files
+  const handleRemoveFile = (side: "front" | "back") => {
+    setLoanApplication((prev: LoanApplicationDetails) => ({
+      ...prev,
+      [side]: null,
+    }));
+  };
 
-         <div className="relative">
-          <label htmlFor="fileUpload" className="block text-gray-700 font-medium mb-2">
-            Upload ID
+  const handleNext = () => {
+    console.log("Storing details:", loanApplication);
+    nextStep();
+  };
+
+  return (
+    <div className="flex justify-center h-auto items-center min-h-screen ">
+      <div className="bg-white shadow-lg rounded-lg mb-11 p-6 w-full max-w-xl space-y-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Upload Your ID</h2>
+
+        {/* ID Type Dropdown */}
+        <div className="space-y-2">
+          <label className="block text-gray-700 font-medium">Select ID Type</label>
+          <select
+            value={loanApplication.idType}
+            onChange={handleSelectChange}
+            className="w-full p-3 border rounded-lg text-gray-700 bg-gray-50"
+          >
+            <option value="">Select ID</option>
+            <option value="0">SSS Unified Multi-Purpose ID (UMID)</option>
+            <option value="1">Driver's License</option>
+            <option value="2">Passport</option>
+            <option value="3">Philippine Identification (PhilID / ePhilID)</option>
+            <option value="4">PhilHealth ID</option>
+            <option value="5">Postal ID</option>
+            <option value="6">Voter's ID</option>
+          </select>
+        </div>
+
+        {/* Front ID Upload */}
+        <div className="space-y-2">
+          <div className="relative">
+            <label htmlFor="fileUploadFront" className="block text-gray-700 font-medium mb-2">
+              Upload Front of ID
+            </label>
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+              <label htmlFor="fileUploadFront" className="flex flex-col items-center cursor-pointer">
+                <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
+                <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
+                <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
+              </label>
+              <input
+                id="fileUploadFront"
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "front")}
+                className="hidden"
+              />
+            </div>
+          </div>
+
+          {loanApplication.front && (
+            <div className="relative w-full mt-2">
+              <img
+                src={URL.createObjectURL(loanApplication.front)}
+                alt="Front ID"
+                className="w-full h-48 object-cover rounded-lg shadow"
+              />
+              <button
+                onClick={() => handleRemoveFile("front")}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-1 cursor-pointer hover:bg-red-600 transition"
+              >
+                <FontAwesomeIcon icon={faTimesCircle} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Back ID Upload */}
+        <div className="relative">
+          <label htmlFor="fileUploadBack" className="block text-gray-700 font-medium mb-2">
+            Upload Back of ID
           </label>
           <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
-            <label htmlFor="fileUpload" className="flex flex-col items-center cursor-pointer">
+            <label htmlFor="fileUploadBack" className="flex flex-col items-center cursor-pointer">
               <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
               <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
               <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
             </label>
             <input
-              id="fileUpload"
+              id="fileUploadBack"
               type="file"
               accept="image/*"
-              onChange={handleImageChange}
+              onChange={(e) => handleFileChange(e, "back")}
               className="hidden"
             />
           </div>
         </div>
-        
-        
-        */}
-       
-        {/*{preview && (
-          <div className="mt-4 p-6  bg-white rounded-lg shadow-md flex flex-col items-center relative">
-            <h4 className="text-base font-medium text-gray-600 mb-3">ID Preview</h4>
 
+        {loanApplication.back && (
+          <div className="relative w-full mt-2">
             <img
-              src={preview}
-              alt="ID Preview"
-              className="w-96 h-64 object-cover rounded-lg border shadow-md"
+              src={URL.createObjectURL(loanApplication.back)}
+              alt="Back ID"
+              className="w-full h-48 object-cover rounded-lg shadow"
             />
-
             <button
-              type="button"
-              onClick={() => {
-                setPreview(null);
-                setFormData({ ...formData, image: null });
-              }}
-              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center cursor-pointer bg-red-500 text-white rounded-full hover:bg-red-600 transition"
-              aria-label="Remove Image"
+              onClick={() => handleRemoveFile("back")}
+              className="absolute top-2 right-2 bg-red-500 cursor-pointer text-white rounded-full px-1 hover:bg-red-600 transition"
             >
-              X
+              <FontAwesomeIcon icon={faTimesCircle} />
             </button>
           </div>
         )}
 
-        {preview && (
-          <div className="mt-4 p-6  bg-white rounded-lg shadow-md flex flex-col items-center relative">
-            <h4 className="text-base font-medium text-gray-600 mb-3">ID Preview</h4>
-
-            <img
-              src={preview}
-              alt="ID Preview"
-              className="w-96 h-64 object-cover rounded-lg border shadow-md"
-            />
-
-        
-            <button
-              type="button"
-              onClick={() => {
-                setPreview(null);
-                setFormData({ ...formData, image: null });
-              }}
-              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center cursor-pointer bg-red-500 text-white rounded-full hover:bg-red-600 transition"
-              aria-label="Remove Image"
-            >
-              X
-            </button>
-          </div>
-        )}
-
-          
- */}
-
-  const storeDetails = () => {
-    if (loanApplication.idNumber) {
-      sessionStorage.setItem("idNumber", loanApplication.idNumber);
-    }
-  };
-
-  const handleNext = () => {
-    storeDetails();
-    nextStep();
-  };
-
-  useEffect(() => {
-    if (storedIdNumber && !loanApplication.idNumber) {
-      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, idNumber: storedIdNumber }));
-    }
-  }, [storedIdNumber, loanApplication.idNumber]);
-
-  return (
-    <div className="flex  justify-center min-h-screen bg-gradient-to-br ">
-      <div className="bg-white p-10  shadow-md border border-gray-200 rounded-xl w-[500px] h-[400px] duration-300">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">Let’s Get Started</h1>
-        <p className="text-gray-500 mb-6 text-center">Enter your ID number to continue</p>
-
-        <form>
-          <div className="relative mb-6">
-            <FontAwesomeIcon icon={faIdCard} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
-            <input
-              name='idNumber'
-              type="text"
-              onChange={handleChange}
-              value={loanApplication.idNumber ?? storedIdNumber ?? ''}
-              placeholder="Enter your ID number"
-              className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-700 placeholder-gray-400 text-lg"
-              required
-            />
-          </div>
-
-          <button
-            type="button"
-            className={`w-full cursor-pointer py-4 rounded-xl font-semibold shadow-md text-lg transition-all duration-300 ease-in-out ${loanApplication.idNumber ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-            onClick={handleNext}
-            disabled={!loanApplication.idNumber}
-          >
-            Continue
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-400 mt-6 text-center">Need help? <a href="#" className="text-blue-500 hover:underline">Contact support</a></p>
+        {/* Next Button */}
+        <button
+          onClick={handleNext}
+          className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

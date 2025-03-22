@@ -1,92 +1,60 @@
-import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchLoanData } from "../../../services/user/loan";
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faIdCard, faBriefcase, faDollarSign, faClipboardList, faPesoSign } from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../../context/MyContext";
-import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
-import {
-  faUser,
-  faBriefcase,
-  faGraduationCap,
-  faCar,
-  faHome,
+import { sendLoanApplication } from "../../../services/user/loan";
+import { useNavigate } from "react-router-dom";
+const Step4 = ({ prevStep }: { prevStep: () => void; }) => {
+  const { loanApplication } = useMyContext();
+  const nav = useNavigate();
+  console.log(loanApplication);
 
-} from "@fortawesome/free-solid-svg-icons";
-
-// Icon mapping
-const iconMap: { [key: string]: any } = {
-  "Personal Loan": faUser,
-  "Business Loan": faBriefcase,
-  "Educational Loan": faGraduationCap,
-  "Car Loan": faCar,
-  "Mortgage Loan": faHome,
-
-};
-
-const Step4 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
-  const [selectedLoanId, setSelectedLoanId] = useState<number | null>(
-    Number(sessionStorage.getItem("type")) || null
-  );
-
-  const { loanApplication, setLoanApplication } = useMyContext();
-
-  const loanTypesQuery = useQuery({
-    queryKey: ["loanTypes"],
-    queryFn: () => fetchLoanData("types"),
-  });
-
-  console.log(loanTypesQuery.data);
-
-  const handleSelect = (id: number, type: string) => {
-    setSelectedLoanId(id);
-    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: id }));
-    sessionStorage.setItem("type", id.toString());
-    sessionStorage.setItem("userType", type);
+  const formatCurrency = (amount: string) => {
+    return `₱${parseFloat(amount).toLocaleString("en-PH")}`;
   };
-  const storedType = Number(sessionStorage.getItem("type"));
-  useEffect(() => {
-   
-    if (storedType && !loanApplication.type) {
-      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, type: storedType }));
-      setSelectedLoanId(storedType);
-    }
-  }, [selectedLoanId, loanApplication.type]);
+  const handleSubmit = async() => {
+     try {
+
+      const response = await sendLoanApplication(loanApplication);
+
+      if(response.status === 201) {
+        sessionStorage.clear();
+        nav('/user/my-loan');
+      }
+
+     } catch (error:any) {
+       console.log("Something Wrong")
+     }
+  }
+
+  const fields = [
+    { label: "ID Number", value: loanApplication.idNumber, icon: faIdCard },
+    { label: "Employment", value: loanApplication.employment, icon: faBriefcase },
+    { label: "Income", value: loanApplication.income, icon: faPesoSign },
+    { label: "Loan Type", value: sessionStorage.getItem("userType") || "Not selected", icon: faClipboardList },
+    { label: "Plan", value: sessionStorage.getItem("userPlan") || "Not selected", icon: faClipboardList },
+    { label: "Amount", value: formatCurrency(loanApplication.amount), icon: faPesoSign },
+  ];
 
   return (
-    <div className="flex items-start max-w-6xl pl-44 justify-center h-screen">
+    <div className="flex items-center pt-44 justify-center mb-40 h-screen">
       <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Select Your Loan Type</h1>
+        <h1 className="text-2xl font-bold text-center  text-gray-800">Review Your Application</h1>
+        <p className="text-center text-gray-500 mb-7 ">Processing will take 3-5 business days.</p>
 
-        {loanTypesQuery.isLoading && <p>Loading loan types...</p>}
-        {loanTypesQuery.isError && <p>Error loading loan types.</p>}
-
-        <div className="grid grid-cols-2 gap-4">
-          {loanTypesQuery.data?.map((type: { id: number; name: string }) => (
-            <div
-              key={type.id}
-              className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl shadow-md cursor-pointer transition-all ${
-                selectedLoanId === type.id
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "border-gray-300 hover:bg-blue-100"
-              }`}
-              onClick={() => handleSelect(type.id, type.name)}
-            >
-              <FontAwesomeIcon
-                icon={iconMap[type.name] || faUser}
-                className={`text-3xl ${
-                  selectedLoanId === type.id ? "text-white" : "text-blue-500"
-                }`}
-              />
-              <h2
-                className={`mt-2 font-medium ${
-                  selectedLoanId === type.id ? "text-white" : "text-gray-700"
-                }`}
-              >
-                {type.name}
-              </h2>
+        <div className="space-y-4">
+          {fields.map((field, index) => (
+            <div key={index} className="flex items-center gap-4 p-4 border rounded-lg shadow-md">
+              <FontAwesomeIcon icon={field.icon} className="text-blue-500 text-2xl" />
+              <div>
+                <h2 className="text-lg font-medium text-gray-700">{field.label}</h2>
+                <p className="text-gray-600">{field.value}</p>
+              </div>
             </div>
           ))}
         </div>
+
+       
 
         <div className="flex justify-between mt-6">
           <button
@@ -96,15 +64,10 @@ const Step4 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             Back
           </button>
           <button
-            onClick={nextStep}
-            disabled={selectedLoanId === null}
-            className={`text-lg px-6 py-3 cursor-pointer rounded-xl transition w-[45%] ${
-              selectedLoanId === null
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
+            onClick={handleSubmit}
+            className="bg-green-500 cursor-pointer text-white text-lg px-6 py-3 rounded-xl hover:bg-green-600 transition w-[45%]"
           >
-            Next
+            Submit
           </button>
         </div>
       </div>

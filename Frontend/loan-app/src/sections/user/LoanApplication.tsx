@@ -5,9 +5,7 @@ import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
-import Step5 from "./Steps/Step5";
-import Step6 from "./Steps/Step6";
-import Step7 from "./Steps/Step7";
+
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
@@ -18,7 +16,7 @@ import { getLoanApplication } from "../../services/user/userData";
 const LoanApplication: React.FC = () => {
   const nav = useNavigate();
   const [step, setStep] = useState(1);
-  const totalSteps = 7;
+  const totalSteps = 4;
 
   const { data, isLoading, isError } = useQuery(
     ["userLoanApplication"],
@@ -88,10 +86,8 @@ const LoanApplication: React.FC = () => {
             {step === 1 && <Step1 nextStep={nextStep} />}
             {step === 2 && <Step2 nextStep={nextStep} prevStep={prevStep} />}
             {step === 3 && <Step3 nextStep={nextStep} prevStep={prevStep} />}
-            {step === 4 && <Step4 nextStep={nextStep} prevStep={prevStep} />}
-            {step === 5 && <Step5 nextStep={nextStep} prevStep={prevStep} />}
-            {step === 6 && <Step6 nextStep={nextStep} prevStep={prevStep} />}
-            {step === 7 && <Step7 prevStep={prevStep} />}
+            {step === 4 && <Step4  prevStep={prevStep} />}
+           
           </motion.div>
         </>
       )}

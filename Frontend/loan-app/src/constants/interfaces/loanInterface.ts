@@ -1,8 +1,17 @@
 export interface LoanApplicationDetails {
-    idNumber: string;
-    employment: string;
-    income: string;
-    type?: number | null;
-    plan?: number | null;
-    amount:string;
+    front: File | null;
+    back: File | null;
+    idType: string;
+    educationLevel: string;
+    employment: string | null;
+    totalIncome:string
+    sourceOfIncome:string;
+    otherSourcesofIncome?:string;
+    frequency:string;
+    primarySource:string;
+    moneyReceive:string;
+    totalSpend:string;
+    outstanding:string
+    purpose: string | null;
+    explanation:string;
 }
