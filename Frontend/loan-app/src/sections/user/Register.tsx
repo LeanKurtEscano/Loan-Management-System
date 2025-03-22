@@ -6,6 +6,8 @@ import { sendRegister } from "../../services/user/userAuth"
 import { useNavigate } from "react-router-dom";
 import { useMyContext } from "../../context/MyContext";
 import { useEffect } from "react";
+
+import logo2 from '../../assets/tuloan3.png'
 const Register: React.FC = () => {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false)
@@ -106,9 +108,15 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex w-full justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex w-full justify-center pt-14 pb-14 items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-[450px]">
-        <h2 className="text-2xl font-semibold text-center mb-6">Register</h2>
+        
+
+        <div className="flex justify-center mb-3">
+                  <img  src={logo2} alt="Logo" className="h-24 w-24" />
+                </div>
+
+                <h2 className="text-xl font-semibold text-center mb-6">Register</h2>
         <form onSubmit={handleSubmit}>
 
           <div className="mb-4">

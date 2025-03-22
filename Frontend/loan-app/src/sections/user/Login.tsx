@@ -5,7 +5,7 @@ import { loginAuth } from '../../services/user/userAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 
-import logo2 from '../../assets/logo2.png'
+import logo2 from '../../assets/tuloan3.png'
 
 const Login: React.FC = () => {
   const [show, setShow] = useState(false);
@@ -65,10 +65,10 @@ const Login: React.FC = () => {
 
 
   return (
-    <section className="h-screen w-full flex  justify-center items-center">
+    <section className="h-screen w-full flex  justify-center bg-gray-100 items-center">
       <div className="flex flex-col p-6 border-gray-300 bg-white border-2 rounded-lg shadow-xl w-96">
         <div className="flex justify-center mb-3">
-          <img  src={logo2} alt="Logo" className="h-10" />
+          <img  src={logo2} alt="Logo" className="h-24 w-24" />
         </div>
         <h2 className="text-2xl font-semibold text-center text-gray-800">
           Log in
