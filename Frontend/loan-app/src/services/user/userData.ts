@@ -1,6 +1,6 @@
 import { userApi } from "../axiosConfig";
 import { VerifyData } from "../../constants/interfaces/authInterface";
-
+import { userLoanApi } from "../axiosConfig";
 export const getUserDetails = async() => {
     try {
 
@@ -41,6 +41,19 @@ export const getUserVerifyDetails = async() => {
     try {
 
         const response = await userApi.get(`/details/verify/`);
+
+        return response.data
+
+    } catch(error) {
+        console.log("Something Went Wrong");
+    }
+
+}
+
+export const getLoanApplication = async() => {
+    try {
+
+        const response = await userLoanApi.get(`/user/application/`);
 
         return response.data
 

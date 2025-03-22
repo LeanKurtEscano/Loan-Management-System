@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import LoanTypes, LoanPlan, LoanApplication
-from .serializers import LoanTypesSerializer, LoanPlansSerializer
+from .serializers import LoanTypesSerializer, LoanPlansSerializer,LoanAppSerializer
 from rest_framework.permissions import IsAuthenticated
 from .serializers import LoanApplicationSerializer
 from django.shortcuts import get_object_or_404
@@ -192,3 +192,21 @@ def reject_loan_application(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def loan_application(request):
+    try:
+        
+        user = request.user
+        print(user)
+        
+        loan_applications = LoanApplication.objects.get(user=request.user)
+        serializer = LoanAppSerializer(loan_applications)
+        print(serializer.data)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)
+    

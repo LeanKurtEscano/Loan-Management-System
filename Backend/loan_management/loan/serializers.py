@@ -19,6 +19,13 @@ class LoanPlansSerializer(serializers.ModelSerializer):
         model = LoanPlan
         fields = '__all__'
 
+
+
+class LoanAppSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanApplication
+        fields = '__all__'
+
 class LoanApplicationSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
     type = LoanTypesSerializer(read_only=True)
