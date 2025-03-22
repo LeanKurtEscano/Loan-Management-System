@@ -1,6 +1,6 @@
 from django.db import models
 from user.models import CustomUser
-
+from cloudinary.models import CloudinaryField
 class LoanTypes(models.Model):
     name = models.CharField(max_length=100, unique=True)
     
@@ -13,15 +13,31 @@ class LoanPlan(models.Model):
     payment_frequency = models.CharField(max_length=20, default='Monthly')
 
 
+
+
 class LoanApplication(models.Model):
-    id_number= models.CharField(max_length=255)
-    employment_status = models.CharField(max_length=255)
-    income_range = models.CharField(max_length=255)
-    status = models.CharField(max_length=30, default="Pending")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    type = models.ForeignKey(LoanTypes, on_delete=models.CASCADE)
-    plan = models.ForeignKey(LoanPlan, on_delete=models.CASCADE)
-    amount = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    front = CloudinaryField('front_image', blank=True, null=True)  # Cloudinary Field
+    back = CloudinaryField('back_image', blank=True, null=True) 
+    id_type = models.CharField(max_length=50, blank=True, null=True)
+    education_level = models.CharField(max_length=50,blank=True, null=True)
+    employment_status = models.CharField(max_length=50, blank=True, null=True)
+    monthly_income = models.CharField(max_length=100, blank=True, null=True)
+    income_variation = models.CharField(max_length=50, blank=True, null=True)
+    primary_income_source = models.CharField(max_length=100, blank=True, null=True)
+    other_sources_of_income = models.TextField(blank=True, null=True)  
+    income_frequency = models.CharField(max_length=50, blank=True, null=True)
+    primary_source = models.CharField(max_length=100, blank=True, null=True)
+    money_receive = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=20,  default='Pending')
+
+    total_spend = models.CharField(max_length=100, blank=True, null=True)
+    purpose = models.CharField(max_length=100, blank=True, null=True)
+
+    explanation = models.TextField(blank=True, null=True)
+    outstanding =  models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)  
     end_date = models.DateTimeField(null=True, blank=True)
-    
+
+    def __str__(self):
+        return f"Loan Application for {self.user.username}"

@@ -1,10 +1,11 @@
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,parser_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import LoanTypes, LoanPlan, LoanApplication
 from .serializers import LoanTypesSerializer, LoanPlansSerializer,LoanAppSerializer
 from rest_framework.permissions import IsAuthenticated
 from .serializers import LoanApplicationSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from .models import LoanApplication
@@ -13,6 +14,9 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
 from datetime import  timedelta
 from dateutil.relativedelta import relativedelta
+from rest_framework.decorators import api_view, permission_classes
+from .models import LoanApplication
+import cloudinary.uploader
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -32,32 +36,72 @@ def loan_plans_list(request):
     return Response(serializer.data)
 
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])  # Added parser for form and file data
 def create_loan_application(request):
     try:
         data = request.data
-        
-        
-        print(request.data)
-        
-        
+        print("Received Data:", data)
+        id_type = data.get("idType", "")
+        education_level = data.get("educationLevel", "")
+        employment_status = data.get("employmentStatus", "")
+        monthly_income = data.get("monthlyIncome", "")
+        income_variation = data.get("incomeVariation", "")
+        primary_income_source = data.get("primaryIncomeSource", "")        
+        other_sources_of_income = data.get("otherSourcesOfIncome", [])
+        if isinstance(other_sources_of_income, list):
+          other_sources_of_income = ", ".join(other_sources_of_income) 
+        income_frequency = data.get("incomeFrequency", "")
+        primary_source = data.get("primarySource", "")
+        money_receive = data.get("moneyReceive", "")
+        total_spend = data.get("totalSpend", "")
+        outstanding = data.get("outstanding", "")
+        purpose = data.get("purpose", "")
+        explanation = data.get("explanation", "")
+
+        # Handle image uploads to Cloudinary
+        front_image_url = ""
+        back_image_url = ""
+
+        if 'front' in request.FILES:
+            front_image = request.FILES['front']
+            upload_front = cloudinary.uploader.upload(front_image)
+            front_image_url = upload_front.get("secure_url")
+
+        if 'back' in request.FILES:
+            back_image = request.FILES['back']
+            upload_back = cloudinary.uploader.upload(back_image)
+            back_image_url = upload_back.get("secure_url")
+
+        # Create the LoanApplication entry in the database
         loan_application = LoanApplication.objects.create(
-            id_number=data['idNumber'],
-            employment_status=data['employment'],
-            income_range=data['income'],
-            amount=float(data['amount']),
             user=request.user,
-            type_id=int(data['type']) if data.get('type') else None,
-            plan_id=int(data['plan']) if data.get('plan') else None
+            front=front_image_url,
+            back=back_image_url,
+            id_type=id_type,
+            education_level=education_level,
+            employment_status=employment_status,
+            monthly_income=monthly_income,
+            income_variation=income_variation,
+            primary_income_source=primary_income_source,
+            other_sources_of_income=other_sources_of_income,
+            income_frequency=income_frequency,
+            primary_source=primary_source,
+            money_receive=money_receive,
+            total_spend=total_spend,
+            outstanding=outstanding,
+            purpose=purpose,
+            explanation=explanation
         )
 
         return Response({"message": "Loan Application submitted successfully."}, status=status.HTTP_201_CREATED)
-    
+
     except Exception as e:
-        print(f"{e}")
+        print(f"Error: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_loan_applications(request):
