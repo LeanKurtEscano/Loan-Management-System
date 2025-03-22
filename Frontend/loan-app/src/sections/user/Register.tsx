@@ -4,6 +4,8 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { RegisterData } from "../../constants/interfaces/authInterface";
 import { sendRegister } from "../../services/user/userAuth"
 import { useNavigate } from "react-router-dom";
+import { useMyContext } from "../../context/MyContext";
+import { useEffect } from "react";
 const Register: React.FC = () => {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false)
@@ -21,6 +23,16 @@ const Register: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+
+      const {isAuthenticated} = useMyContext();
+  
+  
+  
+        useEffect(() => {
+          if (isAuthenticated) {
+            nav('/');
+          }
+        }, [isAuthenticated, nav]);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

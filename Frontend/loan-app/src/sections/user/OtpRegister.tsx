@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import Notification from '../../components/Notification';
 import { verifyHandler, userEmailResendRegister } from '../../services/user/userAuth';
 import { OtpDetails } from '../../constants/interfaces/authInterface';
+
 const OtpRegister: React.FC = () => {
   const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(''));
   const [invalid, setInvalid] = useState('');
  const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
-  const {setIsAuthenticated} = useMyContext();
+  const {isAuthenticated} = useMyContext();
   // @ts-ignore
   const [expired, setExpired] = useState(false);
   const [toggleNotif, setToggleNotif] = useState(false);
@@ -19,7 +20,12 @@ const OtpRegister: React.FC = () => {
   const message = "A new OTP has been sent to your registered email."
   const navigate = useNavigate();
 
-
+       useEffect(() => {
+         if (isAuthenticated) {
+           navigate('/');
+         }
+       }, [isAuthenticated, navigate]);
+  
 
   useEffect(() => {
     if (toggleNotif) {
@@ -171,7 +177,7 @@ const OtpRegister: React.FC = () => {
     };
   }, [isResendDisabled, timer]);
 
-
+   
 
 
   return (

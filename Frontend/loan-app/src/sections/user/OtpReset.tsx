@@ -12,7 +12,7 @@ const OtpReset: React.FC = () => {
 
   const [timer, setTimer] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
-  const {setIsAuthenticated} = useMyContext();
+  const {isAuthenticated} = useMyContext();
   // @ts-ignore
   const [expired, setExpired] = useState(false);
   const [toggleNotif, setToggleNotif] = useState(false);
@@ -20,7 +20,12 @@ const OtpReset: React.FC = () => {
   const heading = "OTP Sent!"
   const message = "A new OTP has been sent to your registered email."
   const navigate = useNavigate();
-
+  
+   useEffect(() => {
+     if (isAuthenticated) {
+       navigate('/');
+     }
+   }, [isAuthenticated, navigate]);
 
 
   useEffect(() => {
@@ -162,7 +167,8 @@ const OtpReset: React.FC = () => {
     };
   }, [isResendDisabled, timer]);
 
-
+  
+   
 
 
   return (

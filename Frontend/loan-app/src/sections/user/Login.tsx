@@ -16,7 +16,15 @@ const Login: React.FC = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
+ 
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  
   const toggleIcon = () => {
     setShow(!show);
   };
@@ -55,11 +63,7 @@ const Login: React.FC = () => {
   }
    
 
-  useEffect(() => {
-    if(isAuthenticated){
-      navigate('/');
-    }
-  },[])
+
   return (
     <section className="h-screen w-full flex  justify-center items-center">
       <div className="flex flex-col p-6 border-gray-300 bg-white border-2 rounded-lg shadow-xl w-96">

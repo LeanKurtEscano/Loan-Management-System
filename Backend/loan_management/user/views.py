@@ -12,7 +12,7 @@ from .models import CustomUser, VerificationRequests
 from .email.emails import send_otp_to_email
 from .serializers import CustomUserSerializer,VerificationRequestsSerializer
 import cloudinary.uploader
-
+from loan.models import LoanApplication
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def verify_account(request):
@@ -139,16 +139,13 @@ def user_login(request):
 @permission_classes([AllowAny])  
 def otp_verify(request):
     try:
-     
         data = request.data.get("data", {})
         email = data.get("email")
         username = data.get("username")
         password = data.get("password")
         otp_code = data.get("otpCode")
         purpose = request.data.get("purpose")
-        print(purpose)
 
-       
         if not all([email, password, otp_code, purpose]):
             return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,17 +155,19 @@ def otp_verify(request):
         if cache_otp is None:
             return Response({"error": "OTP code is expired. Please generate a new one."}, status=status.HTTP_404_NOT_FOUND)
 
-       
         if str(cache_otp) != str(otp_code):
             return Response({"error": "Incorrect OTP Code. Please try again."}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if purpose == "verification":
-            user_auth = authenticate(request, username=email, password=password)
+        user_auth = authenticate(request, username=email, password=password)
 
+        if purpose == "verification":
             if user_auth is None:
                 return Response({"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)
 
-          
+         
+            existing_loan = LoanApplication.objects.filter(user=user_auth).first()
+            loan_status_message = existing_loan.status if existing_loan else "None"
+           
             refresh = RefreshToken.for_user(user_auth)
             access_token = str(refresh.access_token)
 
@@ -176,6 +175,7 @@ def otp_verify(request):
                 "message": "User authenticated",
                 "access_token": access_token,
                 "refresh_token": str(refresh),
+                "loan_status": loan_status_message
             }, status=status.HTTP_200_OK)
 
         elif purpose == "register":
@@ -191,7 +191,7 @@ def otp_verify(request):
     except Exception as e:
         print(f"Error during OTP verification: {e}")
         return Response({"error": "Something went wrong. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-       
+
 
 @api_view(["POST"])
 def resend_otp(request):

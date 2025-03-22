@@ -31,6 +31,8 @@ import UsersLoanApplication from './sections/admin/UsersLoanApplication';
 import VerifyApplication from './sections/admin/VerifyApplication';
 import UserPage from './sections/admin/UserPage';
 import PrivacyPolicy from './sections/user/PrivacyPolicy';
+import { useQuery } from '@tanstack/react-query';
+import { getLoanApplication } from './services/user/userData';
 function App() {
 
   return (
@@ -59,20 +61,12 @@ const Main: React.FC = () => {
 
   }, [isAuthenticated, userDetails])
 
-  {/* const { data, isLoading, isError, refetch } = useQuery<UserDetails>(
-      ["userDetails"],
-      getUserDetails,
-      {
-        onSuccess: (fetchedData) => {
-          setUserDetails(fetchedData); 
-        },
-      }
-    )*/}
-
 
 
   const isAdminRoute = location.pathname.startsWith("/dashboard");
  
+
+  
 
   return (
 
@@ -104,7 +98,7 @@ const Main: React.FC = () => {
             </UserProtectedRoutes>
             }
         >
-          <Route path="my-loans" element={<Loan />} />
+          <Route path="my-loan" element={<Loan />} />
           <Route path="account" element={<Account />} />
           <Route path="apply-loan" element={<LoanApplication />} />
         </Route>

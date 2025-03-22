@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Notification from '../../components/Notification';
 import { verifyHandler, userEmailResend } from '../../services/user/userAuth';
 import { OtpDetails } from '../../constants/interfaces/authInterface';
+
 const OtpVerification: React.FC = () => {
   const [otpValues, setOtpValues] = useState<string[]>(Array(6).fill(''));
   const [invalid, setInvalid] = useState('');
@@ -18,9 +19,15 @@ const OtpVerification: React.FC = () => {
   const heading = "OTP Sent!"
   const message = "A new OTP has been sent "
   const navigate = useNavigate();
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
-
-
+  useEffect(() => {
+    if (isAuthenticated && redirectPath) {
+      navigate(redirectPath);
+    } else if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, redirectPath, navigate]);
   useEffect(() => {
     if (toggleNotif) {
       const timeout = setTimeout(() => {
@@ -74,9 +81,13 @@ const OtpVerification: React.FC = () => {
         sessionStorage.removeItem("email");
         setTimer(120);
       
-        setTimeout(() => {
-          navigate('/');  
-      }, 200); 
+        const loanStatus = response.data.loan_status.trim();
+        if (["Approved", "Pending"].includes(loanStatus)) {
+          setRedirectPath('/user/my-loan');
+    
+        } else {
+          setRedirectPath('/');  
+        }
       
       }
       
@@ -101,11 +112,6 @@ const OtpVerification: React.FC = () => {
   };
 
 
-    useEffect(() => {
-      if(isAuthenticated){
-        navigate('/');
-      }
-    },[])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && otpValues[index] === '') {
@@ -179,7 +185,7 @@ const OtpVerification: React.FC = () => {
       if (interval) clearInterval(interval);
     };
   }, [isResendDisabled, timer]);
-
+  
 
 
 

@@ -4,7 +4,8 @@ import { ResetUserPassword } from "../../services/user/userAuth";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
+import { useEffect } from "react";
+import { useMyContext } from "../../context/MyContext";
 export default function ResetPassword() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -12,6 +13,15 @@ export default function ResetPassword() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const nav = useNavigate();
+    const {isAuthenticated} = useMyContext();
+
+
+
+      useEffect(() => {
+        if (isAuthenticated) {
+          nav('/');
+        }
+      }, [isAuthenticated, nav]);
 
     const toggleNewPassword = () => setShowNewPassword(!showNewPassword);
     const toggleConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);

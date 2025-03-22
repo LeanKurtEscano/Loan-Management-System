@@ -13,7 +13,7 @@ import useUserDetails from "../../hooks/useUserDetails";
 import { useQueryClient } from "@tanstack/react-query";
 const menuItems = [
     { name: "Transactions", path: "/user/my-transactions" },
-    { name: "My Loans", path: "/user/my-Loans" },
+    { name: "My Loan", path: "/user/my-loan" },
     { name: "Apply for Loan", path: "/user/apply-loan" },
 ];
 const NavBar: React.FC = () => {

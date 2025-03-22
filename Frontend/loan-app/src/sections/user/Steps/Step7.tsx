@@ -19,7 +19,7 @@ const Step7 = ({ prevStep }: { prevStep: () => void; }) => {
 
       if(response.status === 201) {
         sessionStorage.clear();
-        nav('/my-loans');
+        nav('/user/my-loan');
       }
 
      } catch (error:any) {
