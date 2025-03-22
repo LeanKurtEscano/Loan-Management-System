@@ -57,6 +57,8 @@ export interface VerifyData {
     age: string;
     birthdate: string;
     contactNumber: string;
-    tinNumber: string;
-    image: File | null;  // Allow null
+    gender: string;
+    civilStatus: string;
+    postalCode: string;
+      // Allow null
 }

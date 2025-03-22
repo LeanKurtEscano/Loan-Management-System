@@ -5,18 +5,12 @@ import { faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { sendVerifyData } from "../../services/user/userData";
 import { VerifyData } from "../../constants/interfaces/authInterface";
 import { useQueryClient } from "@tanstack/react-query";
-import { formFields } from "../../constants/render";
+
 const VerifyForm = ({ onClose }: { onClose: () => void }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const queryClient = useQueryClient();
-  const [isChecked, setIsChecked] = useState(false);
 
-
-
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked);
-  };
   const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
     middleName: "",
@@ -25,8 +19,9 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
     birthdate: "",
     age: "",
     contactNumber: "",
-    tinNumber: "",
-    image: null,
+    gender: "",
+    civilStatus: "",
+    postalCode: ""
   });
 
   console.log(formData);
@@ -56,7 +51,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
   const maxDate = new Date(today);
   maxDate.setFullYear(today.getFullYear() - 21); // 21 years ago
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     const today = new Date();
@@ -77,7 +72,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
         setErrors((prev) => ({ ...prev, birthdate: "You must be exactly 21 years or older." }));
       } else {
         setErrors((prev) => ({ ...prev, birthdate: "" }));
-        updatedFormData = { ...updatedFormData, age: age.toString() }; 
+        updatedFormData = { ...updatedFormData, age: age.toString() };
       }
     }
 
@@ -134,9 +129,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
-            <label htmlFor="firstName" className="block text-gray-700 font-medium">
-              First Name
-            </label>
+            <label htmlFor="firstName" className="block text-gray-700 font-medium">First Name</label>
             <input
               value={formData.firstName}
               id="firstName"
@@ -147,15 +140,11 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
-            {errors.firstName && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.firstName}</p>
-            )}
+            {errors.firstName && <p className="absolute text-red-500 text-xs mt-1">{errors.firstName}</p>}
           </div>
 
           <div className="relative">
-            <label htmlFor="middleName" className="block text-gray-700 font-medium">
-              Middle Name (Optional)
-            </label>
+            <label htmlFor="middleName" className="block text-gray-700 font-medium">Middle Name (Optional)</label>
             <input
               value={formData.middleName}
               onChange={handleChange}
@@ -168,9 +157,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
           </div>
 
           <div className="relative">
-            <label htmlFor="lastName" className="block text-gray-700 font-medium">
-              Last Name
-            </label>
+            <label htmlFor="lastName" className="block text-gray-700 font-medium">Last Name</label>
             <input
               value={formData.lastName}
               onChange={handleChange}
@@ -181,17 +168,13 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
-            {errors.lastName && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.lastName}</p>
-            )}
+            {errors.lastName && <p className="absolute text-red-500 text-xs mt-1">{errors.lastName}</p>}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="relative">
-            <label htmlFor="age" className="block text-gray-700 font-medium">
-              Age
-            </label>
+            <label htmlFor="age" className="block text-gray-700 font-medium">Age</label>
             <input
               value={formData.age}
               onChange={handleChange}
@@ -203,15 +186,11 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               required
               disabled
             />
-            {errors.age && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.age}</p>
-            )}
+            {errors.age && <p className="absolute text-red-500 text-xs mt-1">{errors.age}</p>}
           </div>
 
           <div className="relative">
-            <label htmlFor="birthdate" className="block text-gray-700 font-medium">
-              Birthdate
-            </label>
+            <label htmlFor="birthdate" className="block text-gray-700 font-medium">Birthdate</label>
             <input
               value={formData.birthdate}
               onChange={handleChange}
@@ -222,122 +201,78 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               required
               min={new Date(new Date().setFullYear(new Date().getFullYear() - 90)).toISOString().split("T")[0]}
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 21)).toISOString().split("T")[0]}
-
             />
-            {errors.birthdate && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.birthdate}</p>
-            )}
+            {errors.birthdate && <p className="absolute text-red-500 text-xs mt-1">{errors.birthdate}</p>}
           </div>
         </div>
-
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <label htmlFor="address" className="block text-gray-700 font-medium">
-              Address
-            </label>
-            <div className="relative">
-              <input
-                value={formData.address}
-                onChange={handleChange}
-
-                name="address"
-                id="address"
-                type="text"
-                placeholder="e.g., 123 Rizal St., Barangay..."
-                className="border p-3 rounded w-full pr-12"
-                required
-              />
-
-            </div>
-            {errors.address && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.address}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <label htmlFor="contactNumber" className="block text-gray-700 font-medium">
-              Contact Number
-            </label>
-            <input
-              value={formData.contactNumber}
+            <label htmlFor="gender" className="block text-gray-700 font-medium">Gender</label>
+            <select
+              value={formData.gender}
               onChange={handleChange}
-              id="contactNumber"
-              name="contactNumber"
-              type="tel"
-              placeholder="Contact Number"
+              id="gender"
+              name="gender"
               className="border p-3 rounded w-full"
               required
-            />
-            {errors.contactNumber && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.contactNumber}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <label htmlFor="contactNumber" className="block text-gray-700 font-medium">
-              TIN number
-            </label>
-            <input
-              value={formData.tinNumber}
-              onChange={handleChange}
-              id="tinNumber"
-              name="tinNumber"
-              type="tel"
-              placeholder="Tin Number"
-              className="border p-3 rounded w-full"
-              required
-            />
-            {errors.contactNumber && (
-              <p className="absolute text-red-500 text-xs mt-1">{errors.contactNumber}</p>
-            )}
-          </div>
-        </div>
-
-
-        <div className="relative">
-          <label htmlFor="fileUpload" className="block text-gray-700 font-medium mb-2">
-            Upload ID
-          </label>
-          <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
-            <label htmlFor="fileUpload" className="flex flex-col items-center cursor-pointer">
-              <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
-              <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
-              <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
-            </label>
-            <input
-              id="fileUpload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
-          </div>
-        </div>
-        {preview && (
-          <div className="mt-4 p-6  bg-white rounded-lg shadow-md flex flex-col items-center relative">
-            <h4 className="text-base font-medium text-gray-600 mb-3">ID Preview</h4>
-
-            <img
-              src={preview}
-              alt="ID Preview"
-              className="w-96 h-64 object-cover rounded-lg border shadow-md"
-            />
-
-            {/* X Button to Remove Image */}
-            <button
-              type="button"
-              onClick={() => {
-                setPreview(null);
-                setFormData({ ...formData, image: null });
-              }}
-              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center cursor-pointer bg-red-500 text-white rounded-full hover:bg-red-600 transition"
-              aria-label="Remove Image"
             >
-              X
-            </button>
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
           </div>
-        )}
+
+          <div className="relative">
+            <label htmlFor="civilStatus" className="block text-gray-700 font-medium">Civil Status</label>
+            <select
+              value={formData.civilStatus}
+              onChange={handleChange}
+              id="civilStatus"
+              name="civilStatus"
+              className="border p-3 rounded w-full"
+              required
+            >
+              <option value="">Select Status</option>
+              <option value="single">Single</option>
+              <option value="married">Married</option>
+              <option value="divorced">Divorced</option>
+              <option value="widowed">Widowed</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="relative">
+            <label htmlFor="address" className="block text-gray-700 font-medium">Address</label>
+            <input
+              value={formData.address}
+              onChange={handleChange}
+              name="address"
+              id="address"
+              type="text"
+              placeholder="e.g., 123 Rizal St., Barangay..."
+              className="border p-3 rounded w-full"
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <label htmlFor="postalCode" className="block text-gray-700 font-medium">Postal Code</label>
+            <input
+              value={formData.postalCode}
+              onChange={handleChange}
+              id="postalCode"
+              name="postalCode"
+              type="text"
+              placeholder="Enter Postal Code"
+              className="border p-3 rounded w-full"
+              required
+            />
+          </div>
+
+        </div>
+
 
         <label className="flex items-start gap-2 text-sm text-gray-700 mt-2">
           <input type="checkbox" className="mt-1 cursor-pointer" />

@@ -17,6 +17,83 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
     }));
   };
 
+    {/* 
+
+         <div className="relative">
+          <label htmlFor="fileUpload" className="block text-gray-700 font-medium mb-2">
+            Upload ID
+          </label>
+          <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+            <label htmlFor="fileUpload" className="flex flex-col items-center cursor-pointer">
+              <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
+              <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
+              <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
+            </label>
+            <input
+              id="fileUpload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
+        </div>
+        
+        
+        */}
+       
+        {/*{preview && (
+          <div className="mt-4 p-6  bg-white rounded-lg shadow-md flex flex-col items-center relative">
+            <h4 className="text-base font-medium text-gray-600 mb-3">ID Preview</h4>
+
+            <img
+              src={preview}
+              alt="ID Preview"
+              className="w-96 h-64 object-cover rounded-lg border shadow-md"
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                setFormData({ ...formData, image: null });
+              }}
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center cursor-pointer bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+              aria-label="Remove Image"
+            >
+              X
+            </button>
+          </div>
+        )}
+
+        {preview && (
+          <div className="mt-4 p-6  bg-white rounded-lg shadow-md flex flex-col items-center relative">
+            <h4 className="text-base font-medium text-gray-600 mb-3">ID Preview</h4>
+
+            <img
+              src={preview}
+              alt="ID Preview"
+              className="w-96 h-64 object-cover rounded-lg border shadow-md"
+            />
+
+        
+            <button
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                setFormData({ ...formData, image: null });
+              }}
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center cursor-pointer bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+              aria-label="Remove Image"
+            >
+              X
+            </button>
+          </div>
+        )}
+
+          
+ */}
+
   const storeDetails = () => {
     if (loanApplication.idNumber) {
       sessionStorage.setItem("idNumber", loanApplication.idNumber);

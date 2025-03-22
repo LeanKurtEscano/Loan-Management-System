@@ -25,8 +25,10 @@ def verify_account(request):
         age = request.data.get("age")
         contact_number = request.data.get("contactNumber")
         address = request.data.get("address")
-        image = request.FILES.get("image")
-        tin_number = request.data.get("tinNumber")
+        gender = request.data.get("gender")
+        civil_status = request.data.get("civilStatus")
+        postal_code= request.data.get("postalCode")
+      
         
         user = CustomUser.objects.get(id = request.user.id)
         user.is_verified = "pending"
@@ -35,8 +37,6 @@ def verify_account(request):
             return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
 
      
-        uploaded_image = cloudinary.uploader.upload(image)
-        image_url = uploaded_image.get("secure_url")
 
       
         VerificationRequests.objects.create(
@@ -48,12 +48,14 @@ def verify_account(request):
             age=age,
             contact_number=contact_number,
             address=address,
-            tin_number = tin_number,
-            image=image_url,
+            gender = gender,
+            postal_code = postal_code,
+            civil_status = civil_status,
+          
             status="pending"
         )
 
-        return Response({"success": "Data received and stored", "image_url": image_url}, status=status.HTTP_201_CREATED)
+        return Response({"success": "Data received and stored"}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         print(f"{e}")

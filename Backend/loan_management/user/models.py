@@ -27,8 +27,10 @@ class VerificationRequests(models.Model):
     age = models.IntegerField()
     contact_number = models.CharField(max_length=15)
     address = models.TextField()
-    image = cloudinary.models.CloudinaryField("image") 
-    tin_number = models.CharField(max_length=20, blank=True, null=True )
+    #image = cloudinary.models.CloudinaryField("image") 
+    gender = models.CharField(max_length=20, blank=True, null=True )
+    marital_status = models.CharField(max_length=20, blank=True, null=True )
+    postal_code = models.CharField(max_length=20, blank=True, null=True )
     status = models.CharField(max_length=20, default="pending")  
     created_at = models.DateTimeField(auto_now_add=True)
 
