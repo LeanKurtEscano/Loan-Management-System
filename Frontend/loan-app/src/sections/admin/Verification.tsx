@@ -6,10 +6,10 @@ import { motion } from "framer-motion";
 import { ApplicationData } from "../../constants/interfaces/adminInterface";
 import { cleanImageUrl } from "../../utils/imageClean";
 import Modal from "../../components/Modal";
-import ImageModal from "../../components/ImageModal";
+
 import { ApplicationId } from "../../constants/interfaces/adminInterface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck, faArrowLeft, faCamera } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useMutation } from "@tanstack/react-query";
 import { useMyContext } from "../../context/MyContext";
 import { adminApi } from "../../services/axiosConfig";
@@ -40,7 +40,7 @@ const Verification: React.FC = () => {
     const [loading2, setLoading2] = useState(false);
     const { emailDetails } = useMyContext();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+
     const queryClient = useQueryClient();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
@@ -111,25 +111,6 @@ const Verification: React.FC = () => {
 
             <div className="bg-white p-8 shadow-xl rounded-lg overflow-hidden w-full max-w-3xl relative">
 
-                <motion.img
-                    src={cleanImageUrl(data?.image)}
-                    alt="User"
-                    className="w-full h-48 sm:h-64 cursor-pointer object-cover border-b-2 border-gray-300"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    onClick={() => setIsImageModalOpen(true)}
-
-                />
-                <button
-                    className="absolute top-9 right-9 hover:bg-blue-600 bg-blue-500 px-3 cursor-pointer bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all duration-300"
-                    onClick={() => setIsImageModalOpen(true)}
-                >
-                    <FontAwesomeIcon icon={faCamera} />
-                </button>
-
-
-
                 <div className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                         <p className="text-2xl font-bold text-gray-800 text-center md:text-left w-full">
@@ -146,20 +127,30 @@ const Verification: React.FC = () => {
                             <p className="text-gray-600 font-medium">Age</p>
                             <p className="text-gray-500 text-sm">{data?.age}</p>
                         </div>
+                        <div>
+                            <p className="text-gray-600 font-medium">Gender</p>
+                            <p className="text-gray-500 text-sm">{data?.gender}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600 font-medium">Civil Status</p>
+                            <p className="text-gray-500 text-sm">{data?.marital_status}</p>
+                        </div>
                         <div className="sm:col-span-2">
                             <p className="text-gray-600 font-medium">Address</p>
                             <p className="text-gray-500 text-sm">{data?.address}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600 font-medium">Postal Code</p>
+                            <p className="text-gray-500 text-sm">{data?.postal_code}</p>
                         </div>
                         <div className="sm:col-span-2">
                             <p className="text-gray-600 font-medium">Contact Number</p>
                             <p className="text-gray-500 text-sm">{data?.contact_number}</p>
                         </div>
-                        <div className="sm:col-span-2">
-                            <p className="text-gray-600 font-medium">TIN Number</p>
-                            <p className="text-gray-500 text-sm">{data?.tin_number}</p>
-                        </div>
+
                     </div>
                 </div>
+
 
 
                 <div className="p-4 flex gap-4 justify-center">
@@ -192,16 +183,16 @@ const Verification: React.FC = () => {
                     )}
                 </div>
             </div>
-
-            {isImageModalOpen && (
+            {/*  {isImageModalOpen && (
                 <ImageModal
                     imageUrl={cleanImageUrl(data?.image)}
                     isOpen={isImageModalOpen}
                     onClose={() => setIsImageModalOpen(false)}
                 />
             )}
+ */}
 
-         
+
             <Modal
                 loading={loading}
                 isOpen={isModalOpen}

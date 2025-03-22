@@ -50,7 +50,7 @@ def verify_account(request):
             address=address,
             gender = gender,
             postal_code = postal_code,
-            civil_status = civil_status,
+            marital_status = civil_status,
           
             status="pending"
         )

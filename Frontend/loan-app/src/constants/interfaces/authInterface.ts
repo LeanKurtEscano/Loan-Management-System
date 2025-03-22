@@ -43,6 +43,9 @@ export interface VerifiedUserDetails {
     age: number;
     birthdate: string; 
     contact_number: string;
+    gender: string;
+    marital_status: string;
+    postal_code:string;
     address: string;
     status: string;
 }

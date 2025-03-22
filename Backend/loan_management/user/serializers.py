@@ -12,5 +12,5 @@ class VerificationRequestsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = VerificationRequests
-        fields = ["id", "first_name", "middle_name", "last_name","age","birthdate","contact_number","address","status"]
+        fields = '__all__'
         

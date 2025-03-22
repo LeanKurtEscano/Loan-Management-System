@@ -7,11 +7,13 @@ export interface ApplicationData {
     age: number;
     contact_number: string;
     address: string;
-    image: string;
+    gender: string;
+    marital_status: string;
+    postal_code: string;
     status: string;
     created_at: string;
     user: number
-    tin_number: string;
+  
 }
 
 

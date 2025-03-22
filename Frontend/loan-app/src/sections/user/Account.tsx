@@ -128,10 +128,24 @@ const Account: React.FC = () => {
                                     <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Contact</p>
                                     <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.contact_number}</p>
                                 </div>
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Gender</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.gender}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Civil Status</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.marital_status}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Postal Code</p>
+                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.postal_code}</p>
+                                </div>
                                 <div className="sm:col-span-2">
                                     <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Address</p>
                                     <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.address}</p>
                                 </div>
+                             
+                                
                             </div>
                         </motion.div>
 
