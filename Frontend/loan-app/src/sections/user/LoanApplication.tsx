@@ -5,7 +5,7 @@ import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
-
+import Confetti from "react-confetti";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faHourglassHalf } from "@fortawesome/free-solid-svg-icons";
@@ -51,6 +51,8 @@ const LoanApplication: React.FC = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center justify-center h-80 bg-gradient-to-r from-blue-500 to-cyan-400 border border-blue-300 rounded-lg shadow-md p-4"
         >
+
+          <Confetti numberOfPieces={450} recycle={false} />
           <span className="text-4xl bg-white items-center pl-1.5 rounded-full py-2 pr-0.5">
             🎉
           </span>
@@ -86,8 +88,8 @@ const LoanApplication: React.FC = () => {
             {step === 1 && <Step1 nextStep={nextStep} />}
             {step === 2 && <Step2 nextStep={nextStep} prevStep={prevStep} />}
             {step === 3 && <Step3 nextStep={nextStep} prevStep={prevStep} />}
-            {step === 4 && <Step4  prevStep={prevStep} />}
-           
+            {step === 4 && <Step4 prevStep={prevStep}  />}
+
           </motion.div>
         </>
       )}

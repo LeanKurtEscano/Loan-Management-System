@@ -21,3 +21,11 @@ export interface AdminApprove {
   loanAmount: number | null;
   interest: number | null;
 }
+
+export interface LoanSubmission {
+  loanAmount: number |  null;
+  repayDate: string;
+  idSelfie: File | null;
+  cashout: string;
+
+}

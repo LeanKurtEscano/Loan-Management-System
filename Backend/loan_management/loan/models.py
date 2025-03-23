@@ -39,6 +39,7 @@ class LoanApplication(models.Model):
     loan_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     borrowed_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     interest = models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField(default=False) 
 
 
     def __str__(self):

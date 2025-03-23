@@ -17,6 +17,8 @@ from dateutil.relativedelta import relativedelta
 from rest_framework.decorators import api_view, permission_classes
 from .models import LoanApplication
 import cloudinary.uploader
+import locale
+
 from decimal import Decimal
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -145,7 +147,9 @@ def verify_loan_application(request) :
         application.loan_amount = Decimal(loan_amount)
         application.interest = int(interest)
         application.status = "Approved"
+        application.is_active = True
         application.save()
+        locale.setlocale(locale.LC_ALL, 'en_PH.UTF-8')  
         
         """
         repayment_term = int(application.plan.repayment_term)
@@ -162,10 +166,11 @@ def verify_loan_application(request) :
         
         """
         user = application.user
+        formatted_loan_amount = f"₱{float(application.loan_amount):,.2f}"
         
         subject = "You're Loan Application has been approved!"
         html_content = render_to_string("email/loanapplication_success.html", {
-            "loan_amount": application.loan_amount,
+            "loan_amount": formatted_loan_amount,
             "interest":application.interest,
         })
         plain_message = strip_tags(html_content)
@@ -254,7 +259,7 @@ def loan_application(request):
         user = request.user
         print(user)
         
-        loan_applications = LoanApplication.objects.get(user=request.user)
+        loan_applications = LoanApplication.objects.get(user=request.user, is_active = True)
         serializer = LoanAppSerializer(loan_applications)
         print(serializer.data)
         return Response(serializer.data, status=200)
