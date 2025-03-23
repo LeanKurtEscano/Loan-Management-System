@@ -50,9 +50,9 @@ def create_loan_application(request):
         monthly_income = data.get("monthlyIncome", "")
         income_variation = data.get("incomeVariation", "")
         primary_income_source = data.get("primaryIncomeSource", "")        
-        other_sources_of_income = data.get("otherSourcesOfIncome", [])
-        if isinstance(other_sources_of_income, list):
-          other_sources_of_income = ", ".join(other_sources_of_income) 
+        other_sources_of_income = data.getlist("otherSourcesOfIncome[]")
+        combined_sources = ", ".join(other_sources_of_income)
+    
         income_frequency = data.get("incomeFrequency", "")
         primary_source = data.get("primarySource", "")
         money_receive = data.get("moneyReceive", "")
@@ -86,7 +86,7 @@ def create_loan_application(request):
             monthly_income=monthly_income,
             income_variation=income_variation,
             primary_income_source=primary_income_source,
-            other_sources_of_income=other_sources_of_income,
+            other_sources_of_income=combined_sources,
             income_frequency=income_frequency,
             primary_source=primary_source,
             money_receive=money_receive,
@@ -139,7 +139,7 @@ def verify_loan_application(request) :
         id = request.data.get("id")
      
         application = get_object_or_404(LoanApplication, id=int(id))
-
+        """
         repayment_term = int(application.plan.repayment_term)
 
         user = application.user
@@ -168,7 +168,7 @@ def verify_loan_application(request) :
         email.send()
 
       
-       
+       """
 
         return Response({
             "success": "Loan application verified",
