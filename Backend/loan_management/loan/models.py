@@ -30,14 +30,16 @@ class LoanApplication(models.Model):
     primary_source = models.CharField(max_length=100, blank=True, null=True)
     money_receive = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=20,  default='Pending')
-
     total_spend = models.CharField(max_length=100, blank=True, null=True)
     purpose = models.CharField(max_length=100, blank=True, null=True)
-
     explanation = models.TextField(blank=True, null=True)
     outstanding =  models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)  
     end_date = models.DateTimeField(null=True, blank=True)
+    loan_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    borrowed_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    interest = models.IntegerField(blank=True, null=True)
+
 
     def __str__(self):
         return f"Loan Application for {self.user.username}"

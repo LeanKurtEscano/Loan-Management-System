@@ -3,15 +3,21 @@ export interface LoanApplicationDetails {
     back: File | null;
     idType: string;
     educationLevel: string;
-    employment: string | null;
-    totalIncome:string
-    sourceOfIncome:string;
-    otherSourcesofIncome?:string;
-    frequency:string;
-    primarySource:string;
-    moneyReceive:string;
-    totalSpend:string;
-    outstanding:string
+    employmentStatus: string | null;
+    monthlyIncome: string;
+    incomeVariation: string;
+    primaryIncomeSource: string;
+    otherSourcesOfIncome?: string[]; 
+    incomeFrequency: string;
+    primarySource: string;
+    moneyReceive: string;
+    totalSpend: string;
+    outstanding: string;
     purpose: string | null;
-    explanation:string;
+    explanation: string;
+  }
+
+export interface AdminApprove {
+  loanAmount: number | null;
+  interest: number | null;
 }

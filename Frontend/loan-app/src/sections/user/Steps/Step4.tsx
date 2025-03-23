@@ -1,75 +1,150 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faIdCard, faBriefcase, faDollarSign, faClipboardList, faPesoSign } from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../../context/MyContext";
-import { sendLoanApplication } from "../../../services/user/loan";
 import { useNavigate } from "react-router-dom";
-const Step4 = ({ prevStep }: { prevStep: () => void; }) => {
+import { sendLoanApplication } from "../../../services/user/loan";
+
+const Step4 = ({ prevStep }: { prevStep: () => void }) => {
   const { loanApplication } = useMyContext();
   const nav = useNavigate();
-  console.log(loanApplication);
 
-  const formatCurrency = (amount: string) => {
-    return `₱${parseFloat(amount).toLocaleString("en-PH")}`;
-  };
-  const handleSubmit = async() => {
-     try {
-
+  const handleSubmit = async () => {
+    try {
       const response = await sendLoanApplication(loanApplication);
 
-      if(response.status === 201) {
+      if (response.status === 201) {
         sessionStorage.clear();
-        nav('/user/my-loan');
+        nav("/user/my-loan");
       }
-
-     } catch (error:any) {
-       console.log("Something Wrong")
-     }
-  }
-
-  const fields = [
-    { label: "ID Number", value: loanApplication.idNumber, icon: faIdCard },
-    { label: "Employment", value: loanApplication.employment, icon: faBriefcase },
-    { label: "Income", value: loanApplication.income, icon: faPesoSign },
-    { label: "Loan Type", value: sessionStorage.getItem("userType") || "Not selected", icon: faClipboardList },
-    { label: "Plan", value: sessionStorage.getItem("userPlan") || "Not selected", icon: faClipboardList },
-    { label: "Amount", value: formatCurrency(loanApplication.amount), icon: faPesoSign },
-  ];
+    } catch (error: any) {
+      console.log("Something went wrong");
+    }
+  };
 
   return (
-    <div className="flex items-center pt-44 justify-center mb-40 h-screen">
-      <div className="bg-white p-8 border border-gray-200 rounded-2xl shadow-lg w-[700px]">
-        <h1 className="text-2xl font-bold text-center  text-gray-800">Review Your Application</h1>
-        <p className="text-center text-gray-500 mb-7 ">Processing will take 3-5 business days.</p>
+    <div className="flex flex-col items-center pt-10 pb-10 bg-gray-50 min-h-screen">
+      {/* Heading */}
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 tracking-wide">
+        Review Your Loan Application
+      </h1>
 
-        <div className="space-y-4">
-          {fields.map((field, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 border rounded-lg shadow-md">
-              <FontAwesomeIcon icon={field.icon} className="text-blue-500 text-2xl" />
-              <div>
-                <h2 className="text-lg font-medium text-gray-700">{field.label}</h2>
-                <p className="text-gray-600">{field.value}</p>
-              </div>
+      {/* Summary Card */}
+      <div className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-8 space-y-6">
+
+        {/* ID Images Section */}
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">
+          Identification
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {loanApplication.front && (
+            <div className="flex flex-col items-center bg-gray-100 shadow-md rounded-lg p-4">
+              <span className="font-medium text-gray-600 mb-2">Front ID</span>
+              <img
+                src={URL.createObjectURL(loanApplication.front)}
+                alt="Front ID"
+                className="w-full h-56 object-cover rounded-md"
+              />
             </div>
-          ))}
+          )}
+          {loanApplication.back && (
+            <div className="flex flex-col items-center bg-gray-100 shadow-md rounded-lg p-4">
+              <span className="font-medium text-gray-600 mb-2">Back ID</span>
+              <img
+                src={URL.createObjectURL(loanApplication.back)}
+                alt="Back ID"
+                className="w-full h-56 object-cover rounded-md"
+              />
+            </div>
+          )}
         </div>
 
-       
+        {/* Section: Personal Information */}
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">
+          Personal Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p>
+            <strong className="text-gray-600">ID Type:</strong> {loanApplication.idType}
+          </p>
+          <p>
+            <strong className="text-gray-600">Education Level:</strong> {loanApplication.educationLevel}
+          </p>
+        </div>
+
+        {/* Section: Income Information */}
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mt-4">
+          Income Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p>
+            <strong className="text-gray-600">Employment Status:</strong> {loanApplication.employmentStatus}
+          </p>
+          <p>
+            <strong className="text-gray-600">Monthly Income:</strong> ₱{loanApplication.monthlyIncome}
+          </p>
+          <p>
+            <strong className="text-gray-600">Income Variation:</strong> {loanApplication.incomeVariation}
+          </p>
+          <p>
+            <strong className="text-gray-600">Primary Income Source:</strong> {loanApplication.primaryIncomeSource}
+          </p>
+          <p className="col-span-2">
+            <strong className="text-gray-600">Other Sources of Income:</strong>{" "}
+            {loanApplication.otherSourcesOfIncome.length > 0
+              ? loanApplication.otherSourcesOfIncome.join(", ")
+              : "None"}
+          </p>
+          <p>
+            <strong className="text-gray-600">Income Frequency:</strong>{" "}
+            {loanApplication.incomeFrequency}
+          </p>
+          <p>
+            <strong className="text-gray-600">Primary Source of Income:</strong>{" "}
+            {loanApplication.primarySource}
+          </p>
+          <p className="col-span-2">
+            <strong className="text-gray-600">Average Money Received:</strong>{" "}
+            ₱{loanApplication.moneyReceive}
+          </p>
+        </div>
+
+        {/* Section: Expenses and Loan Purpose */}
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mt-4">
+          Expenses & Loan Purpose
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p>
+            <strong className="text-gray-600">Total Spend (last 30 days):</strong> ₱{loanApplication.totalSpend}
+          </p>
+          <p>
+            <strong className="text-gray-600">Outstanding Loans:</strong> {loanApplication.outstanding}
+          </p>
+          <p className="col-span-2">
+            <strong className="text-gray-600">Purpose of Loan:</strong> {loanApplication.purpose}
+          </p>
+          <p className="col-span-2">
+            <strong className="text-gray-600">Detailed Explanation:</strong> {loanApplication.explanation}
+          </p>
+        </div>
+
 
         <div className="flex justify-between mt-6">
+
           <button
             onClick={prevStep}
-            className="bg-blue-500 cursor-pointer text-white text-lg px-6 py-3 rounded-xl hover:bg-blue-600 transition w-[45%]"
+            className="bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-700 font-medium py-2 px-8 text-lg rounded-lg shadow-sm transition ease-in-out duration-300"
           >
             Back
           </button>
+
+
           <button
             onClick={handleSubmit}
-            className="bg-green-500 cursor-pointer text-white text-lg px-6 py-3 rounded-xl hover:bg-green-600 transition w-[45%]"
+            className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-white font-semibold py-3 px-10 text-lg rounded-lg shadow-md transition ease-in-out duration-300"
           >
-            Submit
+            Submit Application
           </button>
         </div>
+
       </div>
     </div>
   );

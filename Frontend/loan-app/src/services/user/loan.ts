@@ -14,7 +14,11 @@ export const fetchLoanData = async (endpoint: string) => {
 
 export const sendLoanApplication = async(data: LoanApplicationDetails) => {
   try {
-    const response = await userLoanApi.post(`/loan/apply/`, data);
+    const response = await userLoanApi.post(`/loan/apply/`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data", 
+      }
+    });
     return response;
   } catch (error) {
     console.error("Error fetching loan data:", error);

@@ -7,8 +7,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { loanApi } from "../../services/axiosConfig";
 import Modal from "../../components/Modal";
-
-
+import { formatDate } from "../../utils/formatDate";
 const rowVariants = {
   hidden: { opacity: 0, y: -10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
@@ -119,12 +118,10 @@ const UsersLoanApplication: React.FC = () => {
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">First Name</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Middle Name</th>
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Last Name</th>
-                <th className="p-2 sm:p-3 text-left whitespace-nowrap">Loan Type</th>
-                <th className="p-2 sm:p-3 text-left whitespace-nowrap">Amount</th>
-
-                <th className="p-2 sm:p-3 text-left whitespace-nowrap">Duration</th>
-                <th className="p-2 sm:p-3 text-left whitespace-nowrap">Interest Rate</th>
+               
+               
                 <th className="p-2 sm:p-3 text-left whitespace-nowrap">Status</th>
+                <th className="p-2 sm:p-3 text-left whitespace-nowrap">Send Date</th>
                 <th className="p-2 sm:p-3 text-center whitespace-nowrap">Actions</th>
               </tr>
             </thead>
@@ -138,11 +135,8 @@ const UsersLoanApplication: React.FC = () => {
                   <td className="p-2 sm:p-3 truncate whitespace-nowrap">{loan.user.first_name}</td>
                   <td className="p-2 sm:p-3 truncate whitespace-nowrap">{loan.user.middle_name}</td>
                   <td className="p-2 sm:p-3 truncate whitespace-nowrap">{loan.user.last_name}</td>
-                  <td className="p-2 sm:p-3 whitespace-nowrap">{loan.type.name}</td>
-                  <td className="p-2 sm:p-3 whitespace-nowrap">PHP {loan.amount.toLocaleString()}</td>
-
-                  <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.repayment_term} months</td>
-                  <td className="p-2 sm:p-3 whitespace-nowrap">{loan.plan.interest}%</td>
+                
+                 
                   <td
                     className={`p-2 sm:p-3 ${loan.status === "Approved"
                         ? "text-green-600"
@@ -153,6 +147,7 @@ const UsersLoanApplication: React.FC = () => {
                   >
                     {loan.status}
                   </td>
+                  <td className="p-2 sm:p-3 truncate whitespace-nowrap">{formatDate(loan.created_at)}</td>
 
                   <td className="p-2 sm:p-3 text-center whitespace-nowrap">
                     <button
@@ -173,21 +168,7 @@ const UsersLoanApplication: React.FC = () => {
             </tbody>
 
 
-            {/* 
-        
-         {isModalOpen && selectedId !== null ? (
-              <EmailModal loading={loading} isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)} onConfirm={handleDelete} heading="Reject Loan Application?" buttonText="Reject Loan Application"/>
-
-            ) : (
-                null
-            )}
-
-        
-        
-        */}
-
-
+    
 
             {isModalOpen && selectedId !== null ? (
               <Modal loading={loading} isOpen={isModalOpen} title="Delete this Loan Application?" message="Are you sure you want to Delete the loan application of this user?"

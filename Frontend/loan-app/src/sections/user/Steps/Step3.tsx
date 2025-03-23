@@ -1,57 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import { useMyContext } from '../../../context/MyContext';
-import { faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { LoanApplicationDetails } from '../../../constants/interfaces/loanInterface';
-
-const incomeRanges = [
-  'Less than PHP 60,000',
-  'PHP 60,000 - PHP 100,000',
-  'PHP 100,000 - PHP 150,000',
-  'PHP 150,000 - PHP 250,000',
-  'PHP 250,000 - PHP 350,000',
-  'PHP 350,000 - PHP 500,000',
-  'PHP 500,000 and above'
-];
+import React, { useEffect, useState } from "react";
+import { useMyContext } from "../../../context/MyContext";
+import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
 
 const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
   const { loanApplication, setLoanApplication } = useMyContext();
-  const [selectedRange, setSelectedRange] = useState(sessionStorage.getItem("incomeRange") || '');
+  const [isNextDisabled, setIsNextDisabled] = useState(true);
 
-  const handleSelect = (range: string) => {
-    setSelectedRange(range);
-    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, income: range }));
-    sessionStorage.setItem("incomeRange", range);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, field: string) => {
+    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [field]: e.target.value }));
   };
 
+ 
   useEffect(() => {
-    if (selectedRange && !loanApplication.income) {
-      setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, income: selectedRange }));
-    }
-  }, [selectedRange, loanApplication.income, setLoanApplication]);
+    const { purpose, explanation, outstanding } = loanApplication;
+    setIsNextDisabled(!(purpose && explanation && outstanding));
+  }, [loanApplication]);
 
   return (
-    <div className="flex items-start pl-44 max-w-6xl justify-center h-screen">
-      <div className="p-8 bg-white border border-gray-200 rounded-2xl shadow-lg w-[700px]">
-        <h1 className="text-2xl font-bold text-center mb-4 text-gray-800">Select Your Income Range</h1>
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {incomeRanges.map((range, index) => (
-            <button
-              key={index}
-              onClick={() => handleSelect(range)}
-              className={`flex cursor-pointer items-center whitespace-nowrap p-4 border-2 border-gray-300 shadow-sm rounded-xl text-lg transition ${selectedRange === range ? 'bg-blue-500 text-white border-blue-500 shadow-md' : 'bg-gray-100 text-gray-800 hover:bg-blue-100'}`}
-            >
-              <FontAwesomeIcon icon={faMoneyBillWave} className={`${selectedRange === range ? 'text-white' : 'text-blue-500'} mr-2 transition`} />
-              <span className="text-sm sm:text-base md:text-lg">{range}</span>
-            </button>
-          ))}
+    <div className="flex flex-col items-center min-h-screen">
+      <div className="bg-white shadow-lg rounded-lg p-10 w-full max-w-2xl border-gray-200 border-2 space-y-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Loan Purpose and Details</h2>
+
+        {/* Loan Purpose Dropdown */}
+        <div className="w-full space-y-2">
+          <label className="block text-gray-700 font-medium text-lg">What would you like to use your cash for?</label>
+          <select
+            value={loanApplication.purpose || ""}
+            onChange={(e) => handleInputChange(e, "purpose")}
+            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+          >
+            <option value="">Select Purpose</option>
+            <option value="Business Purposes">Business Purposes</option>
+            <option value="Personal Expense">Personal Expense</option>
+            <option value="Pay Bills">Pay Bills</option>
+            <option value="Educational Purposes">Educational Purposes</option>
+            <option value="Paying Debt">Paying Debt</option>
+            <option value="Emergency Purposes">Emergency Purposes</option>
+          </select>
         </div>
-        <div className="flex justify-between">
-          <button onClick={prevStep} className="bg-blue-500 cursor-pointer text-white text-lg px-6 py-3 rounded-xl hover:bg-blue-600 transition w-[45%]">Back</button>
+
+        {/* Explanation Textarea */}
+        <div className="w-full space-y-2">
+          <label className="block text-gray-700 font-medium text-lg">
+            Please describe how you will use the money in more detail
+          </label>
+          <textarea
+            value={loanApplication.explanation || ""}
+            onChange={(e) => handleInputChange(e, "explanation")}
+            placeholder="Explain how you will use the money..."
+            rows={4}
+            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+          />
+        </div>
+
+        {/* Outstanding Loans Yes/No */}
+        <div className="w-full space-y-2">
+          <label className="block text-gray-700 font-medium text-lg">Do you have any outstanding loans?</label>
+          <div className="flex space-x-4">
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                value="Yes"
+                checked={loanApplication.outstanding === "Yes"}
+                onChange={(e) => handleInputChange(e, "outstanding")}
+                className="w-5 h-5"
+              />
+              <span className="text-gray-700 text-lg">Yes</span>
+            </label>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                value="No"
+                checked={loanApplication.outstanding === "No"}
+                onChange={(e) => handleInputChange(e, "outstanding")}
+                className="w-5 h-5"
+              />
+              <span className="text-gray-700 text-lg">No</span>
+            </label>
+          </div>
+        </div>
+
+      
+        <div className="flex justify-between items-center mt-6">
+          <button
+            onClick={prevStep}
+            className="py-3 px-8 bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition"
+          >
+            Back
+          </button>
+
           <button
             onClick={nextStep}
-            disabled={!selectedRange}
-            className={`text-lg px-6 cursor-pointer py-3 rounded-xl transition w-[45%] ${selectedRange ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-black font-semibold cursor-not-allowed'}`}
+            disabled={isNextDisabled}
+            className={`py-3 px-8 font-medium text-lg rounded-lg transition ${
+              isNextDisabled
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
           >
             Next
           </button>

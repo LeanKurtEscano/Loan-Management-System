@@ -8,6 +8,7 @@ import { getUserDetails } from "../../services/admin/adminData";
 import { useNavigate } from "react-router-dom";
 import { adminApi } from "../../services/axiosConfig";
 import Modal from "../../components/Modal";
+import { formatDate } from "../../utils/formatDate";
 
 
 
@@ -21,18 +22,7 @@ const rowVariants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
-const formatDate = (dateString: any) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-    });
-};
+
 
 const UserVerification: React.FC = () => {
     const navigate = useNavigate();

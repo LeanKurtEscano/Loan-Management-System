@@ -42,7 +42,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
 
   return (
     <div className="flex justify-center h-auto items-center min-h-screen ">
-      <div className="bg-white shadow-lg rounded-lg mb-11 p-6 w-full max-w-xl space-y-4">
+      <div className="bg-white shadow-lg rounded-lg mb-11 p-6 w-full max-w-xl border-gray-200 border-2 space-y-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Upload Your ID</h2>
 
         {/* ID Type Dropdown */}
@@ -54,13 +54,13 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
             className="w-full p-3 border rounded-lg text-gray-700 bg-gray-50"
           >
             <option value="">Select ID</option>
-            <option value="0">SSS Unified Multi-Purpose ID (UMID)</option>
-            <option value="1">Driver's License</option>
-            <option value="2">Passport</option>
-            <option value="3">Philippine Identification (PhilID / ePhilID)</option>
-            <option value="4">PhilHealth ID</option>
-            <option value="5">Postal ID</option>
-            <option value="6">Voter's ID</option>
+            <option value="SSS Unified Multi-Purpose ID (UMID)">SSS Unified Multi-Purpose ID (UMID)</option>
+            <option value="Driver's License">Driver's License</option>
+            <option value="Passport">Passport</option>
+            <option value="Philippine Identification (PhilID / ePhilID)">Philippine Identification (PhilID / ePhilID)</option>
+            <option value="PhilHealth ID">PhilHealth ID</option>
+            <option value="Postal ID">Postal ID</option>
+            <option value="Voter's ID">Voter's ID</option>
           </select>
         </div>
 

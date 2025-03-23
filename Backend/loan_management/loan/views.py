@@ -17,7 +17,7 @@ from dateutil.relativedelta import relativedelta
 from rest_framework.decorators import api_view, permission_classes
 from .models import LoanApplication
 import cloudinary.uploader
-
+from decimal import Decimal
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def loan_types_list(request):
@@ -39,7 +39,7 @@ def loan_plans_list(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@parser_classes([MultiPartParser, FormParser])  # Added parser for form and file data
+@parser_classes([MultiPartParser, FormParser]) 
 def create_loan_application(request):
     try:
         data = request.data
@@ -137,12 +137,20 @@ def verify_loan_application(request) :
     
     try:
         id = request.data.get("id")
+        loan_amount= request.data.get("loanAmount")
+        interest = request.data.get("interest")
      
         application = get_object_or_404(LoanApplication, id=int(id))
+        
+        application.loan_amount = Decimal(loan_amount)
+        application.interest = int(interest)
+        application.status = "Approved"
+        application.save()
+        
         """
         repayment_term = int(application.plan.repayment_term)
 
-        user = application.user
+       
         end_date = now() + relativedelta(months=repayment_term)
         application.status = "Approved"
         application.end_date = end_date
@@ -152,13 +160,13 @@ def verify_loan_application(request) :
 
         print(formatted_end_date)
         
+        """
+        user = application.user
+        
         subject = "You're Loan Application has been approved!"
         html_content = render_to_string("email/loanapplication_success.html", {
-            "loan_type":application.type.name,
-            "end_date": formatted_end_date,
-            "repayment_term": application.plan.repayment_term,
-            "payment_frequency": application.plan.payment_frequency,
-            "interest":application.plan.interest,
+            "loan_amount": application.loan_amount,
+            "interest":application.interest,
         })
         plain_message = strip_tags(html_content)
 
@@ -168,7 +176,7 @@ def verify_loan_application(request) :
         email.send()
 
       
-       """
+    
 
         return Response({
             "success": "Loan application verified",

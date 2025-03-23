@@ -16,6 +16,11 @@ export interface ApplicationData {
   
 }
 
+export interface ApplicationApproveData {
+    id: number;
+    loanAmount: number;
+    interest:number;
+}
 
 export interface ApplicationId {
     id:number;

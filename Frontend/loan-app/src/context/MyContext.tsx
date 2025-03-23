@@ -1,8 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getUserDetails } from '../services/user/userData';
-import { useQuery } from '@tanstack/react-query';
 import { UserDetails } from '../constants/interfaces/authInterface';
-import { LoanApplicationDetails } from '../constants/interfaces/loanInterface';
+import { LoanApplicationDetails,AdminApprove } from '../constants/interfaces/loanInterface';
 const MyContext = createContext<any>(null);
 export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
@@ -13,6 +11,12 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
     !!localStorage.getItem("admin_token") 
   );
+  const [approveLoan , setApproveLoan] = useState<AdminApprove>({
+    loanAmount:null,
+    interest:null,
+  })
+
+
 
   const [emailDetails, setEmailDetails] = useState({
     subject:"",
@@ -22,16 +26,18 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   console.log(emailDetails)
   
   const [ toggle, setToggle] = useState(false);
+
   const [loanApplication, setLoanApplication] = useState<LoanApplicationDetails>({
-     front:null,
-     back:null,
+    front: null,
+    back: null,
     idType: "",
     educationLevel: "",
-    employment: "",
-    totalIncome: "",
-    sourceOfIncome: "",
-    otherSourcesofIncome: "",
-    frequency: "",
+    employmentStatus: "",
+    monthlyIncome: "",
+    incomeVariation: "",
+    primaryIncomeSource: "",
+    otherSourcesOfIncome: [],
+    incomeFrequency: "",
     primarySource: "",
     moneyReceive: "",
     totalSpend: "",
@@ -40,11 +46,12 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     explanation: "",
   });
   
+  console.log(loanApplication)
 
 
 
   return (
-    <MyContext.Provider value={{ toggle,emailDetails,setEmailDetails, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>
+    <MyContext.Provider value={{ toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>
       {children}
     </MyContext.Provider>
   );
