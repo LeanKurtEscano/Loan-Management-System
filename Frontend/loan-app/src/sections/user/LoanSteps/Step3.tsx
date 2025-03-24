@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
+import { formatCurrency } from "../../../utils/formatCurrency";
+import { useQuery } from "@tanstack/react-query";
+import { getLoanApplication } from "../../../services/user/userData";
 const Step3 = ({
   prevStep,
   nextStep,
@@ -8,22 +11,30 @@ const Step3 = ({
   prevStep: () => void;
   nextStep: () => void;
 }) => {
- 
   const { loanSubmission, setLoanSubmission } = useMyContext();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoanSubmission((prev: LoanSubmission) => ({ ...prev, [e.target.name]: e.target.value }))
-  }
+    setLoanSubmission((prev: LoanSubmission) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
+  const { data, isLoading, isError } = useQuery(["userLoanApplication"], getLoanApplication);
 
+  // Calculate service fee (interest percentage * loan amount)
+  const serviceFee = data?.interest ? (loanSubmission.loanAmount * data.interest) / 100 : 0;
+  const totalPayment = Number(loanSubmission.loanAmount) + Number(serviceFee);
+   
 
+  useEffect(() => {
+     setLoanSubmission((prev:LoanSubmission) => ({...prev, totalPayment: totalPayment}))
+     
+ 
+  },[])
   const handleContinue = () => {
-    
     nextStep();
   };
 
   return (
-    <div className="flex items-center justify-center h-screen ">
+    <div className="flex items-center justify-center h-screen">
       <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-[500px] text-center">
         {/* Header */}
         <h2 className="text-3xl font-bold mb-4 text-gray-700"></h2>
@@ -35,7 +46,7 @@ const Step3 = ({
         {/* Date Picker */}
         <div className="mb-6">
           <input
-          name="repayDate"
+            name="repayDate"
             type="date"
             value={loanSubmission.repayDate}
             onChange={handleChange}
@@ -44,10 +55,16 @@ const Step3 = ({
         </div>
 
         {/* Loan Summary */}
-        <div className=" p-4 rounded-lg ">
-          <p className="text-sm text-gray-600 mb-1">Borrowed Amount: <span className="font-semibold">3,000 PHP</span></p>
-          <p className="text-sm text-gray-600 mb-1">Service Fee (Interest): <span className="font-semibold">630 PHP</span></p>
-          <p className="text-lg font-bold text-gray-800">Total Payment: 3,630 PHP</p>
+        <div className="p-4 rounded-lg">
+          <p className="text-sm text-gray-600 mb-1">
+            Borrowed Amount: <span className="font-semibold">{formatCurrency(loanSubmission.loanAmount)}</span>
+          </p>
+          <p className="text-sm text-gray-600 mb-1">
+            Service Fee (Interest): <span className="font-semibold">{formatCurrency(serviceFee)}</span>
+          </p>
+          <p className="text-lg font-bold text-gray-800">
+            Total Payment: {formatCurrency(totalPayment)}
+          </p>
         </div>
 
         {/* Buttons Row */}
@@ -61,7 +78,9 @@ const Step3 = ({
 
           <button
             onClick={handleContinue}
-            className="bg-blue-500 hover:bg-blue-600 cursor-pointer text-white font-semibold py-2 px-6 rounded-md transition shadow-md"
+            className={`${
+              !loanSubmission.repayDate ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+            } text-white font-semibold py-3 px-5 rounded-md transition`}
           >
             Continue
           </button>

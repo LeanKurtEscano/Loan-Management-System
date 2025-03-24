@@ -48,8 +48,7 @@ const Step2 = ({
           </span>
         </p>
         <p className="text-base text-gray-600 mb-6">
-          Based on your eligibility, the maximum loan amount you can apply for is PHP 5,000.
-          Please proceed accordingly.
+          Based on your eligibility, the minimum loan amount you can apply for is PHP {formatCurrency(data?.loan_amount || 0 )} Please proceed accordingly.
         </p>
 
         {/* Input Field */}

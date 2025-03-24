@@ -97,6 +97,9 @@ def create_loan_application(request):
             purpose=purpose,
             explanation=explanation
         )
+        loan_application.status = "Pending"
+        loan_application.is_active = True
+        loan_application.save()
 
         return Response({"message": "Loan Application submitted successfully."}, status=status.HTTP_201_CREATED)
 
@@ -147,7 +150,6 @@ def verify_loan_application(request) :
         application.loan_amount = Decimal(loan_amount)
         application.interest = int(interest)
         application.status = "Approved"
-        application.is_active = True
         application.save()
         locale.setlocale(locale.LC_ALL, 'en_PH.UTF-8')  
         

@@ -28,7 +28,8 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
    idSelfie: null,
    repayDate:"",
    loanAmount:null,
-   cashout: ""
+   cashout: "",
+   totalPayment: 0,
   })
 
 
@@ -54,7 +55,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     explanation: "",
   });
   
-  console.log(loanApplication)
+
 
 
 

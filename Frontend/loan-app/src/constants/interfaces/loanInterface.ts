@@ -27,5 +27,6 @@ export interface LoanSubmission {
   repayDate: string;
   idSelfie: File | null;
   cashout: string;
+  totalPayment:number;
 
 }

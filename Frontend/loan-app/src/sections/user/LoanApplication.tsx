@@ -23,7 +23,8 @@ const LoanApplication: React.FC = () => {
     getLoanApplication
   );
 
-
+ 
+  console.log();
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
@@ -33,7 +34,7 @@ const LoanApplication: React.FC = () => {
 
   return (
     <div className="mx-auto p-6 mb-7 bg-white rounded-lg shadow-lg">
-      {applicationData?.status === "Pending" ? (
+      {applicationData?.status.trim() === "Pending" ? (
         <div className="flex flex-col items-center justify-center h-80 w-full bg-yellow-100 border border-yellow-300 rounded-lg shadow-md text-center">
           <FontAwesomeIcon
             icon={faHourglassHalf}
