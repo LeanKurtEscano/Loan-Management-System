@@ -18,7 +18,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="bg-white p-8 border border-gray-300 rounded-lg shadow-xl w-[500px] p-14 text-center">
+      <div className="bg-white border border-gray-300 rounded-lg shadow-xl w-[500px] p-14 text-center">
         
         <h3 className="text-xl font-semibold mb-4">CASHOUT OPTIONS</h3>
 
