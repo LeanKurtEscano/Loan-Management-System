@@ -40,7 +40,7 @@ const LoanApplication: React.FC = () => {
             icon={faHourglassHalf}
             className="text-gray-800 text-4xl animate-[spin_4s_linear_infinite] mb-4"
           />
-          <h2 className="text-2xl font-bold mb-2">Verification Pending...</h2>
+          <h2 className="text-2xl font-bold mb-2">Loan Application Pending...</h2>
           <p className="text-lg mt-2 opacity-90">We’re reviewing your submission. Please hold tight!</p>
           <p className="text-sm mt-4 italic opacity-75">This may take up to 24 hours.</p>
         </div>

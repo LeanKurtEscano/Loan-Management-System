@@ -1,6 +1,6 @@
 
 import { loanApi,userLoanApi } from "../axiosConfig";
-import { LoanApplicationDetails } from "../../constants/interfaces/loanInterface";
+import { LoanApplicationDetails,LoanSubmission } from "../../constants/interfaces/loanInterface";
 export const fetchLoanData = async (endpoint: string) => {
     try {
       const response = await loanApi.get(`/${endpoint}/`);
@@ -15,6 +15,21 @@ export const fetchLoanData = async (endpoint: string) => {
 export const sendLoanApplication = async(data: LoanApplicationDetails) => {
   try {
     const response = await userLoanApi.post(`/loan/apply/`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data", 
+      }
+    });
+    return response;
+  } catch (error) {
+    console.error("Error fetching loan data:", error);
+    throw error;
+  }
+}
+
+
+export const sendLoanSubmission = async(data: LoanSubmission ) => {
+  try {
+    const response = await userLoanApi.post(`/loan/submission/`, data, {
       headers: {
         "Content-Type": "multipart/form-data", 
       }

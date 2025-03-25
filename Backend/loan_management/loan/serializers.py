@@ -2,7 +2,7 @@ from rest_framework import serializers
 from user.models import CustomUser
 from .models import LoanPlan, LoanTypes
 from rest_framework import serializers
-from .models import LoanApplication, CustomUser, LoanTypes, LoanPlan
+from .models import LoanApplication, CustomUser, LoanTypes, LoanPlan, LoanSubmission
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,6 +24,12 @@ class LoanPlansSerializer(serializers.ModelSerializer):
 class LoanAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanApplication
+        fields = '__all__'
+        
+        
+class LoanSubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanSubmission
         fields = '__all__'
 
 class LoanApplicationSerializer(serializers.ModelSerializer):

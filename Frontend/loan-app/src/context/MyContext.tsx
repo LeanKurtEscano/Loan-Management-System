@@ -25,6 +25,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
 
   const [loanSubmission, setLoanSubmission] = useState<LoanSubmission>({
+    loanId: null,
    idSelfie: null,
    repayDate:"",
    loanAmount:null,

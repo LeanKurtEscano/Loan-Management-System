@@ -4,10 +4,14 @@ import maya from "../../../assets/maya.png"
 import { useMyContext } from "../../../context/MyContext";
 import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
 const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => void }) => {
+  const {loanSubmission , setLoanSubmission} = useMyContext();
   const [selectedOption, setSelectedOption] = useState<string | null>("gcash");
 
   const handleSelect = (option: string) => {
-    setSelectedOption((prev) => (prev === option ? null : option));
+    setLoanSubmission((prev: LoanSubmission) => ({
+      ...prev,
+      cashout: prev.cashout === option ? "" : option, 
+    }));
   };
   
 
@@ -25,7 +29,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
         {/* GCash Option */}
         <div
           className={`cursor-pointer p-4 border-2 rounded-lg mb-4 flex items-center justify-between transition ${
-            selectedOption === "gcash" ? "border-blue-500 shadow-md" : "border-gray-300"
+         loanSubmission.cashout === "gcash" ? "border-blue-500 shadow-md" : "border-gray-300"
           }`}
           onClick={() => handleSelect("gcash")}
         >
@@ -33,7 +37,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             <h4 className="font-semibold">GCASH (InstaPay)</h4>
             <p className="text-sm text-gray-600">Processing Time: Instant</p>
             <p className="text-sm text-gray-600">Service Fee: PHP 10</p>
-            <p className="text-sm font-semibold">You’ll receive: 2,990 PHP</p>
+            <p className="text-sm font-semibold">You'll receive: {loanSubmission.loanAmount - 10} PHP</p>
           </div>
           <img src={gcash} alt="GCash Logo" className="w-16 h-16" />
         </div>
@@ -41,7 +45,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
         {/* Maya Option */}
         <div
           className={`cursor-pointer p-4 border-2 rounded-lg flex items-center justify-between transition ${
-            selectedOption === "maya" ? "border-blue-500 shadow-md" : "border-gray-300"
+            loanSubmission.cashout === "maya" ? "border-blue-500 shadow-md" : "border-gray-300"
           }`}
           onClick={() => handleSelect("maya")}
         >
@@ -49,7 +53,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             <h4 className="font-semibold">Maya (InstaPay)</h4>
             <p className="text-sm text-gray-600">Processing Time: Instant</p>
             <p className="text-sm text-gray-600">Service Fee: PHP 15</p>
-            <p className="text-sm font-semibold">You’ll receive: 2,985 PHP</p>
+            <p className="text-sm font-semibold">You'll receive: {loanSubmission.loanAmount - 15} PHP</p>
           </div>
           <img src={maya} alt="Maya Logo" className="w-16 h-16" />
         </div>

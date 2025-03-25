@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view,permission_classes,parser_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .models import LoanTypes, LoanPlan, LoanApplication
-from .serializers import LoanTypesSerializer, LoanPlansSerializer,LoanAppSerializer
+from .models import LoanTypes, LoanPlan, LoanApplication, LoanSubmission
+from .serializers import LoanTypesSerializer, LoanPlansSerializer,LoanAppSerializer,LoanSubSerializer
 from rest_framework.permissions import IsAuthenticated
 from .serializers import LoanApplicationSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -107,6 +107,56 @@ def create_loan_application(request):
         print(f"Error: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser]) 
+def create_loan_submission(request):
+    try:
+        data = request.data
+        print(data)
+
+      
+        upload_selfie = None
+        if 'idSelfie' in request.FILES:
+            id_selfie = request.FILES['idSelfie']
+            upload_back = cloudinary.uploader.upload(id_selfie)
+            upload_selfie = upload_back.get("secure_url")
+
+      
+        loan_id = data.get("loanId")
+        repay_date = data.get("repayDate", "")
+        loan_amount = data.get("loanAmount", 0)
+        cashout = data.get("cashout", "")
+        total_payment = data.get("totalPayment", 0)
+
+      
+        user = request.user
+        loan_app = LoanApplication.objects.get(id=int(loan_id))
+
+        loan_submission = LoanSubmission.objects.create(
+            user=user,
+            loan_app=loan_app,
+            id_selfie=upload_selfie,
+            repay_date=repay_date,
+            loan_amount=Decimal(loan_amount),
+            cashout=cashout,
+            total_payment=Decimal(total_payment),
+         
+        )
+
+        return Response({
+            "message": "Loan Application submitted successfully.",
+            "submission_id": loan_submission.id
+        }, status=status.HTTP_201_CREATED)
+
+  
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_loan_applications(request):
@@ -119,7 +169,21 @@ def get_all_loan_applications(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_all_loan_submissions(request):
+    try:
+      
+        loan_sub = LoanSubmission.objects.all()
+        serializer = LoanSubSerializer(loan_sub, many=True)
+       
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)
     
+   
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -128,7 +192,7 @@ def get_user_application(request,id):
       
         loan_applications = LoanApplication.objects.get(id = int(id))
         serializer = LoanApplicationSerializer(loan_applications)
-        print(serializer.data)
+       
         return Response(serializer.data, status=200)
     except Exception as e:
         print(f"{e}")
@@ -259,13 +323,31 @@ def loan_application(request):
     try:
         
         user = request.user
-        print(user)
+     
         
         loan_applications = LoanApplication.objects.get(user=request.user, is_active = True)
         serializer = LoanAppSerializer(loan_applications)
-        print(serializer.data)
+        
         return Response(serializer.data, status=200)
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)
+    
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def loan_submission(request):
+    try:
+        
+        user = request.user
+     
+        
+        loan_applications = LoanSubmission.objects.get(user=request.user,is_fully_paid =False)
+        serializer = LoanSubSerializer(loan_applications)
+        
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)
+    
     

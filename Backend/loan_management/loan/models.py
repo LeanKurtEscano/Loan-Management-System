@@ -44,3 +44,24 @@ class LoanApplication(models.Model):
 
     def __str__(self):
         return f"Loan Application for {self.user.username}"
+
+
+class LoanSubmission(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    loan_app = models.ForeignKey(LoanApplication, on_delete=models.CASCADE)
+    id_selfie = CloudinaryField('id_selfie', blank=True, null=True) 
+    repay_date = models.CharField(max_length=100, blank=True)
+    status = models.CharField(max_length=20, default='Pending')
+    loan_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    cashout = models.CharField(max_length=50, blank=True)
+    total_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    is_fully_paid = models.BooleanField(default=False)  # ✅ New field to track full payment
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def update_payment_status(self):
+        """ Updates is_fully_paid based on the remaining balance. """
+        self.is_fully_paid = self.balance <= 0
+        self.save()
+
+

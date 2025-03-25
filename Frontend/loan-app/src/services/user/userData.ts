@@ -62,3 +62,18 @@ export const getLoanApplication = async() => {
     }
 
 }
+
+
+export const getLoanSubmission = async() => {
+    try {
+
+        const response = await userLoanApi.get(`/user/submission/`);
+
+        return response.data
+
+    } catch(error) {
+        console.log("Something Went Wrong");
+    }
+
+}
+
