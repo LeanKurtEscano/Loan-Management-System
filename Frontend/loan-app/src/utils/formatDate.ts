@@ -10,3 +10,24 @@ export const formatDate = (dateString: any) => {
         hour12: true,
     });
 };
+
+
+export const  formatDateWithWords =(dateString: string) => {
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    
+  
+
+    return `${month} ${day}, ${year}`;
+}
+
+// Example usage:
+console.log(formatDateWithWords("2025-03-27"));  // Output: March 27th, 2025

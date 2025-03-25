@@ -1,6 +1,7 @@
 
 import { loanApi,userLoanApi } from "../axiosConfig";
 import { LoanApplicationDetails,LoanSubmission } from "../../constants/interfaces/loanInterface";
+
 export const fetchLoanData = async (endpoint: string) => {
     try {
       const response = await loanApi.get(`/${endpoint}/`);

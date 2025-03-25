@@ -53,14 +53,14 @@ const Loan: React.FC = () => {
 
 
       {applicationSubmission?.status.trim() === "Pending" ? (
-        <div className="flex flex-col w-1/2 items-center justify-center h-80  bg-yellow-100 border border-yellow-300 rounded-lg shadow-md text-center">
+        <div className="flex w-auto flex-col p-8 items-center justify-center h-80  bg-yellow-100 border border-yellow-300 rounded-lg shadow-md text-center">
           <FontAwesomeIcon
             icon={faHourglassHalf}
             className="text-gray-800 text-4xl animate-[spin_4s_linear_infinite] mb-4"
           />
-          <h2 className="text-2xl font-bold mb-2">We are Verifying your Loan</h2>
-          <p className="text-lg mt-2 opacity-90">You will receive your funds shortly!</p>
-          <p className="text-sm mt-4 italic opacity-75">This may take up to 24 hours. Thank you for your Patience</p>
+          <h2 className="text-2xl font-bold mb-2">Your Loan Disbursement is currently under review.</h2>
+          <p className="text-lg whitespace-nowrap mt-2 opacity-90"> We will notify you through gmail and you will receive your funds shortly upon approval.</p>
+          <p className="text-sm mt-4 italic opacity-75"> Thank you for your Patience</p>
         </div>
       ) : applicationSubmission?.status.trim() === "Approved" ? (
         <p>Approved</p>

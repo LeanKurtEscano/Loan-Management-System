@@ -28,6 +28,7 @@ class LoanAppSerializer(serializers.ModelSerializer):
         
         
 class LoanSubSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(read_only=True)
     class Meta:
         model = LoanSubmission
         fields = '__all__'

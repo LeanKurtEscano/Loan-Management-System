@@ -146,6 +146,9 @@ def create_loan_submission(request):
             total_payment=Decimal(total_payment),
          
         )
+        
+        loan_submission.is_active = True
+        loan_submission.save()
 
         return Response({
             "message": "Loan Application submitted successfully.",
@@ -197,7 +200,18 @@ def get_user_application(request,id):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)
-    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_submission(request,id):
+    try:
+      
+        loan_applications = LoanSubmission.objects.get(id = int(id))
+        serializer = LoanSubSerializer(loan_applications)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)   
     
 
 @api_view(["POST"])
@@ -279,7 +293,28 @@ def delete_loan_application(request):
         print(f"{e}")
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    
+ 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_loan_submission(request):
+    try:
+        
+        
+        id = request.data.get("id")
+        
+        print(id)
+        loan_application = LoanSubmission.objects.get(id = int(id))
+        loan_application.delete()
+
+        
+        
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+       
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def reject_loan_application(request):
@@ -316,7 +351,43 @@ def reject_loan_application(request):
         print(f"{e}")
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def reject_loan_submission(request):
+    try:
+        
+        
+        id = request.data.get("id")
+        subject_heading = request.data.get("subject")
+        
+        desc = request.data.get("description")
+        
+        loan_app = LoanSubmission.objects.get(id = int(id))
+        loan_app.status = "Rejected"
+        loan_app.is_active = False
+        loan_app.save()
+        user = loan_app.user
+        subject = "You're Loan Disbursement has been rejected"
+        html_content = render_to_string("email/rejection_email.html", {
+            "subject":subject_heading,
+            "user_name": user.username,
+            "description": desc
+        })
+        plain_message = strip_tags(html_content)
+
     
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def loan_application(request):
@@ -342,7 +413,7 @@ def loan_submission(request):
         user = request.user
      
         
-        loan_applications = LoanSubmission.objects.get(user=request.user,is_fully_paid =False)
+        loan_applications = LoanSubmission.objects.get(user=request.user,is_fully_paid =False, is_active = True)
         serializer = LoanSubSerializer(loan_applications)
         
         return Response(serializer.data, status=200)

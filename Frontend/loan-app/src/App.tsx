@@ -33,6 +33,8 @@ import UserPage from './sections/admin/UserPage';
 import PrivacyPolicy from './sections/user/PrivacyPolicy';
 import { useQuery } from '@tanstack/react-query';
 import { getLoanApplication } from './services/user/userData';
+import ManageBorrowers from './sections/admin/ManageBorrowers';
+import ApproveSubmission from './sections/admin/ApproveSubmission';
 function App() {
 
   return (
@@ -87,8 +89,12 @@ const Main: React.FC = () => {
         >
           <Route path="user-verification" element={<UserVerification />} />
           <Route path="loan-applications" element={<UsersLoanApplication />} />
+          <Route path="manage-borrowers" element={<ManageBorrowers />} />
           <Route path="verify/:id" element={<Verification />} />
           <Route path="verify/application/:id" element={<VerifyApplication />} />
+          <Route path="submission/approve/:id" element={<ApproveSubmission />} />
+
+
         </Route>
 
         <Route
