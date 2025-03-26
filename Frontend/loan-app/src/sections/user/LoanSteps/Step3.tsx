@@ -4,6 +4,7 @@ import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { useQuery } from "@tanstack/react-query";
 import { getLoanApplication } from "../../../services/user/userData";
+
 const Step3 = ({
   prevStep,
   nextStep,
@@ -13,24 +14,38 @@ const Step3 = ({
 }) => {
   const { loanSubmission, setLoanSubmission } = useMyContext();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setLoanSubmission((prev: LoanSubmission) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const { data, isLoading, isError } = useQuery(["userLoanApplication"], getLoanApplication);
 
-  // Calculate service fee (interest percentage * loan amount)
+ 
   const serviceFee = data?.interest ? (loanSubmission.loanAmount * data.interest) / 100 : 0;
   const totalPayment = Number(loanSubmission.loanAmount) + Number(serviceFee);
-   
 
   useEffect(() => {
-     setLoanSubmission((prev:LoanSubmission) => ({...prev, totalPayment: totalPayment}))
-     
- 
-  },[])
+    setLoanSubmission((prev: LoanSubmission) => ({ ...prev, totalPayment: totalPayment }));
+  }, []);
+
   const handleContinue = () => {
     nextStep();
+  };
+
+  const isYearlyDisabled = () => {
+    const selectedDate = new Date(loanSubmission.repayDate);
+    const currentDate = new Date();
+    const differenceInDays = (selectedDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24);
+
+    return differenceInDays < 365;
+  };
+
+  const isMonthlyDisabled = () => {
+    const selectedDate = new Date(loanSubmission.repayDate);
+    const currentDate = new Date();
+    const differenceInDays = (selectedDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24);
+
+    return differenceInDays < 30;
   };
 
   return (
@@ -39,9 +54,7 @@ const Step3 = ({
         {/* Header */}
         <h2 className="text-3xl font-bold mb-4 text-gray-700"></h2>
         <h3 className="text-2xl font-semibold mb-3 text-gray-800">CHOOSE WHEN TO REPAY</h3>
-        <p className="text-base mb-6 text-gray-600">
-          Please select the date by which you plan to repay the loan.
-        </p>
+        <p className="text-base mb-6 text-gray-600">Please select the date by which you plan to repay the loan.</p>
 
         {/* Date Picker */}
         <div className="mb-6">
@@ -54,7 +67,30 @@ const Step3 = ({
           />
         </div>
 
-        {/* Loan Summary */}
+
+        <div className="mb-6">
+          <select
+            name="paymentFrequency"
+            disabled={!loanSubmission.repayDate}
+            value={loanSubmission.paymentFrequency || ""}
+            onChange={handleChange}
+            className={`border border-gray-300 p-3 rounded-lg w-3/4 text-center text-gray-700 shadow-sm focus:outline-blue-500 
+              ${
+                !loanSubmission.repayDate
+                  ? "bg-gray-200 cursor-not-allowed text-gray-500"
+                  : "bg-white cursor-pointer border-blue-500 animate-fadeInScale"
+              }`}
+          >
+           
+      
+            <option value="">Select Payment Frequency</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly" disabled={isMonthlyDisabled()}>Monthly</option>
+            <option value="yearly" disabled={isYearlyDisabled()}>Yearly</option>
+          </select>
+        </div>
+
+        
         <div className="p-4 rounded-lg">
           <p className="text-sm text-gray-600 mb-1">
             Borrowed Amount: <span className="font-semibold">{formatCurrency(loanSubmission.loanAmount)}</span>
@@ -62,12 +98,10 @@ const Step3 = ({
           <p className="text-sm text-gray-600 mb-1">
             Service Fee (Interest): <span className="font-semibold">{formatCurrency(serviceFee)}</span>
           </p>
-          <p className="text-lg font-bold text-gray-800">
-            Total Payment: {formatCurrency(totalPayment)}
-          </p>
+          <p className="text-lg font-bold text-gray-800">Total Payment: {formatCurrency(totalPayment)}</p>
         </div>
 
-        {/* Buttons Row */}
+       
         <div className="flex justify-between mt-8">
           <button
             onClick={prevStep}

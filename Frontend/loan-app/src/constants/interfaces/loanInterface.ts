@@ -24,6 +24,7 @@ export interface AdminApprove {
 
 export interface LoanSubmission {
   loanId: number | null;
+  paymentFrequency: string;
   loanAmount: number |  null;
   repayDate: string;
   idSelfie: File | null;

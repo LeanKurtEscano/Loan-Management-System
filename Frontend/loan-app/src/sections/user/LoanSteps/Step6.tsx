@@ -49,7 +49,7 @@ const Step6 = ({
 
     return (
         <div className="flex items-center h-screen">
-            <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-[500px] text-center">
+            <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-[550px] text-center">
                 <h2 className="text-4xl font-bold mb-6 text-gray-700">Review Your Submission</h2>
 
 
@@ -76,8 +76,33 @@ const Step6 = ({
                     <p className="text-lg text-gray-600 mb-2">
                         <span className="font-semibold text-xl">Total Payment:</span> {loanSubmission.totalPayment || '0'} PHP
                     </p>
-                </div>
 
+                    <label className="flex items-start gap-2 text-sm text-gray-700 mt-2">
+          <input type="checkbox" className="mt-1 cursor-pointer" />
+          <span>
+            I certify that I am at least 21 years old and that I agree to the{" "}
+            <a
+              href="/terms"
+              className="text-blue-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Terms and Policies
+            </a>{" "}
+            and{" "}
+            <a
+              href="/privacy"
+              className="text-blue-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy
+            </a>
+            . This service is for the Philippines only.
+          </span>
+        </label>
+                </div>
+              
                 {/* Buttons Row */}
                 <div className="flex justify-between mt-8">
                     <button

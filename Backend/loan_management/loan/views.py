@@ -131,6 +131,7 @@ def create_loan_submission(request):
         loan_amount = data.get("loanAmount", 0)
         cashout = data.get("cashout", "")
         total_payment = data.get("totalPayment", 0)
+        frequency = data.get("paymentFrequency")
 
       
         user = request.user
@@ -144,6 +145,7 @@ def create_loan_submission(request):
             loan_amount=Decimal(loan_amount),
             cashout=cashout,
             total_payment=Decimal(total_payment),
+            frequency = frequency
          
         )
         
@@ -298,11 +300,9 @@ def delete_loan_application(request):
 @permission_classes([IsAuthenticated])
 def delete_loan_submission(request):
     try:
-        
-        
+                
         id = request.data.get("id")
         
-        print(id)
         loan_application = LoanSubmission.objects.get(id = int(id))
         loan_application.delete()
 

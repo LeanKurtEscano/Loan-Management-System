@@ -26,9 +26,7 @@ const ApproveSubmission = () => {
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     const handleApprove = async () => {
-
     }
-    // Fetching the data
     const { data, isLoading, isError } = useQuery({
         queryKey: ["userSubmission", id],
         queryFn: () => getDetail(id!, "submission"),
@@ -111,8 +109,6 @@ const ApproveSubmission = () => {
                     <label className="block text-gray-600 font-medium mb-2">
                         Selfie with ID
                     </label>
-
-
                     <div className="relative">
                         {/* The image */}
                         <img
@@ -129,15 +125,8 @@ const ApproveSubmission = () => {
                             <FontAwesomeIcon icon={faCamera} className="text-lg" />
                         </button>
                     </div>
-
-
-
                 </div>
 
-
-
-
-                {/* User Information */}
                 <div className="p-6 pl-32 space-y-4">
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">
                         Applicant Information
@@ -172,12 +161,17 @@ const ApproveSubmission = () => {
                             </div>
                         </div>
 
-
-
                         <div>
                             <label className="block font-medium">Loan Amount</label>
                             <div className="text-green-600 font-semibold">
                                 ₱{parseFloat(data?.loan_amount).toFixed(2)}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block font-medium">Payment Frequency</label>
+                            <div className=" font-semibold">
+                                {data?.frequency}
                             </div>
                         </div>
 
