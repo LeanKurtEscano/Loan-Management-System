@@ -10,9 +10,9 @@ import { useMyContext } from "../../context/MyContext";
 import { loanApi } from "../../services/axiosConfig";
 import EmailModal from "../../components/EmailModal";
 import { cleanImageUrl } from "../../utils/imageClean";
-import AdminVerifyModal from "../../components/AdminVerifyModal";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import ImageModal from "../../components/ImageModal";
+import Modal from "../../components/Modal";
 const ApproveSubmission = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -26,6 +26,16 @@ const ApproveSubmission = () => {
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     const handleApprove = async () => {
+        setLoading(true)
+        const response = await loanApi.post("/approve/disbursement/",{
+            id: id
+        })
+
+        if(response.status === 200) {
+            setLoading(true);
+            setIsModalOpen(false);
+            queryClient.invalidateQueries(["userSubmission",id])
+        }
     }
     const { data, isLoading, isError } = useQuery({
         queryKey: ["userSubmission", id],
@@ -110,14 +120,13 @@ const ApproveSubmission = () => {
                         Selfie with ID
                     </label>
                     <div className="relative">
-                        {/* The image */}
+                        
                         <img
                             src={cleanImageUrl(data?.id_selfie)}
                             alt="Front of ID"
                             className="w-[600px] h-60 object-cover rounded-md shadow"
                         />
 
-                        {/* Camera button positioned in the top-right */}
                         <button
                             className="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 bg-opacity-80 text-white px-2 p-1 cursor-pointer rounded-full shadow-md hover:bg-opacity-90 transition-all duration-300"
                             onClick={() => setIsImageModalOpen(true)}
@@ -175,13 +184,36 @@ const ApproveSubmission = () => {
                             </div>
                         </div>
 
+                        <div>
+                            <label className="block font-medium">Repay Date</label>
+                            <div className=" font-semibold">
+                                {data?.repay_date}
+                            </div>
+                        </div>
+
+                        {data?.status.trim() === "Approved" && (
+                            <div>
+                               
+                                <label className="block font-medium">Start Date</label>
+                                <div className=" font-semibold">
+                                    {data?.start_date}
+                                </div>
+                            </div>
+
+                            
+                        )}
+
                         {data?.status.trim() === "Approved" && (
                             <div>
                                 <label className="block font-medium">Balance</label>
-                                <div className="text-green-600 font-semibold">
+                                <div className="text-red-600 font-semibold">
                                     ₱{parseFloat(data?.balance).toFixed(2)}
                                 </div>
+
+                              
                             </div>
+
+                            
                         )}
                     </div>
                 </div>
@@ -218,14 +250,15 @@ const ApproveSubmission = () => {
                     </div>
                 </div>
 
-                <AdminVerifyModal
-                    loading={loading}
-                    isOpen={isModalOpen}
-                    title="Approve Loan Disbursement?"
-                    message="How much loan amount and interest should be granted based on the user's eligibility?"
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={handleApprove}
-                />
+             
+            <Modal
+                loading={loading}
+                isOpen={isModalOpen}
+                title="Approve Loan Disbursement?"
+                message="Are you sure you want to approve this loan disbursement? The funds will be released once confirmed."
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleApprove}
+            />
 
             </motion.div>
 

@@ -18,6 +18,42 @@ from rest_framework.decorators import api_view, permission_classes
 from .models import LoanApplication
 import cloudinary.uploader
 import locale
+from datetime import date
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def approve_loan_disbursement(request):
+    try:
+        id = request.data.get("id")
+        loan_sub = LoanSubmission.objects.get(id=int(id))
+        loan_sub.status = "Approved"
+        loan_sub.start_date = date.today()  
+        loan_sub.balance = Decimal(loan_sub.loan_amount)
+        loan_sub.save()
+        
+        
+        user = loan_sub.user
+        subject = "You're Loan has been approved"
+        html_content = render_to_string("email/loandisbursementsuccess.html", {
+            "cashout": loan_sub.cashout,
+            "loan_amount": loan_sub.loan_amount,
+            "interest": loan_sub.loan_app.interest,
+            "start_date": loan_sub.start_date,
+            "end_date": loan_sub.repay_date
+          
+        })
+        plain_message = strip_tags(html_content)
+
+    
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        return Response({"success": "Loan Disbursement has been approved"}, status= status.HTTP_200_OK)
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 from decimal import Decimal
 @api_view(['GET'])
@@ -394,8 +430,6 @@ def loan_application(request):
     try:
         
         user = request.user
-     
-        
         loan_applications = LoanApplication.objects.get(user=request.user, is_active = True)
         serializer = LoanAppSerializer(loan_applications)
         

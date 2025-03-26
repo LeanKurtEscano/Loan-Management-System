@@ -57,6 +57,7 @@ class LoanSubmission(models.Model):
     total_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     frequency = models.CharField(max_length=40, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_fully_paid = models.BooleanField(default=False)  
     created_at = models.DateTimeField(auto_now_add=True)

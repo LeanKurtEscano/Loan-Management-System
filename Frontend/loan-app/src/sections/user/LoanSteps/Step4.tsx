@@ -45,7 +45,7 @@ return (
 
       <div className="relative">
         <label htmlFor="fileUploadBack" className="block text-gray-700 font-medium mb-2">
-          Upload Back of ID
+         
         </label>
         <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
           <label htmlFor="fileUploadBack" className="flex flex-col items-center cursor-pointer">

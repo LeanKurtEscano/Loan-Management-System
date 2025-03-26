@@ -70,7 +70,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
             <label htmlFor="fileUploadFront" className="block text-gray-700 font-medium mb-2">
               Upload Front of ID
             </label>
-            <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg  flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
               <label htmlFor="fileUploadFront" className="flex flex-col items-center cursor-pointer">
                 <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
                 <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>

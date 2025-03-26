@@ -32,6 +32,12 @@ const Step3 = ({
     nextStep();
   };
 
+
+    const getMinDate = () => {
+      const today = new Date();
+      today.setDate(today.getDate() + 3);
+      return today.toISOString().split("T")[0];
+    };
   const isYearlyDisabled = () => {
     const selectedDate = new Date(loanSubmission.repayDate);
     const currentDate = new Date();
@@ -64,6 +70,7 @@ const Step3 = ({
             value={loanSubmission.repayDate}
             onChange={handleChange}
             className="border border-gray-300 p-3 rounded-lg w-3/4 text-center text-gray-700 shadow-sm focus:outline-blue-500"
+            min={getMinDate()}
           />
         </div>
 
