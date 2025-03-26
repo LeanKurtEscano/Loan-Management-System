@@ -8,6 +8,7 @@ import { getLoanSubmission } from '../../services/user/userData';
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
+import { LoadingAnimation } from '../../components/LoadingAnimation';
 import Step1 from './LoanSteps/Step1';
 import Step2 from './LoanSteps/Step2';
 import Step4 from './LoanSteps/Step4';
@@ -20,7 +21,8 @@ const Loan: React.FC = () => {
     ['userLoanSubmission'],
     getLoanSubmission
   );
-
+  
+  
 
   console.log(loanSubmissions)
   const { data, isLoading, isError } = useQuery(
@@ -28,6 +30,7 @@ const Loan: React.FC = () => {
     getLoanApplication
   );
 
+    
 
   const totalSteps = 6;
 
@@ -47,6 +50,10 @@ const Loan: React.FC = () => {
 
   const applicationSubmission = loanSubmissions ?? { status: 'new' };
   const applicationData = data ?? { status: 'new' };
+  
+
+  if (isLoading) return <LoadingAnimation />;
+  if (isSubLoading)  return <LoadingAnimation />;
 
   return (
     <section className="flex flex-col items-center w-full  mb-36 bg-white text-gray-800 p-4">
