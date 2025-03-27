@@ -18,7 +18,7 @@ from rest_framework.decorators import api_view, permission_classes
 from .models import LoanApplication
 import cloudinary.uploader
 import locale
-from datetime import date
+from datetime import datetime
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -27,8 +27,8 @@ def approve_loan_disbursement(request):
         id = request.data.get("id")
         loan_sub = LoanSubmission.objects.get(id=int(id))
         loan_sub.status = "Approved"
-        loan_sub.start_date = date.today()  
-        loan_sub.balance = Decimal(loan_sub.loan_amount)
+        loan_sub.start_date = datetime.now() 
+        loan_sub.balance = Decimal(loan_sub.loan_amount) + Decimal(loan_sub.loan_amount * loan_sub.loan_app.interest) / 100
         loan_sub.save()
         
         

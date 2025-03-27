@@ -176,6 +176,12 @@ const ApproveSubmission = () => {
                                 ₱{parseFloat(data?.loan_amount).toFixed(2)}
                             </div>
                         </div>
+                        <div>
+                            <label className="block font-medium">Interest</label>
+                            <div className=" font-semibold">
+                                {data?.loan_app.interest}%
+                            </div>
+                        </div>
 
                         <div>
                             <label className="block font-medium">Payment Frequency</label>
@@ -192,7 +198,7 @@ const ApproveSubmission = () => {
 
 
                         <div>
-                            <label className="block font-medium">Repay Date</label>
+                            <label className="block font-medium">End Date</label>
                             <div className=" font-semibold">
                                 {data?.repay_date}
                             </div>

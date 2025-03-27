@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
 import { LoadingAnimation } from '../../components/LoadingAnimation';
+import PaymentStep1 from './PaymentsSteps/Step1';
 import Step1 from './LoanSteps/Step1';
 import Step2 from './LoanSteps/Step2';
 import Step4 from './LoanSteps/Step4';
@@ -21,8 +22,8 @@ const Loan: React.FC = () => {
     ['userLoanSubmission'],
     getLoanSubmission
   );
-  
-  
+
+
 
   console.log(loanSubmissions)
   const { data, isLoading, isError } = useQuery(
@@ -30,7 +31,7 @@ const Loan: React.FC = () => {
     getLoanApplication
   );
 
-    
+
 
   const totalSteps = 6;
 
@@ -50,9 +51,9 @@ const Loan: React.FC = () => {
 
   const applicationSubmission = loanSubmissions ?? { status: 'new' };
   const applicationData = data ?? { status: 'new' };
-  
 
-  
+
+
 
   return (
     <section className="flex flex-col items-center w-full  mb-36 bg-white text-gray-800 p-4">
@@ -69,7 +70,16 @@ const Loan: React.FC = () => {
           <p className="text-sm mt-4 italic opacity-75"> Thank you for your Patience</p>
         </div>
       ) : applicationSubmission?.status.trim() === "Approved" ? (
-        <p>Approved</p>
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className='flex items-center justify-center' >
+               {step === 1 && <PaymentStep1 nextStep={nextStep} />}
+
+
+        </motion.div>
 
       ) : (
         <>
