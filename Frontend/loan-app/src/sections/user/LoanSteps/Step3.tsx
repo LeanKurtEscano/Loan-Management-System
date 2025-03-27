@@ -35,7 +35,7 @@ const Step3 = ({
 
     const getMinDate = () => {
       const today = new Date();
-      today.setDate(today.getDate() + 3);
+      today.setDate(today.getDate() + 7);
       return today.toISOString().split("T")[0];
     };
   const isYearlyDisabled = () => {

@@ -1,11 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import monsterGif from "../../../assets/peeking.gif"; 
+import monsterGif from "../../../assets/peeking.gif";
 import { useQuery } from "@tanstack/react-query";
 import { getLoanSubmission } from "../../../services/user/userData";
-import { formatDate, formatDateWithWords } from "../../../utils/formatDate";
+import {  formatDateWithWords } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
-
 
 interface Step1Props {
     nextStep: () => void;
@@ -15,8 +14,62 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     const { data, isLoading, isError } = useQuery(
         ['userLoanSubmission'],
         getLoanSubmission
-      );
-    
+    );
+
+    const getPaymentPerPeriod = (totalPayment: number, startDate: string, endDate: string, frequency: string) => {
+        if (!totalPayment || !startDate || !endDate || !frequency) return "N/A";
+
+        let start = new Date(startDate);
+        let end = new Date(endDate);
+
+
+        let numPeriods = 0;
+        switch (frequency.toLowerCase()) {
+            case "weekly":
+                numPeriods = Math.ceil((end.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000)); 
+                break;
+            case "monthly":
+                numPeriods = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()); 
+                break;
+            case "yearly":
+                numPeriods = end.getFullYear() - start.getFullYear(); 
+                break;
+            default:
+                return "Invalid Frequency";
+        }
+
+        if (numPeriods <= 0) return "N/A";
+
+        return formatCurrency(totalPayment / numPeriods);
+    };
+
+   
+    const getNextPaymentDate = (startDate: string, frequency: string) => {
+        if (!startDate || !frequency) return "N/A";
+        let nextDate = new Date(startDate);
+
+        switch (frequency.toLowerCase()) {
+            case "weekly":
+                nextDate.setDate(nextDate.getDate() + 7);
+                break;
+            case "monthly":
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                break;
+            case "yearly":
+                nextDate.setFullYear(nextDate.getFullYear() + 1);
+                break;
+            default:
+                return "Invalid Frequency";
+        }
+
+        return formatDateWithWords(nextDate.toISOString().split("T")[0]);
+    };
+
+    const testBalance = 2120;
+    const totalPayment = parseFloat(data?.total_payment || "0");
+    const balance = parseFloat(data?.balance || "0");
+    const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;
+
     return (
         <motion.div
             className="relative flex justify-center items-center min-h-screen p-6"
@@ -24,25 +77,23 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
-           
             <div className="w-full max-w-xl bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
-                
 
-  <motion.img
+                <motion.img
                     src={monsterGif}
                     alt="Peeking Monster"
                     className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-60 h-40"
-                    initial={{ y: -10 }}
-                    animate={{ y: 0 }}
-                    transition={{ yoyo: Infinity, duration: 1.5, ease: "easeInOut" }}
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 2, repeat: Infinity, repeatDelay: 2, duration: 1.5, ease: "easeInOut" }}
                 />
-              
+
                 <div className="flex justify-between items-center mb-9 mt-6">
                     <h2 className="text-gray-600 text-sm font-semibold">
-                        END DATE: <span className="text-gray-900 font-bold">{formatDateWithWords(  data?.repay_date)}</span>
+                        END DATE: <span className="text-gray-900 font-bold">{formatDateWithWords(data?.repay_date)}</span>
                     </h2>
                     <h3 className="text-gray-600 text-sm font-semibold">
-                         FREQUENCY:  <span className="text-gray-900 font-bold">{data?.frequency.charAt(0).toUpperCase() + data?.frequency.slice(1).toLowerCase()}</span>
+                        FREQUENCY: <span className="text-gray-900 font-bold">{data?.frequency.charAt(0).toUpperCase() + data?.frequency.slice(1).toLowerCase()}</span>
                     </h3>
                 </div>
 
@@ -52,34 +103,33 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.4 }}
                 >
-                    <h1 className="text-4xl font-extrabold text-gray-900">{formatCurrency( data?.balance)  }</h1>
+                    <h1 className="text-4xl font-extrabold text-gray-900">{formatCurrency(data?.balance)}</h1>
                 </motion.div>
 
-              
                 <motion.div
                     className="text-center text-lg font-semibold text-blue-500 mb-2"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    50% Paid
+                    {progressPercentage.toFixed(0)}% Paid
                 </motion.div>
 
-           
                 <div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden shadow-inner">
                     <motion.div
                         className="h-full bg-blue-500 rounded-full"
                         initial={{ width: "0%" }}
-                        animate={{ width: "50%" }}
+                        animate={{ width: `${progressPercentage}%` }}
                         transition={{ duration: 1 }}
                     />
                 </div>
 
-                
                 <p className="text-gray-700 text-sm mt-5 text-center leading-relaxed">
-                    Your next payment of <span className="font-semibold">PHP 340.00</span> is due on{" "}
-                    <span className="font-semibold">April 30, 2025, at 12:00 PM</span>. Please ensure timely
-                    payment to avoid any penalties. Thank you.
+                    Your next payment of <span className="font-semibold">
+                        {getPaymentPerPeriod(totalPayment, data?.start_date, data?.repay_date, data?.frequency)}
+                    </span> is due on <span className="font-semibold">
+                        {getNextPaymentDate(data?.start_date, data?.frequency)}
+                    </span>. Please ensure timely payment to avoid any penalties. Thank you.
                 </p>
 
                 {/* Action Buttons */}
