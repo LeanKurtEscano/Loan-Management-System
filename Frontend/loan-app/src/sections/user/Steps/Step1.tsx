@@ -6,7 +6,6 @@ import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterf
 const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   const { loanApplication, setLoanApplication } = useMyContext();
 
-  // Handle file uploads
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: "front" | "back") => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];

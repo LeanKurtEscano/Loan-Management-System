@@ -54,6 +54,7 @@ class LoanSubmission(models.Model):
     status = models.CharField(max_length=20, default='Pending')
     loan_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     cashout = models.CharField(max_length=50, blank=True)
+    contact_number = models.CharField(max_length=50, blank=True)
     total_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     frequency = models.CharField(max_length=40, blank=True, null=True)

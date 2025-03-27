@@ -71,6 +71,9 @@ const Step6 = ({
                         <span className="font-semibold text-lg">Repay Date:</span> {loanSubmission.repayDate || 'Not selected'}
                     </p>
                     <p className="text-lg text-gray-600 mb-2">
+                        <span className="font-semibold text-lg">Contact Number: </span> {loanSubmission.contactNumber}
+                    </p>
+                    <p className="text-lg text-gray-600 mb-2">
                         <span className="font-semibold text-lg">Loan Amount:</span> {loanSubmission.loanAmount || '0'} PHP
                     </p>
                     <p className="text-lg text-gray-600 mb-2">

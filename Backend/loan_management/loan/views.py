@@ -168,6 +168,7 @@ def create_loan_submission(request):
         cashout = data.get("cashout", "")
         total_payment = data.get("totalPayment", 0)
         frequency = data.get("paymentFrequency")
+        contact_number = data.get("contactNumber")
 
       
         user = request.user
@@ -181,7 +182,8 @@ def create_loan_submission(request):
             loan_amount=Decimal(loan_amount),
             cashout=cashout,
             total_payment=Decimal(total_payment),
-            frequency = frequency
+            frequency = frequency,
+            contact_number = contact_number
          
         )
         

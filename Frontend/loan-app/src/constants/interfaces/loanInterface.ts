@@ -30,5 +30,6 @@ export interface LoanSubmission {
   idSelfie: File | null;
   cashout: string;
   totalPayment:number;
+  contactNumber: string;
 
 }

@@ -1,35 +1,70 @@
 import React, { useState } from "react";
-import gcash from "../../../assets/gcash.png"
-import maya from "../../../assets/maya.png"
+import { motion } from "framer-motion";
+import gcash from "../../../assets/gcash.png";
+import maya from "../../../assets/maya.png";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
+
 const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => void }) => {
-  const {loanSubmission , setLoanSubmission} = useMyContext();
-  const [selectedOption, setSelectedOption] = useState<string | null>("gcash");
+  const { loanSubmission, setLoanSubmission } = useMyContext();
+
 
   const handleSelect = (option: string) => {
     setLoanSubmission((prev: LoanSubmission) => ({
       ...prev,
-      cashout: prev.cashout === option ? "" : option, 
+      cashout: prev.cashout === option ? "" : option,
     }));
   };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLoanSubmission((prev: LoanSubmission) => ({ ...prev, [e.target.name]: e.target.value }));
+    };
   
 
   const handleContinue = () => {
-    console.log("Selected Payment Method:", selectedOption);
+   
     nextStep();
   };
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="bg-white border border-gray-300 rounded-lg shadow-xl w-[500px] p-14 text-center">
-        
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="bg-white border border-gray-300 rounded-lg shadow-xl w-[500px] p-14 text-center"
+      >
         <h3 className="text-xl font-semibold mb-4">CASHOUT OPTIONS</h3>
 
+        {/* Contact Number Input */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
+          className="mb-6 text-left"
+        >
+          <label htmlFor="contactNumber" className="block font-semibold mb-2">
+            Enter the Contact Number where you want to receive your money:
+          </label>
+
+          <input
+            type="text"
+            name = "contactNumber"
+            id="contactNumber"
+            value={loanSubmission.contactNumber}
+            onChange={handleChange}
+            placeholder="09XXXXXXXXX"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </motion.div>
+
         {/* GCash Option */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.4 }}
           className={`cursor-pointer p-4 border-2 rounded-lg mb-4 flex items-center justify-between transition ${
-         loanSubmission.cashout === "gcash" ? "border-blue-500 shadow-md" : "border-gray-300"
+            loanSubmission.cashout === "gcash" ? "border-blue-500 shadow-md" : "border-gray-300"
           }`}
           onClick={() => handleSelect("gcash")}
         >
@@ -40,10 +75,13 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             <p className="text-sm font-semibold">You'll receive: {loanSubmission.loanAmount - 10} PHP</p>
           </div>
           <img src={gcash} alt="GCash Logo" className="w-16 h-16" />
-        </div>
+        </motion.div>
 
         {/* Maya Option */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.6 }}
           className={`cursor-pointer p-4 border-2 rounded-lg flex items-center justify-between transition ${
             loanSubmission.cashout === "maya" ? "border-blue-500 shadow-md" : "border-gray-300"
           }`}
@@ -56,7 +94,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             <p className="text-sm font-semibold">You'll receive: {loanSubmission.loanAmount - 15} PHP</p>
           </div>
           <img src={maya} alt="Maya Logo" className="w-16 h-16" />
-        </div>
+        </motion.div>
 
         <div className="flex justify-between mt-6">
           <button
@@ -73,7 +111,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             Continue
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

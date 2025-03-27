@@ -183,6 +183,13 @@ const ApproveSubmission = () => {
                                 {data?.frequency}
                             </div>
                         </div>
+                        <div>
+                            <label className="block font-medium">Contact Number</label>
+                            <div className=" font-semibold">
+                                {data?.contact_number}
+                            </div>
+                        </div>
+
 
                         <div>
                             <label className="block font-medium">Repay Date</label>

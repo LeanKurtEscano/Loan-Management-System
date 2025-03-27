@@ -29,6 +29,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
    idSelfie: null,
    paymentFrequency: "",
    repayDate:"",
+   contactNumber: "",
    loanAmount:null,
    cashout: "",
    totalPayment: 0,

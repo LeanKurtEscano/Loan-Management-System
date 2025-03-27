@@ -52,8 +52,7 @@ const Loan: React.FC = () => {
   const applicationData = data ?? { status: 'new' };
   
 
-  if (isLoading) return <LoadingAnimation />;
-  if (isSubLoading)  return <LoadingAnimation />;
+  
 
   return (
     <section className="flex flex-col items-center w-full  mb-36 bg-white text-gray-800 p-4">
