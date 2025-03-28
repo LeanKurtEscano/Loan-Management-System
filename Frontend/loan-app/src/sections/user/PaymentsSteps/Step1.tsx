@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import monsterGif from "../../../assets/peeking.gif";
 import { useQuery } from "@tanstack/react-query";
 import { getLoanSubmission } from "../../../services/user/userData";
-import {  formatDateWithWords } from "../../../utils/formatDate";
+import { formatDateWithWords } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
 
 interface Step1Props {
@@ -16,42 +16,44 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         getLoanSubmission
     );
 
-    const getPaymentPerPeriod = (totalPayment: number, startDate: string, endDate: string, frequency: string) => {
+    const getPaymentPerPeriod = (
+        totalPayment: number,
+        startDate: string,
+        endDate: string,
+        frequency: string
+    ) => {
         if (!totalPayment || !startDate || !endDate || !frequency) return "N/A";
-
+    
         let start = new Date(startDate);
         let end = new Date(endDate);
-
-
+    
         let numPeriods = 0;
+    
         switch (frequency.toLowerCase()) {
-            case "weekly":
-                numPeriods = Math.ceil((end.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000)); 
-                break;
             case "monthly":
-                numPeriods = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()); 
+                numPeriods = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+                if (numPeriods === 0 && start.getDate() !== end.getDate()) {
+                    numPeriods = 1;
+                }
                 break;
             case "yearly":
-                numPeriods = end.getFullYear() - start.getFullYear(); 
+                numPeriods = end.getFullYear() - start.getFullYear();
                 break;
             default:
                 return "Invalid Frequency";
         }
-
+    
         if (numPeriods <= 0) return "N/A";
-
+    
         return formatCurrency(totalPayment / numPeriods);
     };
-
-   
+    
+    
     const getNextPaymentDate = (startDate: string, frequency: string) => {
         if (!startDate || !frequency) return "N/A";
         let nextDate = new Date(startDate);
 
         switch (frequency.toLowerCase()) {
-            case "weekly":
-                nextDate.setDate(nextDate.getDate() + 7);
-                break;
             case "monthly":
                 nextDate.setMonth(nextDate.getMonth() + 1);
                 break;
@@ -65,7 +67,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         return formatDateWithWords(nextDate.toISOString().split("T")[0]);
     };
 
-    const testBalance = 2120;
+    
     const totalPayment = parseFloat(data?.total_payment || "0");
     const balance = parseFloat(data?.balance || "0");
     const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;
@@ -78,14 +80,13 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
             <div className="w-full max-w-xl bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
-
                 <motion.img
                     src={monsterGif}
                     alt="Peeking Monster"
                     className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-60 h-40"
-                    initial={{ y: -10, opacity: 0 }}
+                    initial={{ y: 0, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 2, repeat: Infinity, repeatDelay: 2, duration: 1.5, ease: "easeInOut" }}
+                    transition={{ delay: 1, yoyo: Infinity, duration: 1.5, ease: "easeInOut" }}
                 />
 
                 <div className="flex justify-between items-center mb-9 mt-6">
@@ -132,7 +133,6 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                     </span>. Please ensure timely payment to avoid any penalties. Thank you.
                 </p>
 
-                {/* Action Buttons */}
                 <div className="flex flex-col gap-4 mt-6">
                     <motion.button
                         whileHover={{ scale: 1.05 }}

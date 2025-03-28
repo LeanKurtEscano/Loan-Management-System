@@ -18,9 +18,8 @@ const Step3 = ({
     setLoanSubmission((prev: LoanSubmission) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const { data, isLoading, isError } = useQuery(["userLoanApplication"], getLoanApplication);
+  const { data } = useQuery(["userLoanApplication"], getLoanApplication);
 
- 
   const serviceFee = data?.interest ? (loanSubmission.loanAmount * data.interest) / 100 : 0;
   const totalPayment = Number(loanSubmission.loanAmount) + Number(serviceFee);
 
@@ -32,17 +31,16 @@ const Step3 = ({
     nextStep();
   };
 
+  const getMinDate = () => {
+    const today = new Date();
+    today.setDate(today.getDate() + 180); // Set min date to 6 months (180 days) from today
+    return today.toISOString().split("T")[0];
+  };
 
-    const getMinDate = () => {
-      const today = new Date();
-      today.setDate(today.getDate() + 7);
-      return today.toISOString().split("T")[0];
-    };
   const isYearlyDisabled = () => {
     const selectedDate = new Date(loanSubmission.repayDate);
     const currentDate = new Date();
     const differenceInDays = (selectedDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24);
-
     return differenceInDays < 365;
   };
 
@@ -50,19 +48,15 @@ const Step3 = ({
     const selectedDate = new Date(loanSubmission.repayDate);
     const currentDate = new Date();
     const differenceInDays = (selectedDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24);
-
     return differenceInDays < 30;
   };
 
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-[500px] text-center">
-        {/* Header */}
-        <h2 className="text-3xl font-bold mb-4 text-gray-700"></h2>
         <h3 className="text-2xl font-semibold mb-3 text-gray-800">CHOOSE WHEN TO REPAY</h3>
         <p className="text-base mb-6 text-gray-600">Please select the date by which you plan to repay the loan.</p>
 
-        {/* Date Picker */}
         <div className="mb-6">
           <input
             name="repayDate"
@@ -73,7 +67,6 @@ const Step3 = ({
             min={getMinDate()}
           />
         </div>
-
 
         <div className="mb-6">
           <select
@@ -88,16 +81,12 @@ const Step3 = ({
                   : "bg-white cursor-pointer border-blue-500 animate-fadeInScale"
               }`}
           >
-           
-      
             <option value="">Select Payment Frequency</option>
-            <option value="weekly">Weekly</option>
             <option value="monthly" disabled={isMonthlyDisabled()}>Monthly</option>
             <option value="yearly" disabled={isYearlyDisabled()}>Yearly</option>
           </select>
         </div>
 
-        
         <div className="p-4 rounded-lg">
           <p className="text-sm text-gray-600 mb-1">
             Borrowed Amount: <span className="font-semibold">{formatCurrency(loanSubmission.loanAmount)}</span>
@@ -108,7 +97,6 @@ const Step3 = ({
           <p className="text-lg font-bold text-gray-800">Total Payment: {formatCurrency(totalPayment)}</p>
         </div>
 
-       
         <div className="flex justify-between mt-8">
           <button
             onClick={prevStep}
