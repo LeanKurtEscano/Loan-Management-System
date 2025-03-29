@@ -78,7 +78,7 @@ const NavBar: React.FC = () => {
         <nav className=" border-2 border-gray-200 shadow-lg">
             <div className="max-w-screen-xl flex flex-wrap items-center  justify-between mx-auto p-4">
                 <a href="/" className="flex items-center md:pl-[70px] space-x-3 rtl:space-x-reverse">
-                    <img src={logo2} className="h-24" alt=" Logo" />
+                    <img src={logo2} className="h-20" alt=" Logo" />
                     <span className="self-center text-xl bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent font-bold whitespace-nowrap"></span>
                 </a>
 

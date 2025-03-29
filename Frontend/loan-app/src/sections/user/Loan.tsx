@@ -10,6 +10,9 @@ import { motion } from "framer-motion";
 import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
 import { LoadingAnimation } from '../../components/LoadingAnimation';
 import PaymentStep1 from './PaymentsSteps/Step1';
+import PaymentStep2 from "./PaymentsSteps/Step2";
+import PaymentStep3 from "./PaymentsSteps/Step3";
+import PaymentStep4 from "./PaymentsSteps/Step4";
 import Step1 from './LoanSteps/Step1';
 import Step2 from './LoanSteps/Step2';
 import Step4 from './LoanSteps/Step4';
@@ -77,6 +80,10 @@ const Loan: React.FC = () => {
           transition={{ duration: 0.3 }}
           className='flex items-center justify-center' >
                {step === 1 && <PaymentStep1 nextStep={nextStep} />}
+               {step === 2 && <PaymentStep2 prevStep={prevStep} nextStep={nextStep} />}
+               {step === 3 && <PaymentStep3 prevStep={prevStep} nextStep={nextStep} />}
+               {step === 4 && <PaymentStep4 prevStep={prevStep}  />}
+
 
 
         </motion.div>

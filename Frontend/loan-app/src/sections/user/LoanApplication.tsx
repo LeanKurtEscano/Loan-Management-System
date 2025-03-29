@@ -33,7 +33,7 @@ const LoanApplication: React.FC = () => {
   const applicationData = data ?? { status: "new" };
 
   return (
-    <div className="mx-auto p-6 mb-7 bg-white rounded-lg shadow-lg">
+    <div className="mx-auto p-6 mb-7 bg-white rounded-lg">
       {applicationData?.status.trim() === "Pending" ? (
         <div className="flex flex-col items-center justify-center h-80 w-full bg-yellow-100 border border-yellow-300 rounded-lg shadow-md text-center">
           <FontAwesomeIcon

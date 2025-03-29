@@ -19,7 +19,7 @@ from .models import LoanApplication
 import cloudinary.uploader
 import locale
 from datetime import datetime
-
+from decimal import Decimal
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def approve_loan_disbursement(request):
@@ -55,7 +55,7 @@ def approve_loan_disbursement(request):
 
 
 
-from decimal import Decimal
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def loan_types_list(request):

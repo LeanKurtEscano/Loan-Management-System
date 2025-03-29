@@ -16,7 +16,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         getLoanSubmission
     );
 
-    const getPaymentPerPeriod = (
+ const getPaymentPerPeriod = (
         totalPayment: number,
         startDate: string,
         endDate: string,
@@ -80,14 +80,14 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
             <div className="w-full max-w-xl bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
-                <motion.img
-                    src={monsterGif}
-                    alt="Peeking Monster"
-                    className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-60 h-40"
-                    initial={{ y: 0, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 1, yoyo: Infinity, duration: 1.5, ease: "easeInOut" }}
-                />
+            <motion.img
+                     src={monsterGif}
+                     alt="Peeking Monster"
+                     className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-60 h-40"
+                     initial={{ y: -10 }}
+                     animate={{ y: 0 }}
+                     transition={{ yoyo: Infinity, duration: 1.5, ease: "easeInOut" }}
+                 />
 
                 <div className="flex justify-between items-center mb-9 mt-6">
                     <h2 className="text-gray-600 text-sm font-semibold">
