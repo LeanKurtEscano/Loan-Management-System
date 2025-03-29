@@ -77,6 +77,7 @@ const ManageBorrowers: React.FC = () => {
 
     return (
         <div className="p-5 w-auto min-h-screen max-w-6xl mx-auto">
+    
 
             <motion.h2
                 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-transparent mb-3 text-center"

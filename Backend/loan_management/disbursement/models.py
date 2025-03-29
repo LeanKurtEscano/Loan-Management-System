@@ -12,5 +12,6 @@ class LoanPayments(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     period  = models.CharField(max_length=50, null= True , blank= True)
     receipt = CloudinaryField('receipt', null=True, blank=True)
+    status = models.CharField(max_length=20,  default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
