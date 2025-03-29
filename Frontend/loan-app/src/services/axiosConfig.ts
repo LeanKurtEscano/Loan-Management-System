@@ -35,6 +35,48 @@ export const userApi = axios.create({
     },
     (error) => Promise.reject(error)
   );
+
+
+  export const userDisbursementApi = axios.create({
+    baseURL: "http://localhost:8000/disbursement",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  
+ 
+  userDisbursementApi.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+
+  
+  export const adminDisbursementApi = axios.create({
+    baseURL: "http://localhost:8000/disbursement",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  
+ 
+  adminDisbursementApi.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("admin_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+  
   
 
   export const loanApi = axios.create({

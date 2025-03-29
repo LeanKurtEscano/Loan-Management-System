@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { UserDetails } from '../constants/interfaces/authInterface';
 import { LoanApplicationDetails,AdminApprove, LoanSubmission } from '../constants/interfaces/loanInterface';
+import { SubmitDisbursement } from '../constants/interfaces/disbursement';
 const MyContext = createContext<any>(null);
 export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
@@ -36,6 +37,13 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   })
 
 
+  const [disbursement, setDisbursement] = useState<SubmitDisbursement>({
+    periodPayment: [],
+    receipt: null,
+    email: "",
+  })
+
+
   
   const [ toggle, setToggle] = useState(false);
 
@@ -63,7 +71,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
 
   return (
-    <MyContext.Provider value={{loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog}}>
+    <MyContext.Provider value={{loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
       {children}
     </MyContext.Provider>
   );

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getLoanSubmission } from "../../../services/user/userData";
 import { motion } from "framer-motion";
 import qr from "../../../assets/qr.jpg"
+
 interface Step3Props {
     nextStep: () => void;
     prevStep: () => void;
@@ -10,7 +11,7 @@ interface Step3Props {
 
 const Step3: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
     const { data, isLoading, isError } = useQuery(["userLoanSubmission"], getLoanSubmission);
-    
+ 
     if (isLoading) return <div className="flex justify-center items-center h-screen text-gray-600">Loading...</div>;
     if (isError || !data) return <div className="flex justify-center items-center h-screen text-red-500">Error fetching data</div>;
     

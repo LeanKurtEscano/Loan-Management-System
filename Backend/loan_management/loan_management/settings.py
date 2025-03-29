@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'loan_admin',
     'loan',
     'cloudinary_storage',
+    'disbursement'
 ]
 
 MIDDLEWARE = [
