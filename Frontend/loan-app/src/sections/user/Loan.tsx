@@ -82,7 +82,7 @@ const Loan: React.FC = () => {
                {step === 1 && <PaymentStep1 nextStep={nextStep} />}
                {step === 2 && <PaymentStep2 prevStep={prevStep} nextStep={nextStep} />}
                {step === 3 && <PaymentStep3 prevStep={prevStep} nextStep={nextStep} />}
-               {step === 4 && <PaymentStep4 prevStep={prevStep}  />}
+               {step === 4 && <PaymentStep4 prevStep={prevStep}  setStep = {setStep} />}
 
 
 

@@ -1,15 +1,26 @@
-import React from "react";
+import React, { use } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloud } from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../../context/MyContext";
 import { SubmitDisbursement } from "../../../constants/interfaces/disbursement";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { userDisbursementApi } from "../../../services/axiosConfig";
+import { useNavigate } from "react-router-dom";
+import { sendLoanPayment } from "../../../services/user/disbursement";
+import { useQuery } from "@tanstack/react-query";
+import { getLoanSubmission } from "../../../services/user/userData";
+import { useEffect } from "react";
 interface Step4Props {
   prevStep: () => void;
+  setStep: (step: number) => void; // ✅ Define setStep prop type
 }
 
-const Step4: React.FC<Step4Props> = ({ prevStep }) => {
+const Step4: React.FC<Step4Props> = ({ prevStep, setStep }) => {
   const { setDisbursement, disbursement } = useMyContext();
+  const { data, isLoading, isError } = useQuery(["userLoanSubmission4"], getLoanSubmission);
+  const nav = useNavigate();
+  const queryClient = useQueryClient();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
@@ -18,6 +29,8 @@ const Step4: React.FC<Step4Props> = ({ prevStep }) => {
 
     }
   };
+
+  console.log(data);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,11 +46,42 @@ const Step4: React.FC<Step4Props> = ({ prevStep }) => {
 
 
   const handleSubmit = async () => {
-    console.log(disbursement);
+     try {
+      const response = await sendLoanPayment(disbursement);
+
+      if(response.status === 201) {
+        
+        queryClient.invalidateQueries(["userLoanSubmission"]);
+        setStep(1);
+        setDisbursement({
+          receipt: null,
+          email: "",
+          disbursementId: null, // Adjust based on your default values
+          periodPayment: {
+            label: "",
+            amount: "",
+            duration: "",
+          },
+        });
+      }
+      
+
+     } catch(error) {
+      alert("NetWork Error");
+     }
   }
 
+  useEffect(() => {
+    if (data) {
+      setDisbursement((prev: SubmitDisbursement) => ({
+        ...prev,
+        disbursementId: data.id, 
+      }));
+    }
+  }, [data]); 
+
   return (
-    <div className="flex  items-center pb-20 h-screen">
+    <div className="flex min-h-screen mt-9 items-center pb-20 h-auto">
       <div className="bg-white p-6 shadow-lg rounded-lg w-96 border border-gray-300">
         <h2 className="text-center text-lg font-semibold mb-4">
           Confirmation of Payment

@@ -12,7 +12,7 @@ interface Step1Props {
 
 const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     const { data, isLoading, isError } = useQuery(
-        ['userLoanSubmission'],
+        ['userLoanSubmission1'],
         getLoanSubmission
     );
 

@@ -10,7 +10,7 @@ interface Step3Props {
 }
 
 const Step3: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
-    const { data, isLoading, isError } = useQuery(["userLoanSubmission"], getLoanSubmission);
+    const { data, isLoading, isError } = useQuery(["userLoanSubmission3"], getLoanSubmission);
  
     if (isLoading) return <div className="flex justify-center items-center h-screen text-gray-600">Loading...</div>;
     if (isError || !data) return <div className="flex justify-center items-center h-screen text-red-500">Error fetching data</div>;

@@ -41,6 +41,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     periodPayment: [],
     receipt: null,
     email: "",
+    disbursementId: null
   })
 
 
