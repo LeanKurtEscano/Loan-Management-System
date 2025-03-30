@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faTrash, faUsers, faClock, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faTrash, faUsers, faClock,faTimes, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { ApplicationData } from "../../constants/interfaces/adminInterface";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -117,7 +117,7 @@ const ManageBorrowers: React.FC = () => {
 
             {/* Table */}
             <div className="overflow-auto pl-11 md:pl-0">
-                <motion.table className="w-full bg-white shadow-lg rounded-lg text-sm" initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
+            <motion.table className="w-full bg-white shadow-lg rounded-lg text-sm">
                     <thead className="bg-blue-600 text-white text-sm font-semibold">
                         <tr>
                             <th className="p-3 text-left">First Name</th>
@@ -126,25 +126,27 @@ const ManageBorrowers: React.FC = () => {
                             <th className="p-3 text-left">Repay Date</th>
                             <th className="p-3 text-left">Status</th>
                             <th className="p-3 text-left">Submitted</th>
+                            <th className="p-3 text-left">Fully Paid</th>
                             <th className="p-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data?.map((user: any) => (
-                            <motion.tr key={user.id} className="border-b hover:bg-gray-100" variants={rowVariants}>
+                            <motion.tr key={user.id} className="border-b hover:bg-gray-100">
                                 <td className="p-3 max-w-[100px] truncate whitespace-nowrap">{user.user.first_name}</td>
                                 <td className="p-3 max-w-[100px] truncate whitespace-nowrap">{user.user.middle_name}</td>
                                 <td className="p-3 max-w-[100px] truncate whitespace-nowrap">{user.user.last_name}</td>
                                 <td className="p-3 whitespace-nowrap">{formatDateWithWords(user.repay_date)}</td>
-                                <td className={`p-2 sm:p-3 ${user.status === "Approved"
-                                    ? "text-green-600"
-                                    : user.status === "Rejected"
-                                        ? "text-red-600"
-                                        : "text-yellow-600"
-                                    } whitespace-nowrap`}>
+                                <td className={`p-2 sm:p-3 ${user.status === "Approved" ? "text-green-600" : user.status === "Rejected" ? "text-red-600" : "text-yellow-600"} whitespace-nowrap`}>
                                     {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                                 </td>
                                 <td className="p-3 whitespace-nowrap">{formatDate(user.created_at)}</td>
+                                <td className="p-3 text-center">
+                                    <FontAwesomeIcon 
+                                        icon={user.is_fully_paid ? faCheckCircle : faTimes} 
+                                        className={`text-lg ${user.is_fully_paid ? "text-blue-500" : "text-white bg-red-500 rounded-full px-1 py-0.5 "}`} 
+                                    />
+                                </td>
                                 <td className="p-3 text-center whitespace-nowrap">
                                     <button className="text-blue-500 cursor-pointer hover:text-blue-700 p-2" title="View" onClick={() => handleSelect(user.id)}>
                                         <FontAwesomeIcon icon={faEye} size="lg" />
@@ -153,12 +155,9 @@ const ManageBorrowers: React.FC = () => {
                                         <FontAwesomeIcon icon={faTrash} size="lg" />
                                     </button>
                                 </td>
-
-
                             </motion.tr>
                         ))}
                     </tbody>
-
                 </motion.table>
             </div>
 

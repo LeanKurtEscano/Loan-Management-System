@@ -31,3 +31,24 @@ export const  formatDateWithWords =(dateString: string) => {
 
 // Example usage:
 console.log(formatDateWithWords("2025-03-27"));  // Output: March 27th, 2025
+
+
+
+export const formatDateWords = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+  
+export  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).toLowerCase();
+  };
+  

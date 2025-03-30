@@ -86,7 +86,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
                                 ${disbursement.periodPayment?.label === option.label ? "border-blue-500 bg-blue-100" : "border-gray-300"}
                                 ${isDisabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}
                             `}
-                            onClick={() => handleSelectOption(index)}
+                            onClick={() =>!isDisabled && handleSelectOption(index)}
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, ease: "easeOut" }}

@@ -19,7 +19,7 @@ const Step3: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
     const formattedMethod = paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).toLowerCase();
     const qrImage = paymentMethod === "gcash" 
         ?  qr
-        : paymentMethod === "paymaya" 
+        : paymentMethod === "maya" 
         ? qr
         : "";
 

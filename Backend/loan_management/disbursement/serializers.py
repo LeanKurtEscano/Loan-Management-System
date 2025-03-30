@@ -17,4 +17,9 @@ class LoanDisbursementSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanPayments
         fields = '__all__'
-        
+
+
+class LoanPaymentsSerializer(serializers.ModelSerializer):
+      class Meta:
+        model = LoanPayments
+        fields = '__all__'

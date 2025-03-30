@@ -79,10 +79,10 @@ const Loan: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
           className='flex items-center justify-center' >
-               {step === 1 && <PaymentStep1 nextStep={nextStep} />}
-               {step === 2 && <PaymentStep2 prevStep={prevStep} nextStep={nextStep} />}
-               {step === 3 && <PaymentStep3 prevStep={prevStep} nextStep={nextStep} />}
-               {step === 4 && <PaymentStep4 prevStep={prevStep}  setStep = {setStep} />}
+          {step === 1 && <PaymentStep1 nextStep={nextStep} />}
+          {step === 2 && <PaymentStep2 prevStep={prevStep} nextStep={nextStep} />}
+          {step === 3 && <PaymentStep3 prevStep={prevStep} nextStep={nextStep} />}
+          {step === 4 && <PaymentStep4 prevStep={prevStep} setStep={setStep} />}
 
 
 
@@ -91,17 +91,16 @@ const Loan: React.FC = () => {
       ) : (
         <>
 
-          {applicationData.status !== 'Approved' && (
-            <div className="text-center bg-gray-100 p-8 rounded-2xl border-gray-200 shadow-md max-w-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:translate-y-2">
+          {applicationData.status !== 'Approved' && applicationData.is_active !== "true" && (
+            <div className="text-center bg-gray-100 p-8 rounded-2xl border-gray-200 shadow-md  w-[700px] transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:translate-y-2">
               <FontAwesomeIcon icon={faPlusCircle} className="text-blue-500 text-5xl mb-4 animate-pulse" />
-              <h1 className="text-3xl font-bold mb-2">You don't have a Loan </h1>
+              <h1 className="text-3xl font-bold mb-2">You don't have a Loan</h1>
               <p className="text-gray-600 mb-4">Start your financial journey with us today!</p>
               <button onClick={goApply} className="px-6 py-3 bg-blue-500 cursor-pointer text-white text-lg font-semibold rounded-lg hover:bg-blue-600 transition hover:scale-110">
                 Apply for Loan Now
               </button>
             </div>
           )}
-
 
           {applicationData.status === 'Approved' && (
             <>

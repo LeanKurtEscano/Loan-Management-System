@@ -6,7 +6,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils.timezone import now
 from decimal import Decimal
 import cloudinary.uploader
-from .serializers import LoanDisbursementSerializer
+from .serializers import LoanDisbursementSerializer, LoanPaymentsSerializer
 from user.models import CustomUser
 from loan.models import LoanSubmission
 from .models import LoanPayments
@@ -89,10 +89,35 @@ def approve_loan_payment(request):
         loan_payment.status = "Approved"
         loan_payment.save()
         loan_sub.balance -= Decimal(loan_payment.amount)  
+        
+        
+        if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
+            loan_sub.is_fully_paid = True
+            loan_sub.is_active = False
+            loan_sub.loan_app.is_active = False
+            loan_sub.loan_app.save() 
+        
         loan_sub.save() 
-
+        
         return Response({"success": "Loan Payment has been approved, and balance updated"}, status=status.HTTP_200_OK)
 
     except Exception as e:
         print(f"Error: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_transactions(request):
+    try:
+ 
+        user_loans = LoanPayments.objects.filter(user=request.user)
+    
+        serializer = LoanDisbursementSerializer(user_loans, many=True)
+        
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)
