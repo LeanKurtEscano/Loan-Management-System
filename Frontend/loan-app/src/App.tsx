@@ -38,6 +38,7 @@ import ApproveSubmission from './sections/admin/ApproveSubmission';
 import ManagePayments from './sections/admin/ManagePayments';
 import VerifyPayment from './sections/admin/VerifyPayment';
 import UserLoan from './sections/user/UserLoan';
+import TransactionDetail from './sections/user/TransactionDetail';
 function App() {
 
   return (
@@ -111,6 +112,7 @@ const Main: React.FC = () => {
         >
           <Route path="my-loan" element={<Loan />} />
           <Route path="my-transactions" element={<UserLoan/>} />
+          <Route path="my-transactions/:id" element={<TransactionDetail/>} />
           <Route path="account" element={<Account />} />
           <Route path="apply-loan" element={<LoanApplication />} />
         </Route>

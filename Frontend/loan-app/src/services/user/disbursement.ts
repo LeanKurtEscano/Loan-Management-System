@@ -54,3 +54,15 @@ export const fetchPaymentsData = async (endpoint: string) => {
     }
   };
   
+  export const getTransaction = async (id: number) => {
+    try {
+      const response = await userDisbursementApi.get(`/transactions/${id}`);
+  
+      console.log("API Response:", response.data); 
+      return response.data;
+    } catch (error: any) {
+      console.error("Error fetching data:", error?.response?.data || error.message);
+      throw new Error(error?.response?.data?.error || "Something went wrong");
+    }
+  };
+  

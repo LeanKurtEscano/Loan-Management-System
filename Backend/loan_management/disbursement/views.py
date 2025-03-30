@@ -10,7 +10,9 @@ from .serializers import LoanDisbursementSerializer, LoanPaymentsSerializer
 from user.models import CustomUser
 from loan.models import LoanSubmission
 from .models import LoanPayments
-
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail, EmailMultiAlternatives
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])  
@@ -145,3 +147,52 @@ def delete_loan_payments(request):
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
     
  
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def reject_loan_payment(request):
+    try:
+        
+        
+        id = request.data.get("id")
+        subject_heading = request.data.get("subject")
+        
+        desc = request.data.get("description")
+        
+        loan_payment = LoanPayments.objects.get(id = int(id))
+        loan_payment.status = "Rejected"
+        loan_payment.save()
+        user = loan_payment.user
+        subject = "You're Loan Payment has been rejected"
+        html_content = render_to_string("email/rejection_email.html", {
+            "subject":subject_heading,
+            "user_name": user.username,
+            "description": desc
+        })
+        plain_message = strip_tags(html_content)
+
+    
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_transaction(request,id):
+    try:
+      
+        loan_applications = LoanPayments.objects.get(id = int(id))
+        serializer = LoanDisbursementSerializer(loan_applications)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)   

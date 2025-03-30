@@ -50,7 +50,7 @@ const VerifyPayment = () => {
     const rejectMutation = useMutation({
         mutationFn: async (id: number) => {
             setLoading2(true);
-            await loanApi.post("/reject/payment/", {
+            await adminDisbursementApi.post("/reject/payment/", {
                 id,
                 subject: emailDetails.subject,
                 description: emailDetails.description,
@@ -251,8 +251,8 @@ const VerifyPayment = () => {
                     isOpen={isReject}
                     onClose={() => setIsReject(false)}
                     onConfirm={handleReject}
-                    heading="Reject Loan Application?"
-                    buttonText="Reject Loan Application"
+                    heading="Reject Payment?"
+                    buttonText="Reject Payment"
                 />
             ) : null}
             
