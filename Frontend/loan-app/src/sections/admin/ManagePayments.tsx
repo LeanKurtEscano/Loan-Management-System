@@ -6,7 +6,7 @@ import { fetchPaymentsData } from "../../services/user/disbursement";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchLoanData } from "../../services/user/loan";
 import { useNavigate } from "react-router-dom";
-import { adminApi, loanApi } from "../../services/axiosConfig";
+import { adminApi, adminDisbursementApi, loanApi } from "../../services/axiosConfig";
 import Modal from "../../components/Modal";
 import { formatDate, formatDateWithWords } from "../../utils/formatDate";
 import { formatCurrency } from "../../utils/formatCurrency";
@@ -31,7 +31,7 @@ const ManagePayments: React.FC = () => {
 
     const deleteMutation = useMutation({
         mutationFn: async (id: number) => {
-            const response = await loanApi.post('/remove/submission/', {
+            const response = await adminDisbursementApi.post('/remove/payment/', {
                 id: selectedId
             });
 

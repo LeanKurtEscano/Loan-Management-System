@@ -121,3 +121,27 @@ def user_transactions(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)
+    
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_loan_payments(request):
+    try:
+        
+        
+        id = request.data.get("id")
+        
+        print(id)
+        loan_payment = LoanPayments.objects.get(id = int(id))
+        loan_payment.delete()
+
+        
+        
+        return Response({"success": "Loan Payment has been deleted"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+ 
