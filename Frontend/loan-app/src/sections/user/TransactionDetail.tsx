@@ -23,11 +23,16 @@ const { data, isLoading, isError, error } = useQuery(
   { enabled: !isNaN(numId) } 
 );
 
-const loanAmount = parseFloat(data?.loan.loan_amount);
-console.log(loanAmount)
+const paidAmount = parseFloat(data?.amount ?? "0");
+const interestRate = parseFloat(data?.loan.loan_app.interest ?? "0") / 100;
+const loanAmount = parseFloat(data?.loan.loan_amount ?? "0");
 
-console.log(data);
-  
+// Calculating total interest for the entire loan duration
+const totalInterest = loanAmount * interestRate;
+
+// Finding principal portion of the current payment
+const interestPortion = (totalInterest / loanAmount) * paidAmount;
+const principalAmount = paidAmount - interestPortion;
   
   const goBack = () => {
     navigate(-1);
@@ -106,10 +111,7 @@ console.log(data);
             <p className="text-gray-600">Interest Rate</p>
             <p className="font-medium">{data?.loan.loan_app.interest}%</p>
           </div>
-          <div>
-            <p className="text-gray-600">Total Interest</p>
-            <p className="font-medium">{}</p>
-          </div>
+        
           <div>
             <p className="text-gray-600">Settlement Duration</p>
             <p className="font-medium">{data?.period}</p>
@@ -158,15 +160,12 @@ console.log(data);
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <div className="flex justify-between mb-2">
           <p className="text-gray-600">Principal Amount:</p>
-          <p className="font-medium">{formatCurrency(data?.amount)}</p>
+          <p className="font-medium">{formatCurrency(principalAmount)}</p>
         </div>
-        <div className="flex justify-between mb-2">
-          <p className="text-gray-600">Processing Fee:</p>
-          <p className="font-medium">{}</p>
-        </div>
+        
         <div className="flex justify-between mb-2">
           <p className="text-gray-600">Total Interest:</p>
-          <p className="font-medium">{}</p>
+          <p className="font-medium">{formatCurrency(interestPortion)}</p>
         </div>
         <div className="flex justify-between font-bold pt-2 border-t">
           <p>Total Amount to be Paid:</p>
