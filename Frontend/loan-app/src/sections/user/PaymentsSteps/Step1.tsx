@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getLoanSubmission } from "../../../services/user/userData";
 import { formatDateWithWords } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
-
+import { getPayments } from "../../../services/user/disbursement";
 interface Step1Props {
     nextStep: () => void;
 }
@@ -16,19 +16,30 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         getLoanSubmission
     );
 
- const getPaymentPerPeriod = (
+    const { data: dataDate, isLoading: loadingDate, isError: errorDate } = useQuery(
+        ['userCompareDate'],
+        getPayments
+    );
+
+    console.log(data);
+
+
+
+
+
+    const getPaymentPerPeriod = (
         totalPayment: number,
         startDate: string,
         endDate: string,
         frequency: string
     ) => {
         if (!totalPayment || !startDate || !endDate || !frequency) return "N/A";
-    
+
         let start = new Date(startDate);
         let end = new Date(endDate);
-    
+
         let numPeriods = 0;
-    
+
         switch (frequency.toLowerCase()) {
             case "monthly":
                 numPeriods = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
@@ -42,13 +53,32 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             default:
                 return "Invalid Frequency";
         }
-    
+
         if (numPeriods <= 0) return "N/A";
-    
+
         return formatCurrency(totalPayment / numPeriods);
     };
-    
-    
+
+    const getDueDateFromPeriod = (startDate: string, periods: string[]) => {
+        if (!startDate || periods.length === 0) return "N/A";
+
+        let start = new Date(startDate);
+        let totalMonths = 0;
+
+
+        periods.forEach(period => {
+            const periodMatch = period.match(/(\d+)\s*months?/);
+            if (periodMatch) {
+                totalMonths += parseInt(periodMatch[1], 10);
+            }
+        });
+
+        start.setMonth(start.getMonth() + totalMonths + 1);
+
+
+        return formatDateWithWords(start.toISOString().split("T")[0]);
+    };
+
     const getNextPaymentDate = (startDate: string, frequency: string) => {
         if (!startDate || !frequency) return "N/A";
         let nextDate = new Date(startDate);
@@ -67,7 +97,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         return formatDateWithWords(nextDate.toISOString().split("T")[0]);
     };
 
-    
+
     const totalPayment = parseFloat(data?.total_payment || "0");
     const balance = parseFloat(data?.balance || "0");
     const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;
@@ -80,14 +110,14 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
             <div className="w-full max-w-xl bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
-            <motion.img
-                     src={monsterGif}
-                     alt="Peeking Monster"
-                     className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-60 h-40"
-                     initial={{ y: -10 }}
-                     animate={{ y: 0 }}
-                     transition={{ yoyo: Infinity, duration: 1.5, ease: "easeInOut" }}
-                 />
+                <motion.img
+                    src={monsterGif}
+                    alt="Peeking Monster"
+                    className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-60 h-40"
+                    initial={{ y: -10 }}
+                    animate={{ y: 0 }}
+                    transition={{ yoyo: Infinity, duration: 1.5, ease: "easeInOut" }}
+                />
 
                 <div className="flex justify-between items-center mb-9 mt-6">
                     <h2 className="text-gray-600 text-sm font-semibold">
@@ -129,7 +159,10 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                     Your next payment of <span className="font-semibold">
                         {getPaymentPerPeriod(totalPayment, data?.start_date, data?.repay_date, data?.frequency)}
                     </span> is due on <span className="font-semibold">
-                        {getNextPaymentDate(data?.start_date, data?.frequency)}
+                        {Array.isArray(dataDate) && dataDate.length > 0
+                            ? getDueDateFromPeriod(data?.start_date, dataDate.map((payment: { period: string }) => payment.period))
+                            : getNextPaymentDate(data?.start_date, data?.frequency)
+                        }
                     </span>. Please ensure timely payment to avoid any penalties. Thank you.
                 </p>
 

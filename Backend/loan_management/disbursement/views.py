@@ -196,3 +196,21 @@ def user_transaction(request,id):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)   
+    
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_payment_data(request):
+    try:
+      
+        loan_disbursement = LoanSubmission.objects.get(user=request.user ,is_fully_paid =False, is_active = True)
+        loan_payments = LoanPayments.objects.filter(loan=loan_disbursement , status = "Approved")
+        serializer = LoanPaymentsSerializer(loan_payments, many=True)
+
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)   
+    
+    

@@ -66,3 +66,15 @@ export const fetchPaymentsData = async (endpoint: string) => {
     }
   };
   
+  export const getPayments= async () => {
+    try {
+      const response = await userDisbursementApi.get(`/payment/date`);
+  
+      console.log("API Response:", response.data); 
+      return response.data;
+    } catch (error: any) {
+      console.error("Error fetching data:", error?.response?.data || error.message);
+      throw new Error(error?.response?.data?.error || "Something went wrong");
+    }
+  };
+  

@@ -3,7 +3,7 @@ from user.models import CustomUser
 from .models import LoanPlan, LoanTypes
 from rest_framework import serializers
 from .models import LoanApplication, CustomUser, LoanTypes, LoanPlan, LoanSubmission
-
+from disbursement.models import LoanPayments
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -27,13 +27,18 @@ class LoanAppSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
         
+class LoanPaymentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanPayments
+        fields = '__all__'      
 class LoanSubSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)  
     loan_app = LoanAppSerializer(read_only=True) 
-
+ 
     class Meta:
         model = LoanSubmission
         fields = '__all__'  # You can als
+        
 class LoanApplicationSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
     type = LoanTypesSerializer(read_only=True)

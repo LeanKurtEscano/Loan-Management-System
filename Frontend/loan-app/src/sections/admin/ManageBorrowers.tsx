@@ -144,7 +144,7 @@ const ManageBorrowers: React.FC = () => {
                                 <td className="p-3 text-center">
                                     <FontAwesomeIcon 
                                         icon={user.is_fully_paid ? faCheckCircle : faTimes} 
-                                        className={`text-lg ${user.is_fully_paid ? "text-blue-500" : "text-white bg-red-500 rounded-full px-1 py-0.5 "}`} 
+                                        className={` ${user.is_fully_paid ? "text-blue-500 text-2xl" : "text-white bg-red-500 rounded-full text-xl px-1 py-0.5 "}`} 
                                     />
                                 </td>
                                 <td className="p-3 text-center whitespace-nowrap">

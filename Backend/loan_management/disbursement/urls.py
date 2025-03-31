@@ -8,7 +8,7 @@ urlpatterns = [
     path('approve/payment/', views.approve_loan_payment, name="approve_loan_payment"),
     path('remove/payment/', views.delete_loan_payments, name="delete_loan_payment"),
     path('reject/payment/', views.reject_loan_payment, name="reject_payment"),
-    
+    path('payment/date/',views.user_payment_data, name="payment-data"),
     path('transactions/', views.user_transactions, name="user_transactions"),
     path('transactions/<int:id>/', views.user_transaction, name="transaction"),
 ]

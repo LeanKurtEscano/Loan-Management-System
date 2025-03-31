@@ -9,52 +9,26 @@ import maya from "../../assets/mayatext.webp";
 import { useQuery } from '@tanstack/react-query';
 import { getTransaction } from '../../services/user/disbursement';
 const TransactionDetail = () => {
-  // In a real app, you would fetch the specific transaction by ID
-  // For demo purposes, I'm creating sample data similar to what you provided
+
   const navigate = useNavigate();
   const { id } = useParams();
 
-// Convert id to an integer safely
+
 const numId = parseInt(id ?? "0", 10);
 
-// Fetch data using the converted ID
+
 const { data, isLoading, isError, error } = useQuery(
   ["userTransactions", numId], 
-  () => getTransaction(numId), // Pass numId to the function
-  { enabled: !isNaN(numId) } // Ensure the query runs only if numId is a valid number
+  () => getTransaction(numId), 
+  { enabled: !isNaN(numId) } 
 );
 
+const loanAmount = parseFloat(data?.loan.loan_amount);
+console.log(loanAmount)
 
 console.log(data);
-  // Mock transaction data (in a real app, this would come from an API)
-  const transaction = {
-    id: "TXN-2025-0330-001",
-    created_at: "2025-03-30T16:49:00",
-    amount: 37100,
-    status: "Approved",
-    period: "3 years",
-    reference_number: "GC-25330-49PM-XZ1",
-    loan: {
-      frequency: "yearly",
-      cashout: "gcash",
-      interest_rate: 8.5,
-      payment_amount: 13256.67,
-      payment_schedule: [
-        { date: "2026-03-30", amount: 13256.67, status: "Scheduled" },
-        { date: "2027-03-30", amount: 13256.67, status: "Scheduled" },
-        { date: "2028-03-30", amount: 13256.67, status: "Scheduled" }
-      ]
-    },
-    account_number: "09*********12",
-    account_name: "Juan Dela Cruz",
-    processing_fee: 750,
-    timestamp: "2025-03-30T16:49:23"
-  };
-
-  // Calculate totals
-  const totalPayments = transaction.loan.payment_schedule.reduce((sum, schedule) => sum + schedule.amount, 0);
-  const totalInterest = totalPayments - transaction.amount;
-
+  
+  
   const goBack = () => {
     navigate(-1);
   };
@@ -71,7 +45,7 @@ console.log(data);
           Back to Transactions
         </button>
       </div>
-\
+
       <div className="border-b pb-4 mb-6">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Transaction Receipt</h1>
@@ -85,7 +59,7 @@ console.log(data);
           </div>
         </div>
         <div className="flex justify-between text-gray-500 text-sm">
-          <p>Reference: {transaction.reference_number}</p>
+          <p>Reference: </p>
           <p>Date: {formatDateWithWords(data?.created_at)} {formatTime(data?.created_at)}</p>
         </div>
       </div>
@@ -119,7 +93,7 @@ console.log(data);
           </div>
           <div>
             <p className="text-gray-600">Account Number</p>
-            <p className="font-medium">{transaction.account_number}</p>
+            <p className="font-medium">{data?.user.contact_number}</p>
           </div>
           <div>
             <p className="text-gray-600">
@@ -130,11 +104,11 @@ console.log(data);
          
           <div>
             <p className="text-gray-600">Interest Rate</p>
-            <p className="font-medium">{data?.loan.interest}%</p>
+            <p className="font-medium">{data?.loan.loan_app.interest}%</p>
           </div>
           <div>
             <p className="text-gray-600">Total Interest</p>
-            <p className="font-medium">{formatCurrency(totalInterest)}</p>
+            <p className="font-medium">{}</p>
           </div>
           <div>
             <p className="text-gray-600">Settlement Duration</p>
@@ -188,11 +162,11 @@ console.log(data);
         </div>
         <div className="flex justify-between mb-2">
           <p className="text-gray-600">Processing Fee:</p>
-          <p className="font-medium">{formatCurrency(transaction.processing_fee)}</p>
+          <p className="font-medium">{}</p>
         </div>
         <div className="flex justify-between mb-2">
           <p className="text-gray-600">Total Interest:</p>
-          <p className="font-medium">{formatCurrency(totalInterest)}</p>
+          <p className="font-medium">{}</p>
         </div>
         <div className="flex justify-between font-bold pt-2 border-t">
           <p>Total Amount to be Paid:</p>
@@ -202,8 +176,8 @@ console.log(data);
 
       {/* Footer */}
       <div className="text-center text-gray-500 text-sm">
-        <p>Transaction ID: {transaction.id}</p>
-        <p>Processed on: {new Date(transaction.timestamp).toLocaleString()}</p>
+        <p>Transaction ID: </p>
+        <p>Processed on: </p>
         <p className="mt-4">If you have any questions about this transaction, please contact our support.</p>
       </div>
     </div>
