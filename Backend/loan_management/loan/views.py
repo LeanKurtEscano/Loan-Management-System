@@ -28,7 +28,7 @@ def approve_loan_disbursement(request):
         loan_sub = LoanSubmission.objects.get(id=int(id))
         loan_sub.status = "Approved"
         loan_sub.start_date = datetime.now() 
-        loan_sub.balance = Decimal(loan_sub.loan_amount) + Decimal(loan_sub.loan_amount * loan_sub.loan_app.interest) / 100
+        loan_sub.balance = Decimal(loan_sub.total_payment)
         loan_sub.save()
         
         

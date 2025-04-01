@@ -26,6 +26,8 @@ def handle_loan_payments(request):
             "amount": request.data.get("periodPayment[amount]", ""),
             "duration": request.data.get("periodPayment[duration]", ""),
         }
+        
+        print(period_payment["amount"])
 
         receipt = request.FILES.get("receipt", None)
         

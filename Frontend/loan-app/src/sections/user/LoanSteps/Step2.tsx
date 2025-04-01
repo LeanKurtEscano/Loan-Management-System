@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getLoanApplication } from "../../../services/user/userData";
 import { formatCurrency } from "../../../utils/formatCurrency";
@@ -14,9 +14,14 @@ const Step2 = ({
 
   const{loanSubmission,setLoanSubmission} = useMyContext();
 
-   const handleChange  = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLoanSubmission((prev:LoanSubmission) => ({...prev,[e.target.name] : e.target.value }))
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedValue = e.target.value;
+    setLoanSubmission((prev:LoanSubmission) => {
+      const newSubmission = { ...prev, loanAmount: updatedValue };
+      localStorage.setItem("loanAmount", JSON.stringify(updatedValue)); 
+      return newSubmission;
+    });
+  };
   const { data, isLoading, isError } = useQuery(
     ["userLoanApplication"],
     getLoanApplication
@@ -27,6 +32,8 @@ const Step2 = ({
       nextStep();
 
   };
+
+
 
   return (
     <div className="flex items-center h-screen">

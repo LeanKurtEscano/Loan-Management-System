@@ -3,6 +3,7 @@ import { useMyContext } from "../../../context/MyContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloudUploadAlt, faTimesCircle, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
+
 const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   const { loanApplication, setLoanApplication } = useMyContext();
 
@@ -12,12 +13,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
       setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [side]: file }));
       e.target.value = "";
     }
-
   };
-
-
-
-
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLoanApplication((prev: LoanApplicationDetails) => ({
@@ -40,7 +36,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   };
 
   return (
-    <div className="flex justify-center h-auto items-center min-h-screen ">
+    <div className="flex justify-center h-auto items-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg mb-11 p-6 w-full max-w-xl border-gray-200 border-2 space-y-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Upload Your ID</h2>
 
@@ -63,81 +59,88 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
           </select>
         </div>
 
-        {/* Front ID Upload */}
-        <div className="space-y-2">
-          <div className="relative">
-            <label htmlFor="fileUploadFront" className="block text-gray-700 font-medium mb-2">
-              Upload Front of ID
-            </label>
-            <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg  flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
-              <label htmlFor="fileUploadFront" className="flex flex-col items-center cursor-pointer">
-                <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
-                <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
-                <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
+        {/* Front and Back ID Upload (same row) */}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Front ID Upload */}
+          <div className="space-y-2">
+            <div className="relative">
+              <label htmlFor="fileUploadFront" className="block text-gray-700 font-medium mb-2">
+                Upload Front of ID
               </label>
-              <input
-                id="fileUploadFront"
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange(e, "front")}
-                className="hidden"
-              />
+              <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+                <label htmlFor="fileUploadFront" className="flex flex-col items-center cursor-pointer">
+                  <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
+                  <p className="text-gray-600 font-medium whitespace-nowrap">Drag & Drop or Click to Upload</p>
+                  <span className="text-xs text-gray-500 ">(JPG, PNG, or PDF - Max 5MB)</span>
+                </label>
+                <input
+                  id="fileUploadFront"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "front")}
+                  className="hidden"
+                />
+              </div>
             </div>
+
+            {loanApplication.front && (
+              <div className="relative w-full mt-2">
+                <img
+                  src={URL.createObjectURL(loanApplication.front)}
+                  alt="Front ID"
+                  className="w-full h-60 object-cover rounded-lg shadow"
+                />
+                <button
+                  onClick={() => handleRemoveFile("front")}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-1 cursor-pointer hover:bg-red-600 transition"
+                >
+                  <FontAwesomeIcon icon={faTimesCircle} />
+                </button>
+                <p className="text-center text-gray-700 mt-2 font-medium">Front of ID</p>
+              </div>
+            )}
           </div>
 
-          {loanApplication.front && (
-            <div className="relative w-full mt-2">
-              <img
-                src={URL.createObjectURL(loanApplication.front)}
-                alt="Front ID"
-                className="w-full h-48 object-cover rounded-lg shadow"
-              />
-              <button
-                onClick={() => handleRemoveFile("front")}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-1 cursor-pointer hover:bg-red-600 transition"
-              >
-                <FontAwesomeIcon icon={faTimesCircle} />
-              </button>
+          {/* Back ID Upload */}
+          <div className="space-y-2">
+            <div className="relative">
+              <label htmlFor="fileUploadBack" className="block text-gray-700 font-medium mb-2">
+                Upload Back of ID
+              </label>
+              <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+                <label htmlFor="fileUploadBack" className="flex flex-col items-center cursor-pointer">
+                  <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
+                  <p className="text-gray-600 font-medium whitespace-nowrap">Drag & Drop or Click to Upload</p>
+                  <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
+                </label>
+                <input
+                  id="fileUploadBack"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "back")}
+                  className="hidden"
+                />
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Back ID Upload */}
-        <div className="relative">
-          <label htmlFor="fileUploadBack" className="block text-gray-700 font-medium mb-2">
-            Upload Back of ID
-          </label>
-          <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
-            <label htmlFor="fileUploadBack" className="flex flex-col items-center cursor-pointer">
-              <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
-              <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
-              <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
-            </label>
-            <input
-              id="fileUploadBack"
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, "back")}
-              className="hidden"
-            />
+            {loanApplication.back && (
+              <div className="relative w-full mt-2">
+                <img
+                  src={URL.createObjectURL(loanApplication.back)}
+                  alt="Back ID"
+                  className="w-full h-60 object-cover rounded-lg shadow"
+                />
+                <button
+                  onClick={() => handleRemoveFile("back")}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-1 cursor-pointer hover:bg-red-600 transition"
+                >
+                  <FontAwesomeIcon icon={faTimesCircle} />
+                </button>
+                <p className="text-center text-gray-700 mt-2 font-medium">Back of ID</p>
+              </div>
+            )}
           </div>
         </div>
-
-        {loanApplication.back && (
-          <div className="relative w-full mt-2">
-            <img
-              src={URL.createObjectURL(loanApplication.back)}
-              alt="Back ID"
-              className="w-full h-48 object-cover rounded-lg shadow"
-            />
-            <button
-              onClick={() => handleRemoveFile("back")}
-              className="absolute top-2 right-2 bg-red-500 cursor-pointer text-white rounded-full px-1 hover:bg-red-600 transition"
-            >
-              <FontAwesomeIcon icon={faTimesCircle} />
-            </button>
-          </div>
-        )}
 
         {/* Next Button */}
         <button

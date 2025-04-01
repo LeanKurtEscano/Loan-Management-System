@@ -6,6 +6,7 @@ import { getLoanSubmission } from "../../../services/user/userData";
 import { formatDateWithWords } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { getPayments } from "../../../services/user/disbursement";
+import { useNavigate } from "react-router-dom";
 interface Step1Props {
     nextStep: () => void;
 }
@@ -15,6 +16,12 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         ['userLoanSubmission1'],
         getLoanSubmission
     );
+    const navigate = useNavigate();
+
+
+    const goToTransactions = () => {
+        navigate('/user/my-transactions');
+    }
 
     const { data: dataDate, isLoading: loadingDate, isError: errorDate } = useQuery(
         ['userCompareDate'],
@@ -98,8 +105,8 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     };
 
 
-    const totalPayment = parseFloat(data?.total_payment || "0");
-    const balance = parseFloat(data?.balance || "0");
+    const totalPayment = data?.total_payment || "0";
+    const balance = data?.balance || "0";
     const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;
 
     return (
@@ -176,6 +183,9 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                         Make a Payment
                     </motion.button>
                     <motion.button
+                    onClick={goToTransactions}
+
+
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="w-full border cursor-pointer border-gray-400 text-gray-700 py-3 rounded-lg shadow-md hover:bg-gray-100 transition font-semibold text-lg"

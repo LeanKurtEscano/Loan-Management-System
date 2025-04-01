@@ -25,6 +25,7 @@ const Step3 = ({
 
   useEffect(() => {
     setLoanSubmission((prev: LoanSubmission) => ({ ...prev, totalPayment: totalPayment }));
+    localStorage.setItem("totalPayment", JSON.stringify(totalPayment)); 
   }, []);
 
   const handleContinue = () => {
@@ -83,7 +84,7 @@ const Step3 = ({
           >
             <option value="">Select Payment Frequency</option>
             <option value="monthly" disabled={isMonthlyDisabled()}>Monthly</option>
-            <option value="yearly" disabled={isYearlyDisabled()}>Yearly</option>
+         
           </select>
         </div>
 

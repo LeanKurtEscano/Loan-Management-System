@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import gcash from "../../../assets/gcash.png";
 import maya from "../../../assets/maya.png";
@@ -8,23 +8,43 @@ import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
 const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => void }) => {
   const { loanSubmission, setLoanSubmission } = useMyContext();
 
-
+  // Function to select cashout method (without deducting loanAmount)
   const handleSelect = (option: string) => {
     setLoanSubmission((prev: LoanSubmission) => ({
       ...prev,
-      cashout: prev.cashout === option ? "" : option,
+      cashout: option, // Just update the selected method
     }));
   };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLoanSubmission((prev: LoanSubmission) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
+
+  useEffect(() => {
+    const storedLoanAmount = localStorage.getItem("loanAmount");
+    if (storedLoanAmount) {
+      setLoanSubmission((prev: LoanSubmission) => ({
+        ...prev,
+        loanAmount: Number(JSON.parse(storedLoanAmount)), 
+      }));
+    }
+  }, []);
   
 
+  // Function to confirm selection and apply the deduction
   const handleContinue = () => {
-   
+    const deduction = loanSubmission.cashout === "gcash" ? 10 : loanSubmission.cashout === "maya" ? 15 : 0;
+    const storedTotalPayment = Number(JSON.parse(localStorage.getItem("totalPayment") || "0"));
+
+    
+    const updatedTotalPayment = storedTotalPayment - deduction;
+    setLoanSubmission((prev: LoanSubmission) => ({
+      ...prev,
+      loanAmount: (prev.loanAmount ?? 0) - deduction,
+      totalPayment: updatedTotalPayment
+
+    }));
+  
     nextStep();
   };
+  
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -49,10 +69,10 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
 
           <input
             type="text"
-            name = "contactNumber"
+            name="contactNumber"
             id="contactNumber"
             value={loanSubmission.contactNumber}
-            onChange={handleChange}
+            onChange={(e) => setLoanSubmission((prev: LoanSubmission) => ({ ...prev, contactNumber: e.target.value }))}
             placeholder="09XXXXXXXXX"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -72,7 +92,9 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             <h4 className="font-semibold">GCASH (InstaPay)</h4>
             <p className="text-sm text-gray-600">Processing Time: Instant</p>
             <p className="text-sm text-gray-600">Service Fee: PHP 10</p>
-            <p className="text-sm font-semibold">You'll receive: {loanSubmission.loanAmount - 10} PHP</p>
+            <p className="text-sm font-semibold">
+              You'll receive: {loanSubmission.loanAmount - 10} PHP
+            </p>
           </div>
           <img src={gcash} alt="GCash Logo" className="w-16 h-16" />
         </motion.div>
@@ -91,7 +113,9 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
             <h4 className="font-semibold">Maya (InstaPay)</h4>
             <p className="text-sm text-gray-600">Processing Time: Instant</p>
             <p className="text-sm text-gray-600">Service Fee: PHP 15</p>
-            <p className="text-sm font-semibold">You'll receive: {loanSubmission.loanAmount - 15} PHP</p>
+            <p className="text-sm font-semibold">
+              You'll receive: {loanSubmission.loanAmount - 15} PHP
+            </p>
           </div>
           <img src={maya} alt="Maya Logo" className="w-16 h-16" />
         </motion.div>
