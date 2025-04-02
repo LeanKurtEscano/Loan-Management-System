@@ -5,7 +5,7 @@ import { formatCurrency } from "../../../utils/formatCurrency";
 import { motion } from "framer-motion";
 import { useMyContext } from "../../../context/MyContext";
 import { SubmitDisbursement } from "../../../constants/interfaces/disbursement";
-
+import { useEffect } from "react";
 interface Step2Props {
   nextStep: () => void;
   prevStep: () => void;
@@ -13,7 +13,9 @@ interface Step2Props {
 
 const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   const { data } = useQuery(["userLoanSubmission2"], getLoanSubmission);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [selectedOption, setSelectedOption] = useState<number | null>(
+    () => JSON.parse(localStorage.getItem("selectedOption") || "null") 
+  );
 
   const { setDisbursement, disbursement } = useMyContext();
 
@@ -42,7 +44,6 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   const roundedPaymentPerMonth = paymentPerMonth;
 
-  // Payment options based on frequency
   const paymentOptions = [
     {
       label: `1 ${data?.frequency.toLowerCase() === "monthly" ? "month" : "year"}`,
@@ -59,15 +60,21 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
       amount: roundedPaymentPerMonth * 3,
       duration: 3,
     },
+
+    {
+      label: `Pay in full`,
+      amount: data?.balance,
+      duration: 3,
+    },
   ];
 
   const adjustPaymentOptions = (balance: number) => {
     const maxDiscrepancy = 0.09;  // Maximum allowable discrepancy
     let remainingBalance = balance;
-  
+
     return paymentOptions.map((option) => {
       const discrepancy = Math.abs(option.amount - remainingBalance);
-  
+
       if (discrepancy <= maxDiscrepancy) {
         // If the option is within the acceptable discrepancy range, adjust the option
         return {
@@ -79,34 +86,58 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
         // If the option is greater than the balance, disable it
         return {
           ...option,
-          disabled: true,  // Disable the option
+          disabled: true,
         };
       } else {
         // If the option is not close enough to the remaining balance, keep it selectable
         return {
           ...option,
-          disabled: false,  // Allow selection
+          disabled: false,
         };
       }
     });
   };
-  
 
-// Adjust options based on the balance
-const adjustedPaymentOptions = adjustPaymentOptions(balance);
+  useEffect(() => {
+    const savedOptionIndex = JSON.parse(localStorage.getItem("selectedOption") || "null");
+    if (savedOptionIndex !== null) {
+      setDisbursement((prev: SubmitDisbursement) => ({
+        ...prev,
+        periodPayment: adjustedPaymentOptions[savedOptionIndex],
+      }));
+    }
+  }, [data, setDisbursement]);
+
+
+
+  // Adjust options based on the balance
+  const adjustedPaymentOptions = adjustPaymentOptions(balance);
   const handleProceed = () => {
     if (selectedOption === null) return;
     nextStep();
   };
 
   const handleSelectOption = (index: number) => {
-    setSelectedOption(index);
-    const selectedPayment = adjustedPaymentOptions[index];
-    setDisbursement((prev: SubmitDisbursement) => ({
-      ...prev,
-      periodPayment: selectedPayment,
-    }));
+    if (selectedOption === index) {
+      
+      setSelectedOption(null);
+      localStorage.removeItem("selectedOption");
+      setDisbursement((prev: SubmitDisbursement) => ({
+        ...prev,
+        periodPayment: null,
+      }));
+    } else {
+      
+      setSelectedOption(index);
+      localStorage.setItem("selectedOption", JSON.stringify(index));
+      const selectedPayment = adjustedPaymentOptions[index];
+      setDisbursement((prev: SubmitDisbursement) => ({
+        ...prev,
+        periodPayment: selectedPayment,
+      }));
+    }
   };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen pb-28">
@@ -122,21 +153,37 @@ const adjustedPaymentOptions = adjustPaymentOptions(balance);
         >
           {adjustedPaymentOptions.map((option, index) => {
             return (
-              <motion.div
-                key={index}
-                className={`flex justify-between items-center px-4 py-3 border rounded-lg cursor-pointer transition-all duration-300 ease-in-out
-                  ${disbursement.periodPayment?.label === option.label ? "border-blue-500 bg-blue-100" : "border-gray-300"}
-                  ${option.disabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}`}
-                onClick={() => !option.disabled && handleSelectOption(index)}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                <span>{option.label}</span>
-                <span className="font-bold">{formatCurrency(option.amount)}</span>
-              </motion.div>
+              <div key={index}>
+                <motion.div
+                  className={`flex justify-between items-center px-4 py-3 border rounded-lg cursor-pointer transition-all duration-300 ease-in-out
+          ${disbursement.periodPayment?.label === option.label ? "border-blue-500 bg-blue-100" : "border-gray-300"}
+          ${option.disabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}`}
+                  onClick={() => !option.disabled && handleSelectOption(index)}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <span>{option.label}</span>
+                  <span className="font-bold">{formatCurrency(option.amount)}</span>
+                </motion.div>
+
+                {/* Show message below the first option */}
+                {index === 0 && (
+                  <p className=" flex text-lg justify-center items-center text-gray-500 mt-2"> Pay in advance</p>
+                )}
+
+                {index === 2 && (
+                  <p className=" flex text-lg justify-center items-center text-gray-500 mt-2"> Or</p>
+                )}
+
+                {/* Add a separator for all items except the last one */}
+                {index !== adjustedPaymentOptions.length - 1 && (
+                  <hr className="my-3 border-gray-300" />
+                )}
+              </div>
             );
           })}
+
         </motion.div>
 
         <div className="mt-6 p-4 border border-gray-400 rounded-lg bg-gray-100">

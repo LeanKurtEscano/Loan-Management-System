@@ -27,14 +27,14 @@ const ApproveSubmission = () => {
 
     const handleApprove = async () => {
         setLoading(true)
-        const response = await loanApi.post("/approve/disbursement/",{
+        const response = await loanApi.post("/approve/disbursement/", {
             id: id
         })
 
-        if(response.status === 200) {
+        if (response.status === 200) {
             setLoading(true);
             setIsModalOpen(false);
-            queryClient.invalidateQueries(["userSubmission",id])
+            queryClient.invalidateQueries(["userSubmission", id])
         }
     }
     const { data, isLoading, isError } = useQuery({
@@ -84,14 +84,23 @@ const ApproveSubmission = () => {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 100 }}
             >
-                {/* Back Button */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="m-5 cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
-                >
-                    <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
-                    Go Back
-                </button>
+
+                <div className="flex items-center mb-5 gap-2">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+                        Go Back
+                    </button>
+
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="cursor-pointer bg-gray-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+                    >
+                        Transactions
+                    </button>
+                </div>
 
                 {/* Title */}
                 <div className="text-center font-semibold text-2xl mb-4">
@@ -120,7 +129,7 @@ const ApproveSubmission = () => {
                         Selfie with ID
                     </label>
                     <div className="relative">
-                        
+
                         <img
                             src={cleanImageUrl(data?.id_selfie)}
                             alt="Front of ID"
@@ -206,14 +215,14 @@ const ApproveSubmission = () => {
 
                         {data?.status.trim() === "Approved" && (
                             <div>
-                               
+
                                 <label className="block font-medium">Start Date</label>
                                 <div className=" font-semibold">
                                     {data?.start_date}
                                 </div>
                             </div>
 
-                            
+
                         )}
 
                         {data?.status.trim() === "Approved" && (
@@ -223,10 +232,10 @@ const ApproveSubmission = () => {
                                     ₱{parseFloat(data?.balance).toFixed(2)}
                                 </div>
 
-                              
+
                             </div>
 
-                            
+
                         )}
                     </div>
                 </div>
@@ -263,15 +272,15 @@ const ApproveSubmission = () => {
                     </div>
                 </div>
 
-             
-            <Modal
-                loading={loading}
-                isOpen={isModalOpen}
-                title="Approve Loan Disbursement?"
-                message="Are you sure you want to approve this loan disbursement? The funds will be released once confirmed."
-                onClose={() => setIsModalOpen(false)}
-                onConfirm={handleApprove}
-            />
+
+                <Modal
+                    loading={loading}
+                    isOpen={isModalOpen}
+                    title="Approve Loan Disbursement?"
+                    message="Are you sure you want to approve this loan disbursement? The funds will be released once confirmed."
+                    onClose={() => setIsModalOpen(false)}
+                    onConfirm={handleApprove}
+                />
 
             </motion.div>
 
