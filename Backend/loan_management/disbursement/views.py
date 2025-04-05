@@ -96,10 +96,11 @@ def approve_loan_payment(request):
         
         
         if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
-            loan_sub.is_fully_paid = True
-            loan_sub.is_active = False
-            loan_sub.loan_app.is_active = False
-            loan_sub.loan_app.save() 
+            # loan_sub.is_fully_paid = True
+            #loan_sub.is_active = False
+            loan_sub.is_celebrate = True
+            #loan_sub.loan_app.is_active = False
+            #loan_sub.loan_app.save() 
         
         loan_sub.save() 
         
@@ -109,6 +110,25 @@ def approve_loan_payment(request):
         print(f"Error: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_loan(request):
+    try:
+        loan_sub = LoanSubmission.objects.get(user=request.user ,is_fully_paid =False, is_active = True)
+    
+        loan_sub.is_fully_paid = True
+        loan_sub.is_active = False
+        loan_sub.is_celebrate = False
+        loan_sub.loan_app.is_active = False
+        loan_sub.loan_app.save() 
+        
+        loan_sub.save() 
+        
+        return Response({"success": "USer can have new loan payment"}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -215,4 +235,22 @@ def user_payment_data(request):
         print(f"{e}")
         return Response({"error": str(e)}, status=400)   
     
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def admin_user_payment_data(request,id):
+    try:
+      
+        loan_disbursement = LoanSubmission.objects.get(id=int(id))
+        loan_payments = LoanPayments.objects.filter(loan=loan_disbursement)
+        serializer = LoanPaymentsSerializer(loan_payments, many=True)
+
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)   
     
+       

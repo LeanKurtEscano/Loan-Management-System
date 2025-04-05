@@ -24,18 +24,18 @@ const Step3: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
         : "";
 
     return (
-        <div className="flex flex-col items-center  min-h-screen p-6 ">
+        <div className="flex flex-col items-center  min-h-screen pt-12 ">
             <motion.div 
-                className="bg-white shadow-xl p-8 rounded-xl border border-gray-200 w-full max-w-md text-center"
+                className="bg-white shadow-xl p-8 rounded-xl border w-[800px] border-gray-200   text-center"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
             >
            
-                <h2 className="text-xl font-semibold text-gray-800">{formattedMethod}</h2>
+                <h2 className="text-3xl font-semibold text-gray-800">{formattedMethod}</h2>
                 
              
-                <p className="text-sm text-gray-600 mt-3 leading-relaxed">
+                <p className="text-lg text-gray-600 mt-3 leading-relaxed">
                     To complete your payment, kindly open your <span className="font-medium">{formattedMethod} </span> 
                     account and scan the QR code below. After completing the transaction, take a screenshot of the receipt 
                     as proof of payment.
@@ -49,26 +49,27 @@ const Step3: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
                     transition={{ duration: 0.3, ease: "easeOut" }}
                 >
                     {qrImage ? (
-                        <img src={qrImage} alt={`${formattedMethod} QR Code`} className="w-40 h-40 mx-auto" />
+                        <img src={qrImage} alt={`${formattedMethod} QR Code`} className="w-80 h-80 mx-auto" />
                     ) : (
                         <div className="text-gray-500">QR Code for {formattedMethod} is not available</div>
                     )}
                 </motion.div>
+                <div className="flex justify-between mt-6">
+          <button
+            className="bg-gray-500 cursor-pointer hover:bg-gray-600 text-white px-6 py-3 rounded-lg text-lg"
+            onClick={prevStep}
+          >
+            Back
+          </button>
+          <button
+            className={`px-6 py-3 rounded-lg text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600 cursor-pointer
+              }`}
+            onClick={nextStep}
 
-                <div className="flex justify-between mt-6 gap-4">
-                    <button 
-                        className="w-full bg-gray-500 cursor-pointer text-white px-6 py-3 rounded-lg text-lg transition-transform transform hover:scale-105"
-                        onClick={prevStep}
-                    >
-                        Back
-                    </button>
-                    <button 
-                        className="w-full bg-blue-500 cursor-pointer text-white px-6 py-3 rounded-lg text-lg transition-transform transform hover:scale-105"
-                        onClick={nextStep}
-                    >
-                        Proceed
-                    </button>
-                </div>
+          >
+            Proceed
+          </button>
+        </div>
             </motion.div>
         </div>
     );

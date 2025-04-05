@@ -32,7 +32,7 @@ const UserLoan = () => {
     >
       <div className="overflow-visible">
         <table className="w-full bg-white shadow-md rounded-lg text-sm">
-          <thead className="bg-gray-100">
+          <thead className="bg-blue-500 text-white">
             <tr>
               <th className="p-3 text-left">Date</th>
               <th className="p-3 text-left">Amount</th>

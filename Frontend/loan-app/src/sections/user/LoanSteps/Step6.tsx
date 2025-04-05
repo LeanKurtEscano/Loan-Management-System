@@ -48,7 +48,7 @@ const Step6 = ({
     };
 
     return (
-        <div className="flex items-center h-screen">
+        <div className="flex items-center pt-12 h-screen">
             <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-[550px] text-center">
                 <h2 className="text-3xl font-bold mb-6 text-gray-700">Review Your Submission</h2>
 

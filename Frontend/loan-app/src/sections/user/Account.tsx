@@ -173,7 +173,7 @@ const Account: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col min-h-screen mb-12  px-8 bg-white text-gray-900">
+        <div className="flex flex-col min-h-screen mb-12 mt-4  px-8 bg-white text-gray-900">
             <div className="pl-24">
             <button
                 onClick={() => nav('/')}

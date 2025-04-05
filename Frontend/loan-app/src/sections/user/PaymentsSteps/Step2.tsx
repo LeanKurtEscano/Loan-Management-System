@@ -140,8 +140,8 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen pb-28">
-      <div className="bg-white shadow-lg p-6 rounded-xl border border-gray-300 w-full max-w-md">
+    <div className="flex flex-co pt-16 items-center justify-center min-h-screen pb-28">
+      <div className="bg-white shadow-lg p-6 rounded-xl border border-gray-300 w-full ">
         <h2 className="text-center text-lg font-semibold mb-4">
           Please select the amount you wish to pay and proceed with the payment.
         </h2>

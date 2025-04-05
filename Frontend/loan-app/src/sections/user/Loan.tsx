@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getLoanApplication } from '../../services/user/userData';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
@@ -19,21 +19,37 @@ import Step4 from './LoanSteps/Step4';
 import Step3 from './LoanSteps/Step3';
 import Step5 from './LoanSteps/Step5';
 import Step6 from './LoanSteps/Step6';
+
+import Confetti from "react-confetti";
+
+import { useMyContext } from '../../context/MyContext';
+import { userDisbursementApi } from '../../services/axiosConfig';
 const Loan: React.FC = () => {
+
+
+  const queryClient = useQueryClient();
+
+ 
 
   const { data: loanSubmissions, isLoading: isSubLoading, isError: isSubError } = useQuery(
     ['userLoanSubmission'],
     getLoanSubmission
   );
 
+  console.log(loanSubmissions)
+
 
 
   console.log(loanSubmissions)
   const { data, isLoading, isError } = useQuery(
-    ['userLoanApplication'],
+    ['userLoanApplication2'],
     getLoanApplication
   );
 
+
+  const showCelebration =
+  loanSubmissions?.is_celebrate === true &&
+  loanSubmissions?.status?.trim() !== "Pending"
 
 
   const totalSteps = 6;
@@ -54,14 +70,98 @@ const Loan: React.FC = () => {
   const applicationSubmission = loanSubmissions ?? { status: 'new' };
   const applicationData = data ?? { status: 'new' };
 
+  const handleClick = async() => {
 
+    try {
+
+      const response = await userDisbursementApi.post("/new/application/",{})
+      if(response.status === 200) {
+        queryClient.invalidateQueries(["userLoanSubmission"])
+        queryClient.invalidateQueries(["userLoanApplication"])
+        queryClient.invalidateQueries(["userLoanApplication2"])
+        nav('/user/apply-loan');
+
+      }
+
+    } catch(error) {
+      alert("Network error");
+    }
+
+  };
 
 
   return (
     <section className="flex flex-col items-center w-full  mb-36 bg-white text-gray-800 p-4">
 
+  {/*  : applicationSubmission?.is_celebrate !== "false" ? (
 
-      {applicationSubmission?.status.trim() === "Pending" ? (
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col items-center mt-20 justify-center w-1/2 h-80 bg-gradient-to-r from-blue-500 to-cyan-400 border border-blue-300 rounded-lg shadow-md p-4"
+        >
+          <Confetti numberOfPieces={450} recycle={false} />
+
+
+
+          <span className="text-4xl bg-white items-center pl-1.5 rounded-full py-2 pr-0.5">
+            🎉
+          </span>
+
+          <h2 className="text-4xl font-semibold text-white mt-2">
+          Congratulations!
+        </h2>
+
+        
+        <p className="mt-2 font-semibold text-xl text-white text-center px-4">
+          You have fully paid your loan and are now eligible to apply again.
+          Thank you for your commitment!
+        </p>
+
+      
+        <button
+          className="mt-4 bg-white text-blue-500 font-semibold py-2 px-6 rounded-full shadow-md cursor-pointer transition-transform duration-300 transform hover:scale-110"
+          onClick={handleClick}
+        >
+          Apply Again
+        </button>
+
+      </motion.div>
+*/}
+
+{showCelebration ? (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.8, ease: "easeOut" }}
+    className="flex flex-col items-center mt-20 justify-center w-1/2 h-80 bg-gradient-to-r from-blue-500 to-cyan-400 border border-blue-300 rounded-lg shadow-md p-4"
+  >
+    <Confetti numberOfPieces={450} recycle={false} />
+
+    <span className="text-4xl bg-white items-center pl-1.5 rounded-full py-2 pr-0.5">🎉</span>
+
+    <h2 className="text-4xl font-semibold text-white mt-2">
+      Congratulations!
+    </h2>
+
+    <p className="mt-2 font-semibold text-xl text-white text-center px-4">
+      You have fully paid your loan and are now eligible to apply again.
+      Thank you for your commitment!
+    </p>
+
+    <button
+      className="mt-4 bg-white text-blue-500 font-semibold py-2 px-6 rounded-full shadow-md cursor-pointer transition-transform duration-300 transform hover:scale-110"
+      onClick={handleClick}
+    >
+      Apply Again
+    </button>
+  </motion.div>
+) 
+
+
+    : applicationSubmission?.status.trim() === "Pending" ? (
         <div className="flex w-auto flex-col p-8 items-center justify-center h-80  bg-yellow-100 border border-yellow-300 rounded-lg shadow-md text-center">
           <FontAwesomeIcon
             icon={faHourglassHalf}
@@ -71,13 +171,17 @@ const Loan: React.FC = () => {
           <p className="text-lg whitespace-nowrap mt-2 opacity-90"> We will notify you through gmail and you will receive your funds shortly upon approval.</p>
           <p className="text-sm mt-4 italic opacity-75"> Thank you for your Patience</p>
         </div>
-      ) : applicationSubmission?.status.trim() === "Approved" ? (
+     
+
+
+
+      ) :  applicationSubmission?.status.trim() === "Approved"  ? (
         <motion.div
           key={step}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className='flex items-center justify-center' >
+          className='flex items-start  w-[1000px] justify-center' >
           {step === 1 && <PaymentStep1 nextStep={nextStep} />}
           {step === 2 && <PaymentStep2 prevStep={prevStep} nextStep={nextStep} />}
           {step === 3 && <PaymentStep3 prevStep={prevStep} nextStep={nextStep} />}

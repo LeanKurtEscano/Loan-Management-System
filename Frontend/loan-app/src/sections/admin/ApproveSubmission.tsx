@@ -24,7 +24,11 @@ const ApproveSubmission = () => {
     const [loading, setLoading] = useState(false);
     const [loading2, setLoading2] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    
 
+    const goToTransaction = () => {
+        navigate(`/dashboard/submission/user-transaction/${id}`);
+    }
     const handleApprove = async () => {
         setLoading(true)
         const response = await loanApi.post("/approve/disbursement/", {
@@ -85,7 +89,7 @@ const ApproveSubmission = () => {
                 transition={{ type: "spring", stiffness: 100 }}
             >
 
-                <div className="flex items-center mb-5 gap-2">
+                <div className="flex items-center mb-5 mt-6 ml-5 gap-2">
                     <button
                         onClick={() => navigate(-1)}
                         className="cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
@@ -95,7 +99,7 @@ const ApproveSubmission = () => {
                     </button>
 
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={goToTransaction}
                         className="cursor-pointer bg-gray-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
                     >
                         Transactions
@@ -125,9 +129,7 @@ const ApproveSubmission = () => {
 
 
                 <div className="flex flex-col gap-4 items-center mb-6">
-                    <label className="block text-gray-600 font-medium mb-2">
-                        Selfie with ID
-                    </label>
+              
                     <div className="relative">
 
                         <img

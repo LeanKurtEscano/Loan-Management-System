@@ -14,7 +14,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void;  })=> {
         className="flex flex-col items-center mt-20 justify-center w-1/2 h-80 bg-gradient-to-r from-blue-500 to-cyan-400 border border-blue-300 rounded-lg shadow-md p-4"
       >
      
-        <Confetti numberOfPieces={450} recycle={false} />
+       {/*<Confetti numberOfPieces={450} recycle={false} /> */}
     
       
         <span className="text-4xl bg-white items-center pl-1.5 rounded-full py-2 pr-0.5">

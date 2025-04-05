@@ -116,15 +116,15 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
-            <div className="w-full max-w-xl bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
+            <div className="w-full   bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
              
 
                 <div className="flex justify-between items-center mb-9 mt-6">
-                    <h2 className="text-gray-600 text-sm font-semibold">
-                        END DATE: <span className="text-gray-900 font-bold">{formatDateWithWords(data?.repay_date)}</span>
+                    <h2 className="text-gray-600 text-lg font-semibold">
+                        END DATE: <span className="text-gray-900 text-lg font-bold">{formatDateWithWords(data?.repay_date)}</span>
                     </h2>
-                    <h3 className="text-gray-600 text-sm font-semibold">
-                        FREQUENCY: <span className="text-gray-900 font-bold">{data?.frequency.charAt(0).toUpperCase() + data?.frequency.slice(1).toLowerCase()}</span>
+                    <h3 className="text-gray-600  text-lg font-semibold">
+                        FREQUENCY: <span className="text-gray-900  text-lg font-bold">{data?.frequency.charAt(0).toUpperCase() + data?.frequency.slice(1).toLowerCase()}</span>
                     </h3>
                 </div>
 

@@ -52,6 +52,7 @@ const Step4: React.FC<Step4Props> = ({ prevStep, setStep }) => {
       if(response.status === 201) {
         
         queryClient.invalidateQueries(["userLoanSubmission"]);
+        queryClient.invalidateQueries(["userApplication"]);
         setStep(1);
         setDisbursement({
           receipt: null,
@@ -82,7 +83,7 @@ const Step4: React.FC<Step4Props> = ({ prevStep, setStep }) => {
 
   return (
     <div className="flex min-h-screen mt-9 items-center pb-20 h-auto">
-      <div className="bg-white p-6 shadow-lg rounded-lg w-96 border border-gray-300">
+      <div className="bg-white p-6 shadow-lg rounded-lg  border border-gray-300">
         <h2 className="text-center text-lg font-semibold mb-4">
           Confirmation of Payment
         </h2>
@@ -110,20 +111,21 @@ const Step4: React.FC<Step4Props> = ({ prevStep, setStep }) => {
         </div>
 
         {disbursement.receipt && (
-                  <div className="relative w-full mt-2">
-                    <img
-                      src={URL.createObjectURL(disbursement.receipt)}
-                      alt="Back ID"
-                      className="w-full h-48 object-cover rounded-lg shadow"
-                    />
-                    <button
-                      onClick={() => handleRemoveFile("receipt")}
-                      className="absolute top-2 right-2 bg-red-500 cursor-pointer text-white rounded-full px-1 hover:bg-red-600 transition"
-                    >
-                      <FontAwesomeIcon icon={faTimesCircle} />
-                    </button>
-                  </div>
-                )}
+  <div className="relative flex justify-center items-center w-full mt-2">
+    <img
+      src={URL.createObjectURL(disbursement.receipt)}
+      alt="Receipt"
+      className="h-60 w-64 object-cover rounded-lg shadow"
+    />
+    <button
+      onClick={() => handleRemoveFile("receipt")}
+      className="absolute top-2 right-2 bg-red-500 cursor-pointer text-white rounded-full px-1 hover:bg-red-600 transition"
+    >
+      <FontAwesomeIcon icon={faTimesCircle} />
+    </button>
+  </div>
+)}
+
         
         <p className="text-center text-sm mt-4">
           You may also provide your email address (optional) for confirmation.
