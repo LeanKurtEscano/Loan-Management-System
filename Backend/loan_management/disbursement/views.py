@@ -13,6 +13,7 @@ from .models import LoanPayments
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
+from .utils import extract_duration
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])  
@@ -26,6 +27,10 @@ def handle_loan_payments(request):
             "amount": request.data.get("periodPayment[amount]", ""),
             "duration": request.data.get("periodPayment[duration]", ""),
         }
+     
+        
+        unit = extract_duration(period_payment["label"])
+        print(unit)
         
         print(period_payment["amount"])
 
@@ -47,7 +52,7 @@ def handle_loan_payments(request):
             user=request.user,
             loan = loan_sub,
             amount= Decimal(period_payment["amount"]),
-            period=period_payment["label"],
+            period=unit,
             receipt=receipt_url
         )
 
@@ -101,6 +106,25 @@ def approve_loan_payment(request):
             loan_sub.is_celebrate = True
             #loan_sub.loan_app.is_active = False
             #loan_sub.loan_app.save() 
+            
+            user = loan_payment.user
+            subject = "You're Loan is fully paid!"
+            html_content = render_to_string("email/loanfullypaid.html", {
+                'username': user.username,
+                'amount': loan_payment.amount,
+                'interest_rate': loan_sub.loan_app.interest,
+                'start_date': loan_sub.start_date,
+                'end_date': loan_sub.repay_date,
+
+            })
+            
+            plain_message = strip_tags(html_content)
+
+    
+            email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
         
         loan_sub.save() 
         

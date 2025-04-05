@@ -44,6 +44,14 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   const roundedPaymentPerMonth = paymentPerMonth;
 
+
+  const getRemainingMonths = (balance: number, monthlyPayment: number) => {
+    if (monthlyPayment === 0) return 0; 
+    return Math.ceil(balance / monthlyPayment); // Use Math.ceil to round up to the next full month
+  };
+  
+  const remainingMonths = getRemainingMonths(balance, paymentPerMonth);
+
   const paymentOptions = [
     {
       label: `1 ${data?.frequency.toLowerCase() === "monthly" ? "month" : "year"}`,
@@ -62,9 +70,12 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
     },
 
     {
-      label: `Pay in full`,
+      
+      
+      label: `Pay in full ( ${remainingMonths} ${remainingMonths !== 1 ? " months" : "month"} )`,
+     
       amount: data?.balance,
-      duration: 3,
+      duration: remainingMonths, 
     },
   ];
 
