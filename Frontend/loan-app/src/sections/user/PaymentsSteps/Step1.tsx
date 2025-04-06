@@ -18,7 +18,6 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     );
     const navigate = useNavigate();
 
-
     const goToTransactions = () => {
         navigate('/user/my-transactions');
     }
@@ -29,10 +28,6 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     );
 
     console.log(data);
-
-
-
-
 
     const getPaymentPerPeriod = (
         totalPayment: number,
@@ -72,7 +67,6 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         let start = new Date(startDate);
         let totalMonths = 0;
 
-
         periods.forEach(period => {
             const periodMatch = period.match(/(\d+)\s*months?/);
             if (periodMatch) {
@@ -82,8 +76,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
 
         start.setMonth(start.getMonth() + totalMonths + 1);
 
-
-        return formatDateWithWords(start.toISOString().split("T")[0]);
+        return start.toISOString().split("T")[0]; // Return raw date for comparison
     };
 
     const getNextPaymentDate = (startDate: string, frequency: string) => {
@@ -101,13 +94,42 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                 return "Invalid Frequency";
         }
 
-        return formatDateWithWords(nextDate.toISOString().split("T")[0]);
+        return nextDate.toISOString().split("T")[0]; // Return raw date for comparison
     };
 
+    {/* for testing    const forcePastDue = true;     if (forcePastDue) return true */}
+  
+    // Calculate if payment is past due
+    const calculatePastDue = (dueDateString: string) => {
+
+       
+        if (dueDateString === "N/A" || dueDateString === "Invalid Frequency") return false;
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+        
+        const dueDate = new Date(dueDateString);
+        dueDate.setHours(0, 0, 0, 0);
+        
+        return today > dueDate;
+    };
 
     const totalPayment = data?.total_payment || "0";
     const balance = data?.balance || "0";
     const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;
+
+    // Get raw due date for comparison
+    const rawDueDate = Array.isArray(dataDate) && dataDate.length > 0
+        ? getDueDateFromPeriod(data?.start_date, dataDate.map((payment: { period: string }) => payment.period))
+        : getNextPaymentDate(data?.start_date, data?.frequency);
+    
+    // Check if payment is past due
+    const isPastDue = calculatePastDue(rawDueDate);
+
+    // Format date for display
+    const formattedDueDate = rawDueDate !== "N/A" && rawDueDate !== "Invalid Frequency" 
+        ? formatDateWithWords(rawDueDate)
+        : rawDueDate;
 
     return (
         <motion.div
@@ -116,15 +138,13 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
-            <div className="w-full   bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
-             
-
+            <div className="w-full bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 border border-gray-300 relative">
                 <div className="flex justify-between items-center mb-9 mt-6">
                     <h2 className="text-gray-600 text-lg font-semibold">
                         END DATE: <span className="text-gray-900 text-lg font-bold">{formatDateWithWords(data?.repay_date)}</span>
                     </h2>
-                    <h3 className="text-gray-600  text-lg font-semibold">
-                        FREQUENCY: <span className="text-gray-900  text-lg font-bold">{data?.frequency.charAt(0).toUpperCase() + data?.frequency.slice(1).toLowerCase()}</span>
+                    <h3 className="text-gray-600 text-lg font-semibold">
+                        FREQUENCY: <span className="text-gray-900 text-lg font-bold">{data?.frequency?.charAt(0).toUpperCase() + data?.frequency?.slice(1).toLowerCase()}</span>
                     </h3>
                 </div>
 
@@ -158,27 +178,30 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                 <p className="text-gray-700 text-sm mt-5 text-center leading-relaxed">
                     Your next payment of <span className="font-semibold">
                         {getPaymentPerPeriod(totalPayment, data?.start_date, data?.repay_date, data?.frequency)}
-                    </span> is due on <span className="font-semibold">
-                        {Array.isArray(dataDate) && dataDate.length > 0
-                            ? getDueDateFromPeriod(data?.start_date, dataDate.map((payment: { period: string }) => payment.period))
-                            : getNextPaymentDate(data?.start_date, data?.frequency)
-                        }
-                    </span>. Please ensure timely payment to avoid any penalties. Thank you.
+                    </span> is due on <span className={`font-semibold ${isPastDue ? 'text-red-600' : ''}`}>
+                        {formattedDueDate}
+                    </span>. 
+                    {isPastDue && (
+                        <span className="text-red-600 font-bold ml-1">
+                            Your payment is past due! Please make a payment immediately to avoid additional penalties.
+                        </span>
+                    )}
+                    {!isPastDue && (
+                        " Please ensure timely payment to avoid any penalties. Thank you."
+                    )}
                 </p>
 
                 <div className="flex flex-col gap-4 mt-6">
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="w-full cursor-pointer bg-blue-500 text-white py-3 rounded-lg shadow-lg hover:bg-blue-600 transition font-semibold text-lg"
+                        className={`w-full cursor-pointer ${isPastDue ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-500 hover:bg-blue-600'} text-white py-3 rounded-lg shadow-lg transition font-semibold text-lg`}
                         onClick={nextStep}
                     >
-                        Make a Payment
+                        {isPastDue ? 'Make Overdue Payment Now' : 'Make a Payment'}
                     </motion.button>
                     <motion.button
-                    onClick={goToTransactions}
-
-
+                        onClick={goToTransactions}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="w-full border cursor-pointer border-gray-400 text-gray-700 py-3 rounded-lg shadow-md hover:bg-gray-100 transition font-semibold text-lg"
