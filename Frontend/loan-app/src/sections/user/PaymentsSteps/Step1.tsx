@@ -1,17 +1,21 @@
 import React from "react";
 import { motion } from "framer-motion";
-import monsterGif from "../../../assets/peeking.gif";
+import { useMyContext } from "../../../context/MyContext";
 import { useQuery } from "@tanstack/react-query";
 import { getLoanSubmission } from "../../../services/user/userData";
 import { formatDateWithWords } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { getPayments } from "../../../services/user/disbursement";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react"; // Make sure this is imported
+
 interface Step1Props {
     nextStep: () => void;
 }
 
 const Step1: React.FC<Step1Props> = ({ nextStep }) => {
+
+    const {penalty, setPenalty} = useMyContext();
     const { data, isLoading, isError } = useQuery(
         ['userLoanSubmission1'],
         getLoanSubmission
@@ -130,7 +134,12 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     const formattedDueDate = rawDueDate !== "N/A" && rawDueDate !== "Invalid Frequency" 
         ? formatDateWithWords(rawDueDate)
         : rawDueDate;
+   
 
+    useEffect(() => {
+            setPenalty(isPastDue);
+        }, [isPastDue, setPenalty]);
+        
     return (
         <motion.div
             className="relative flex justify-center items-center min-h-screen p-6"

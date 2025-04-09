@@ -66,13 +66,16 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     purpose: "",
     explanation: "",
   });
+
+
+  const [penalty, setPenalty] = useState(false);
   
 
 
 
 
   return (
-    <MyContext.Provider value={{loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
+    <MyContext.Provider value={{penalty, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
       {children}
     </MyContext.Provider>
   );

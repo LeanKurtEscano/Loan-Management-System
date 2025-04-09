@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useMyContext } from "../../../context/MyContext";
 import { SubmitDisbursement } from "../../../constants/interfaces/disbursement";
 import { useEffect } from "react";
+
 interface Step2Props {
   nextStep: () => void;
   prevStep: () => void;
@@ -14,10 +15,10 @@ interface Step2Props {
 const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   const { data } = useQuery(["userLoanSubmission2"], getLoanSubmission);
   const [selectedOption, setSelectedOption] = useState<number | null>(
-    () => JSON.parse(localStorage.getItem("selectedOption") || "null") 
+    () => JSON.parse(localStorage.getItem("selectedOption") || "null")
   );
 
-  const { setDisbursement, disbursement } = useMyContext();
+  const { setDisbursement, disbursement, penalty } = useMyContext();
 
   const totalPayment = parseFloat(data?.total_payment || "0");
   const balance = parseFloat(data?.balance || "0");
@@ -46,36 +47,35 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
 
   const getRemainingMonths = (balance: number, monthlyPayment: number) => {
-    if (monthlyPayment === 0) return 0; 
+    if (monthlyPayment === 0) return 0;
     return Math.ceil(balance / monthlyPayment); // Use Math.ceil to round up to the next full month
   };
-  
+
   const remainingMonths = getRemainingMonths(balance, paymentPerMonth);
+  const calculatePenaltyAmount = (baseAmount: number) => {
+    return baseAmount + baseAmount * 0.10; // Add 10%
+  };
 
   const paymentOptions = [
     {
       label: `1 ${data?.frequency.toLowerCase() === "monthly" ? "month" : "year"}`,
-      amount: roundedPaymentPerMonth,
+      amount: penalty ? calculatePenaltyAmount(roundedPaymentPerMonth) : roundedPaymentPerMonth,
       duration: 1,
     },
     {
       label: `2 ${data?.frequency.toLowerCase() === "monthly" ? "months" : "years"}`,
-      amount: roundedPaymentPerMonth * 2,
+      amount: penalty ? calculatePenaltyAmount(roundedPaymentPerMonth * 2) : roundedPaymentPerMonth * 2,
       duration: 2,
     },
     {
       label: `3 ${data?.frequency.toLowerCase() === "monthly" ? "months" : "years"}`,
-      amount: roundedPaymentPerMonth * 3,
+      amount: penalty ? calculatePenaltyAmount(roundedPaymentPerMonth * 3) : roundedPaymentPerMonth * 3,
       duration: 3,
     },
-
     {
-      
-      
-      label: `Pay in full ( ${remainingMonths} ${remainingMonths !== 1 ? " months" : "month"} )`,
-     
+      label: `Pay in full (${remainingMonths} ${remainingMonths !== 1 ? "months" : "month"})`,
       amount: data?.balance,
-      duration: remainingMonths, 
+      duration: remainingMonths,
     },
   ];
 
@@ -130,7 +130,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   const handleSelectOption = (index: number) => {
     if (selectedOption === index) {
-      
+
       setSelectedOption(null);
       localStorage.removeItem("selectedOption");
       setDisbursement((prev: SubmitDisbursement) => ({
@@ -138,7 +138,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
         periodPayment: null,
       }));
     } else {
-      
+
       setSelectedOption(index);
       localStorage.setItem("selectedOption", JSON.stringify(index));
       const selectedPayment = adjustedPaymentOptions[index];
@@ -148,7 +148,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
       }));
     }
   };
-  
+
 
   return (
     <div className="flex flex-co pt-16 items-center justify-center min-h-screen pb-28">
@@ -175,7 +175,19 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                 >
                   <span>{option.label}</span>
-                  <span className="font-bold">{formatCurrency(option.amount)}</span>
+                  <span className="font-bold">
+  {penalty && index !== 3 ? (
+    <>
+      {formatCurrency(option.amount)}
+      <span className="text-red-500 ml-2">
+        + Penalty({formatCurrency(calculatePenaltyAmount(option.amount, index))})
+      </span>
+    </>
+  ) : (
+    formatCurrency(option.amount)
+  )}
+</span>
+
                 </motion.div>
 
                 {/* Show message below the first option */}

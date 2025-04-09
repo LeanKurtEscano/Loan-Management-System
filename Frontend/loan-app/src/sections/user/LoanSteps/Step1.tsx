@@ -1,7 +1,5 @@
-import React from 'react'
-import Confetti from "react-confetti";
+
 import { motion } from "framer-motion";
-import { useMyContext } from '../../../context/MyContext';
 const Step1 = ({ nextStep }: { nextStep: () => void;  })=> {
 
 
