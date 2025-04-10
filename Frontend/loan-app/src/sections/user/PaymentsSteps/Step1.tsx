@@ -102,7 +102,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     };
 
     {/* for testing    const forcePastDue = true;     if (forcePastDue) return true */}
-  
+   
     // Calculate if payment is past due
     const calculatePastDue = (dueDateString: string) => {
 

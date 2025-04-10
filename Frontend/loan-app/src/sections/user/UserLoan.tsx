@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter, faEllipsisH, faTrash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -9,20 +9,94 @@ import gcash from "../../assets/gcashtext.png";
 import maya from "../../assets/mayatext.webp";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import Filter from "../../components/Filter";
+import FilterModal from "../../components/FilterModal";
 const UserLoan = () => {
-  const { data, isLoading, isError, error } = useQuery(["userTransactions"], getTransactions);
+  const { data, isLoading, isError, error, refetch } = useQuery(["userTransactions"], getTransactions);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [filteredData, setFilteredData] = useState<any[]>(data || []);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const nav = useNavigate();
+  const [activeFilters, setActiveFilters] = useState<{
+    paymentMethod?: string;
+    settledDuration?: string;
+    status?: string;
+  }>({});
+  const [toggleFilter, setToggleFilter] = useState(false);
+
+  const paymentMethods = ["gcash", "maya"];
+  const settledDurations = ["1 month", "2 months", "3 months", "More than 3 months"];
+
+  const statuses = ["Approved", "Pending", "Rejected"];
+  const handleApplyFilters = (filters: {
+    paymentMethod?: string;
+    settledDuration?: string;
+    status?: string;
+  }) => {
+    setActiveFilters(filters);
+    // Apply your filtering logic here
+    console.log("Applied filters:", filters);
+  };
+
+
+  // Handle filter change
+  const handleSelect = (value: string) => {
+    setSelectedFilter(value);
+  };
+
+  const handleToggleChange = (value: boolean) => {
+    setToggleFilter(value);
+  };
+
 
   const toggleActions = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
+  // Handle View Button click
   const handleView = () => {
     nav(`/user/my-transactions/${activeIndex}`);
   };
 
+ 
+useEffect(() => {
+  if (!data) return;
+  
+  let filtered = [...data];
+  
+ 
+  if (activeFilters.paymentMethod) {
+    filtered = filtered.filter(item => 
+      item.loan.cashout.toLowerCase() === activeFilters.paymentMethod?.toLowerCase()
+    );
+  }
+  
+
+  if (activeFilters.settledDuration) {
+    filtered = filtered.filter(item => {
+      // Handle special case for "More than 3 months"
+      if (activeFilters.settledDuration === "More than 3 months") {
+        // Extract just the number from strings like "4 Months"
+        const months = parseInt(item.period);
+        return !isNaN(months) && months > 3;
+      } else {
+        return item.period === activeFilters.settledDuration;
+      }
+    });
+  }
+  
+
+  if (activeFilters.status) {
+    filtered = filtered.filter(item => 
+      item.status === activeFilters.status
+    );
+  }
+  
+  setFilteredData(filtered);
+}, [data, activeFilters]);
+
+
+ 
   return (
     <motion.div
       className="p-5 max-w-5xl mx-auto"
@@ -30,6 +104,11 @@ const UserLoan = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
+      <Filter
+        label="Filters"
+        toggle={toggleFilter}
+        onToggleChange={handleToggleChange} // Pass the state and the function to Filter
+      />
       <div className="overflow-visible">
         <table className="w-full bg-white shadow-md rounded-lg text-sm">
           <thead className="bg-blue-500 text-white">
@@ -44,7 +123,7 @@ const UserLoan = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.map((tx: any, index: number) => (
+            {filteredData?.map((tx: any, index: number) => (
               <motion.tr
                 key={index}
                 className="border-b hover:bg-gray-50"
@@ -92,6 +171,15 @@ const UserLoan = () => {
           </tbody>
         </table>
       </div>
+
+      <FilterModal
+        isOpen={toggleFilter}
+        onClose={() => setToggleFilter(false)}
+        paymentMethods={paymentMethods}
+        settledDurations={settledDurations}
+        statuses={statuses}
+        onApplyFilters={handleApplyFilters}
+      />
     </motion.div>
   );
 };

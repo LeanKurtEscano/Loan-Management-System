@@ -56,20 +56,25 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
     return baseAmount + baseAmount * 0.10; // Add 10%
   };
 
+
+  const calculatePenalty = (baseAmount: number) => {
+    return  baseAmount * 0.10; // Add 10%
+  };
+
   const paymentOptions = [
     {
       label: `1 ${data?.frequency.toLowerCase() === "monthly" ? "month" : "year"}`,
-      amount: penalty ? calculatePenaltyAmount(roundedPaymentPerMonth) : roundedPaymentPerMonth,
+      amount: roundedPaymentPerMonth,
       duration: 1,
     },
     {
       label: `2 ${data?.frequency.toLowerCase() === "monthly" ? "months" : "years"}`,
-      amount: penalty ? calculatePenaltyAmount(roundedPaymentPerMonth * 2) : roundedPaymentPerMonth * 2,
+      amount: roundedPaymentPerMonth * 2,
       duration: 2,
     },
     {
       label: `3 ${data?.frequency.toLowerCase() === "monthly" ? "months" : "years"}`,
-      amount: penalty ? calculatePenaltyAmount(roundedPaymentPerMonth * 3) : roundedPaymentPerMonth * 3,
+      amount:  roundedPaymentPerMonth * 3,
       duration: 3,
     },
     {
@@ -157,57 +162,66 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
           Please select the amount you wish to pay and proceed with the payment.
         </h2>
         <motion.div
-          className="space-y-4"
-          initial={{ opacity: 0, y: -20 }}
+  className="space-y-4"
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, ease: "easeOut", staggerChildren: 0.2 }}
+>
+  {adjustedPaymentOptions.map((option, index) => {
+    // Disable index 3 if its amount equals index 0, 1, or 2's amount
+    const isDisabled = index === 3 && 
+      (adjustedPaymentOptions[0]?.amount === option.amount || 
+       adjustedPaymentOptions[1]?.amount === option.amount || 
+       adjustedPaymentOptions[2]?.amount === option.amount);
+
+    return (
+      <div key={index}>
+        <motion.div
+          className={`flex justify-between items-center px-4 py-3 border rounded-lg cursor-pointer transition-all duration-300 ease-in-out
+            ${disbursement.periodPayment?.label === option.label ? "border-blue-500 bg-blue-100" : "border-gray-300"}
+            ${option.disabled || isDisabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}`}
+          onClick={() => !option.disabled && !isDisabled && handleSelectOption(index)}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut", staggerChildren: 0.2 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          {adjustedPaymentOptions.map((option, index) => {
-            return (
-              <div key={index}>
-                <motion.div
-                  className={`flex justify-between items-center px-4 py-3 border rounded-lg cursor-pointer transition-all duration-300 ease-in-out
-          ${disbursement.periodPayment?.label === option.label ? "border-blue-500 bg-blue-100" : "border-gray-300"}
-          ${option.disabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}`}
-                  onClick={() => !option.disabled && handleSelectOption(index)}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                >
-                  <span>{option.label}</span>
-                  <span className="font-bold">
-  {penalty && index !== 3 ? (
-    <>
-      {formatCurrency(option.amount)}
-      <span className="text-red-500 ml-2">
-        + Penalty({formatCurrency(calculatePenaltyAmount(option.amount, index))})
-      </span>
-    </>
-  ) : (
-    formatCurrency(option.amount)
-  )}
-</span>
-
-                </motion.div>
-
-                {/* Show message below the first option */}
-                {index === 0 && (
-                  <p className=" flex text-lg justify-center items-center text-gray-500 mt-2"> Pay in advance</p>
-                )}
-
-                {index === 2 && (
-                  <p className=" flex text-lg justify-center items-center text-gray-500 mt-2"> Or</p>
-                )}
-
-                {/* Add a separator for all items except the last one */}
-                {index !== adjustedPaymentOptions.length - 1 && (
-                  <hr className="my-3 border-gray-300" />
-                )}
-              </div>
-            );
-          })}
-
+          <span>{option.label}</span>
+          <span className="font-bold">
+            {penalty && index !== 3 ? (
+              <>
+                {formatCurrency(option.amount)}
+                <span className="text-red-500 ml-2">
+                  + Penalty (
+                  {formatCurrency(
+                    calculatePenalty(option.amount)
+                  )}
+                  )
+                </span>
+              </>
+            ) : (
+              formatCurrency(option.amount)
+            )}
+          </span>
         </motion.div>
+
+        {/* Show message below the first option */}
+        {index === 0 && (
+          <p className="flex text-lg justify-center items-center text-gray-500 mt-2"> Pay in advance</p>
+        )}
+
+        {index === 2 && (
+          <p className="flex text-lg justify-center items-center text-gray-500 mt-2"> Or</p>
+        )}
+
+        {/* Add a separator for all items except the last one */}
+        {index !== adjustedPaymentOptions.length - 1 && (
+          <hr className="my-3 border-gray-300" />
+        )}
+      </div>
+    );
+  })}
+</motion.div>
+
 
         <div className="mt-6 p-4 border border-gray-400 rounded-lg bg-gray-100">
           <span className="font-semibold">Remaining Balance:</span>

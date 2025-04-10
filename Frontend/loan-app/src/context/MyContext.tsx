@@ -39,6 +39,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
   const [disbursement, setDisbursement] = useState<SubmitDisbursement>({
     periodPayment: [],
+    penalty: null,
     receipt: null,
     email: "",
     disbursementId: null
