@@ -1,4 +1,5 @@
-
+import {  faCheckCircle, faHourglassHalf, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
+import { motion } from "framer-motion";
 import { 
     faUserGear, 
     faUsers, 
@@ -18,6 +19,8 @@ export const menuItems = [
     { icon: faCreditCard, text: "Manage Payments", url: "/dashboard/manage-payments" },
     { icon: faSignOutAlt, text: "Logout" }
 ];
+
+
 
 
 export const navMenuItems = [

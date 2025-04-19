@@ -14,7 +14,7 @@ const Filter: React.FC<FilterProps> = ({ label = "Filters", toggle, onToggleChan
   };
 
   return (
-    <div className="relative inline-block mb-8">
+    <div className="relative inline-block">
       <details
         className="group"
         open={toggle}

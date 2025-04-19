@@ -48,7 +48,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   const getRemainingMonths = (balance: number, monthlyPayment: number) => {
     if (monthlyPayment === 0) return 0;
-    return Math.ceil(balance / monthlyPayment); // Use Math.ceil to round up to the next full month
+    return Math.ceil(balance / monthlyPayment)  ; // Use Math.ceil to round up to the next full month
   };
 
   const remainingMonths = getRemainingMonths(balance, paymentPerMonth);

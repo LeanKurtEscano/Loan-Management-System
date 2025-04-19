@@ -111,7 +111,7 @@ def approve_loan_payment(request):
             subject = "You're Loan is fully paid!"
             html_content = render_to_string("email/loanfullypaid.html", {
                 'username': user.username,
-                'amount': loan_payment.amount,
+                'amount': loan_payment.loan.total_payment,
                 'interest_rate': loan_sub.loan_app.interest,
                 'start_date': loan_sub.start_date,
                 'end_date': loan_sub.repay_date,

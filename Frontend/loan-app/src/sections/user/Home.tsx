@@ -54,43 +54,68 @@ const Home = () => {
   }
 
   return (
-    <motion.div className="min-h-screen  bg-white text-gray-900">
-      {/* Hero Section */}
-      <motion.div
-        variants={fadeInUp}
-        whileInView="visible"
-        initial="hidden"
-        viewport={{ once: false, amount: 0.2 }}
-        className="container mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between"
-      >
-        {/* Left Section */}
-        <motion.div variants={fadeInUp} className="md:w-1/2  md:pl-14 text-center md:text-left">
-          <h1 className="text-2xl md:text-4xl cursor-default select-none font-bold mb-2">Huwag nang patagalin pa</h1>
-          <h2 className="text-2xl md:text-4xl font-bold text-blue-600 mb-4">To-Loan mo na 'yan!</h2>
-          <p className="text-gray-600 mb-6">Best Interest Rates | Effortless Applications | Expert Service</p>
-
-          {/* Button Animation */}
-          <motion.div className="flex flex-start items-start  ">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 text-white px-6 py-3 whitespace-nowrap cursor-pointer rounded-lg hover:bg-blue-700 transition w-full md:w-auto shadow-md"
+    <motion.div className="min-h-screen bg-white text-gray-900">
+      {/* Hero Section - Redesigned to ModernSaaS style */}
+      <div className="bg-gradient-to-r from-blue-50 to-white">
+        <motion.div
+          variants={fadeInUp}
+          whileInView="visible"
+          initial="hidden"
+          viewport={{ once: false, amount: 0.2 }}
+          className="container mx-auto px-6 py-20 md:py-24"
+        >
+          <div className="flex flex-col items-center text-center">
+           
+          
+            
+            {/* Main Heading */}
+            <motion.h1 
+              variants={fadeInUp} 
+              custom={0.2}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-4xl"
             >
-              Get Started
-            </motion.button>
-          </motion.div>
+              
+              Huwag nang patagalin pa<br /><span className="text-blue-600 ">To-Loan mo na 'yan!</span>
+            </motion.h1>
+            
+            {/* Subheading */}
+            <motion.p 
+              variants={fadeInUp} 
+              custom={0.3}
+              className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl"
+            >
+              Experience the best interest rates with effortless applications and expert service. Get the financial support you need in minutes.
+            </motion.p>
+            
+            {/* CTAs */}
+            <motion.div 
+              variants={fadeInUp} 
+              custom={0.4}
+              className="flex flex-col sm:flex-row gap-4 mb-12"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={isAuthenticated && isVerified ? goToLoan : isAuthenticated ? goToAccount : goToLogin}
+                className="bg-blue-600 text-white font-medium px-8 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg"
+              >
+                Get Started
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="border border-blue-600 text-blue-600 font-medium px-8 py-3 rounded-lg hover:bg-blue-50 transition"
+              >
+                Learn More
+              </motion.button>
+            </motion.div>
+            
+            {/* Feature highlights */}
+          
+          </div>
         </motion.div>
-
-        {/* Image Section */}
-        <motion.div variants={fadeInUp} className="md:w-1/2 flex justify-center mt-6 md:mt-0">
-          <motion.img
-            src={home2}
-            alt="Happy couple with loan approval"
-            className="rounded-lg shadow-lg w-full max-w-xs sm:max-w-md md:max-w-lg"
-            whileHover={{ scale: 1.03 }}
-          />
-        </motion.div>
-      </motion.div>
+      </div>
 
       {/* Feature Cards */}
       <div className="container mx-auto px-6 text-center">

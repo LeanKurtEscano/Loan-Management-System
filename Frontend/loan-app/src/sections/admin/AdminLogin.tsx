@@ -34,7 +34,7 @@ const AdminLogin: React.FC = () => {
         setEmailError("");  
         setPasswordError("");
         setLoading(false);
-        navigate('/dashboard');
+        navigate('/dashboard/analytics');
       }
     } catch (error: any) {
       setLoading(false);

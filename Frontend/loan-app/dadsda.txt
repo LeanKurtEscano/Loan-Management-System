@@ -1,0 +1,45 @@
+ const deleteMutation = useMutation({
+        mutationFn: async (id: number) => {
+            const response = await loanApi.post('/remove/submission/', {
+                id: selectedId
+            });
+
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries(["loanSubmissions"]);
+
+        }
+    })
+
+    const endpoint = "submissions"
+
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ["loanSubmissions"],
+        queryFn: () => fetchLoanData(endpoint),
+      });
+
+      console.log(data);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+
+    const handleSelect = (id: number) => {
+        navigate(`/dashboard/submission/approve/${id}`);
+        console.log("Selected User ID:", id);
+    };
+
+
+    const handleSelectId = (id: number) => {
+        setIsModalOpen(true);
+        setSelectedId(id);
+    }
+
+    const handleDelete = async () => {
+        console.log(selectedId);
+        await deleteMutation.mutateAsync(selectedId ?? 0);
+        setIsModalOpen(false);
+
+
+    };

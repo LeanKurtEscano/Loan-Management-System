@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Filter from "../../components/Filter";
 import FilterModal from "../../components/FilterModal";
+import UserDashboard from "../../layout/user/UserDashboard";
+
 const UserLoan = () => {
   const { data, isLoading, isError, error, refetch } = useQuery(["userTransactions"], getTransactions);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -104,12 +106,28 @@ useEffect(() => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Filter
-        label="Filters"
-        toggle={toggleFilter}
-        onToggleChange={handleToggleChange} // Pass the state and the function to Filter
+    <UserDashboard
+        data={filteredData}
+        activeFilters={activeFilters}
+        setActiveFilters={setActiveFilters}
       />
+
+<div className="flex justify-end items-center mb-6 gap-2 ">
+  {/* Label Text */}
+  <span className="text-md font-semibold ">Filter Loans:</span>
+  
+  {/* Filter Component */}
+  <Filter
+    label="Filters"
+    toggle={toggleFilter}
+    onToggleChange={handleToggleChange} // Pass the state and the function to Filter
+  />
+</div>
+
+
       <div className="overflow-visible">
+
+    
         <table className="w-full bg-white shadow-md rounded-lg text-sm">
           <thead className="bg-blue-500 text-white">
             <tr>

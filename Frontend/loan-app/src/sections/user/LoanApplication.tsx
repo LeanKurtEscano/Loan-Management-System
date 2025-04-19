@@ -53,7 +53,7 @@ const LoanApplication: React.FC = () => {
           className="flex flex-col items-center justify-center h-80 bg-gradient-to-r from-blue-500 to-cyan-400 border border-blue-300 rounded-lg shadow-md p-4"
         >
 
-          <Confetti numberOfPieces={450} recycle={false} />
+         
           <span className="text-4xl bg-white items-center pl-1.5 rounded-full py-2 pr-0.5">
             🎉
           </span>

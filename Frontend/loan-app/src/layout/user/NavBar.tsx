@@ -179,7 +179,7 @@ const NavBar: React.FC = () => {
                                 ) : (
                                     <Link
                                         to={item === "Home" ? "/" : item.toLowerCase()}
-                                        className="block cursor-default select-none px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
+                                        className="block  cursor-pointer select-none px-3 md:p-0 rounded md:bg-transparent font-semibold hover:text-blue-700 transition duration-200"
                                     >
                                         {item}
                                     </Link>
