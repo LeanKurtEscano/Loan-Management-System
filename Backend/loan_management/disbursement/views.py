@@ -13,7 +13,12 @@ from .models import LoanPayments
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
+from django.utils import timezone
 from .utils import extract_duration
+from datetime import datetime, timedelta
+from django.db.models import Sum
+
+import calendar
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])  
@@ -277,4 +282,88 @@ def admin_user_payment_data(request,id):
         print(f"{e}")
         return Response({"error": str(e)}, status=400)   
     
-       
+
+QUARTER_MONTHS = {
+    'q1': ['January', 'February', 'March'],
+    'q2': ['April', 'May', 'June'],
+    'q3': ['July', 'August', 'September'],
+    'q4': ['October', 'November', 'December'],
+}
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_dashboard_data(request):
+    try:
+        
+        selected_year = request.query_params.get('year', '2025')
+        months_param = request.query_params.get('months', '')
+
+   
+        year = int(selected_year)
+        month_names = [month.strip() for month in months_param.split(',') if month.strip()]
+
+        # --- Line Chart ---
+        line_chart_data = []
+        for month in month_names:
+            try:
+                month_number = datetime.strptime(month, '%B').month
+                total_amount = LoanSubmission.objects.filter(
+                    created_at__year=year,
+                    created_at__month=month_number
+                ).aggregate(total=Sum('loan_amount'))['total'] or 0
+
+                line_chart_data.append({
+                    'month': month,
+                    'total_amount': float(total_amount)
+                })
+            except ValueError:
+                continue  # Skip invalid month strings
+
+        # --- Stats Cards ---
+        active_loans_count = LoanSubmission.objects.filter(is_active=True).count()
+        total_borrowers = CustomUser.objects.filter(is_borrower=True, is_admin=False).count()
+        total_users = CustomUser.objects.filter(is_admin=False).count()
+
+        # --- Pie Chart ---
+        application_statuses = {
+            'Approved': LoanSubmission.objects.filter(status='Approved').count(),
+            'Pending': LoanSubmission.objects.filter(status='Pending').count(),
+            'Rejected': LoanSubmission.objects.filter(status='Rejected').count(),
+        }
+
+        total_applications = sum(application_statuses.values())
+        pie_data = {
+            'labels': list(application_statuses.keys()),
+            'data': []
+        }
+
+        if total_applications > 0:
+            for status, count in application_statuses.items():
+                percentage = (count / total_applications) * 100
+                pie_data['data'].append(round(percentage, 1))
+        else:
+            pie_data['data'] = [0, 0, 0]
+
+      
+        response_data = {
+            'stats': {
+                'active_loans': active_loans_count,
+                'total_borrowers': total_borrowers,
+                'total_users': total_users
+            },
+            'line_chart': line_chart_data,
+            'pie_chart': {
+                'labels': pie_data['labels'],
+                'data': pie_data['data'],
+            }
+        }
+        
+        print(response_data)
+
+        return Response(response_data, status=200)
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to fetch dashboard data: {str(e)}'},
+            status=500
+        )

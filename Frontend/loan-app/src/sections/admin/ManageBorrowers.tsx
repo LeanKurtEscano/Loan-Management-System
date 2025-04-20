@@ -105,7 +105,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
             colorClass = "bg-red-100 text-red-800 border-red-200";
             icon = faExclamationTriangle;
             break;
-        default: // Pending
+        default: 
             colorClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
             icon = faClock;
     }
