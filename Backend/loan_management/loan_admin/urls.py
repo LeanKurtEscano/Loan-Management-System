@@ -10,5 +10,6 @@ urlpatterns = [
     path('verify/', views.verify_user, name="verify"),
     path('remove/', views.remove_verification, name="remove"),
     path('reject/', views.reject_user_verification, name="reject"),
+    
 
 ]

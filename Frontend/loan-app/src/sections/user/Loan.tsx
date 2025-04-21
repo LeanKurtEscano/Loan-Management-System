@@ -21,8 +21,6 @@ import Step5 from './LoanSteps/Step5';
 import Step6 from './LoanSteps/Step6';
 
 import Confetti from "react-confetti";
-
-import { useMyContext } from '../../context/MyContext';
 import { userDisbursementApi } from '../../services/axiosConfig';
 const Loan: React.FC = () => {
 

@@ -47,6 +47,7 @@ const Account: React.FC = () => {
     const renderVerificationStatus = () => {
         switch (data?.is_verified.trim()) {
             case "not applied":
+            case "rejected":
                 return (
                     <motion.div
                         variants={fadeInUp}

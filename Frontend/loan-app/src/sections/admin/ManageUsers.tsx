@@ -1,9 +1,8 @@
-
 import React, { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { fetchPaymentsData } from "../../services/user/disbursement";
 import { loanApi } from "../../services/axiosConfig";
+import { fetchLoanData } from "../../services/user/loan";
 import {
     faTrash,
     faEye,
@@ -20,35 +19,20 @@ import {
     faChevronRight,
     faAngleDoubleLeft,
     faAngleDoubleRight,
-
-    faMoneyBillWave
+    faUserFriends
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
-import { formatDate, formatDateWords } from "../../utils/formatDate";
-import { formatCurrency } from "../../utils/formatCurrency";
-import { fetchLoanData } from "../../services/user/loan";
-interface User {
-    first_name: string;
-    middle_name?: string;
-    last_name: string;
-}
-
-interface LoanApplication {
-    id: string;
-    user: User;
-    status: "Pending" | "Approved" | "Rejected";
-    created_at: string;
-}
+import { formatDate } from "../../utils/formatDate";
 
 interface SortConfig {
     key: string;
     direction: "asc" | "desc";
 }
 
-interface StatusBadgeProps {
-    status: "Pending" | "Approved" | "Rejected";
+interface VerificationStatusBadgeProps {
+    status: string;
 }
 
 interface SortIconProps {
@@ -92,28 +76,32 @@ const rowVariants = {
     },
 };
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+const VerificationStatusBadge: React.FC<VerificationStatusBadgeProps> = ({ status }) => {
     let colorClass = "";
     let icon = null;
 
     switch (status) {
-        case "Approved":
+        case "verified":
             colorClass = "bg-green-100 text-green-800 border-green-200";
             icon = faCheckCircle;
             break;
-        case "Rejected":
+        case "rejected":
             colorClass = "bg-red-100 text-red-800 border-red-200";
             icon = faExclamationTriangle;
             break;
-        default: 
+        case "pending":
             colorClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
             icon = faClock;
+            break;
+        default: 
+            colorClass = "bg-gray-100 text-gray-800 border-gray-200";
+            icon = faExclamationTriangle;
     }
 
     return (
         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${colorClass} border`}>
             <FontAwesomeIcon icon={icon} className="mr-1" />
-            {status}
+            {status === "not applied" ? "Not Applied" : status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
     );
 };
@@ -127,14 +115,14 @@ const SortIcon: React.FC<SortIconProps> = ({ column, sortConfig }) => {
         : <FontAwesomeIcon icon={faSortDown} className="ml-1 text-blue-600" />;
 };
 
-const ManageBorrowers: React.FC = () => {
+const ManageUsers: React.FC = () => {
     // State
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [statusFilter, setStatusFilter] = useState<string>("All");
-    const [dateFilter, setDateFilter] = useState<string>("All");
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "created_at", direction: "desc" });
+    const [verificationFilter, setVerificationFilter] = useState<string>("All");
+    const [borrowerFilter, setBorrowerFilter] = useState<string>("All");
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "id", direction: "desc" });
     const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState<boolean>(false);
 
     // Pagination state
@@ -145,38 +133,29 @@ const ManageBorrowers: React.FC = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const endpoint = "submissions"
+    const endpoint = "users";
 
-
-    const { data: loanApplications, isLoading, isError, error } = useQuery({
-        queryKey: ["loanSubmissions"],
+    const { data: users, isLoading, isError } = useQuery({
+        queryKey: ["loanUsers"],
         queryFn: () => fetchLoanData(endpoint),
     });
 
-
-
     const deleteMutation = useMutation({
         mutationFn: async (id: number) => {
-            const response = await loanApi.post('/remove/submission/', {
+            const response = await loanApi.post('/remove/user/', {
                 id: selectedId
             });
-
+            return response.data;
         },
-
         onSuccess: () => {
-            queryClient.invalidateQueries(["loanSubmissions"]);
-
+            queryClient.invalidateQueries(["loanUsers"]);
         }
-    })
+    });
 
-
-    const handleSelect = (id: number) => {
-        navigate(`/dashboard/submission/approve/${id}`);
+    const handleViewUser = (id: number) => {
+        navigate(`/dashboard/users/${id}`);
         console.log("Selected User ID:", id);
     };
-
-
-
 
     const handleOpenDeleteModal = (id: number): void => {
         setSelectedId(id);
@@ -200,84 +179,50 @@ const ManageBorrowers: React.FC = () => {
 
     const clearFilters = (): void => {
         setSearchTerm("");
-        setStatusFilter("All");
-        setDateFilter("All");
+        setVerificationFilter("All");
+        setBorrowerFilter("All");
     };
 
-    // Helper functions for date filtering
-    const getDateRange = (rangeType: string): { start: Date, end: Date } | null => {
-        const now = new Date();
-        const startDate = new Date();
-
-        switch (rangeType) {
-            case 'today':
-                startDate.setHours(0, 0, 0, 0);
-                return { start: startDate, end: now };
-            case 'yesterday':
-                startDate.setDate(now.getDate() - 1);
-                startDate.setHours(0, 0, 0, 0);
-                const endOfYesterday = new Date(startDate);
-                endOfYesterday.setHours(23, 59, 59, 999);
-                return { start: startDate, end: endOfYesterday };
-            case 'thisWeek':
-                startDate.setDate(now.getDate() - now.getDay());
-                startDate.setHours(0, 0, 0, 0);
-                return { start: startDate, end: now };
-            case 'thisMonth':
-                startDate.setDate(1);
-                startDate.setHours(0, 0, 0, 0);
-                return { start: startDate, end: now };
-            default:
-                return null;
-        }
-    };
-
-  
-    const filteredApplications = useMemo(() => {
-        if (!loanApplications || !Array.isArray(loanApplications)) {
+    const filteredUsers = useMemo(() => {
+        if (!users || !Array.isArray(users)) {
             return [];
         }
 
-        return loanApplications.filter(loan => {
-           
-            const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
-            const matchesSearch = fullName.includes(searchTerm.toLowerCase());
+        return users.filter(user => {
+            // Search by name
+            const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.toLowerCase();
+            const matchesSearch = searchTerm ? 
+                fullName.includes(searchTerm.toLowerCase()) || 
+                (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())) : 
+                true;
 
-          
-            const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
+            // Filter by verification status
+            const matchesVerification = verificationFilter === "All" || user.is_verified === verificationFilter;
 
-        
-            let matchesDate = true;
-            if (dateFilter !== "All") {
-                const dateRange = getDateRange(dateFilter);
-                if (dateRange) {
-                    const applicationDate = new Date(loan.created_at);
-                    matchesDate = applicationDate >= dateRange.start && applicationDate <= dateRange.end;
-                }
-            }
+            // Filter by borrower status
+            const matchesBorrower = borrowerFilter === "All" || 
+                (borrowerFilter === "Yes" && user.is_borrower) || 
+                (borrowerFilter === "No" && !user.is_borrower);
 
-            return matchesSearch && matchesStatus && matchesDate;
+            return matchesSearch && matchesVerification && matchesBorrower;
         });
-    }, [loanApplications, searchTerm, statusFilter, dateFilter]);
+    }, [users, searchTerm, verificationFilter, borrowerFilter]);
 
-    
-    const sortedApplications = useMemo(() => {
-        if (!filteredApplications || !Array.isArray(filteredApplications)) {
+    const sortedUsers = useMemo(() => {
+        if (!filteredUsers || !Array.isArray(filteredUsers)) {
             return [];
         }
 
-        const sortableItems = [...filteredApplications];
+        const sortableItems = [...filteredUsers];
 
         if (sortConfig.key) {
             sortableItems.sort((a, b) => {
                 let aValue: any, bValue: any;
 
                 if (sortConfig.key === 'name') {
-                    aValue = `${a.user.first_name} ${a.user.last_name}`;
-                    bValue = `${b.user.first_name} ${b.user.last_name}`;
-                } else if (sortConfig.key === 'created_at') {
-                    aValue = new Date(a.created_at);
-                    bValue = new Date(b.created_at);
+                    aValue = `${a.first_name} ${a.last_name}`;
+                    bValue = `${b.first_name} ${b.last_name}`;
                 } else if (sortConfig.key.includes('.')) {
                     const keys = sortConfig.key.split('.');
                     aValue = keys.reduce((obj: any, key: string) => obj && obj[key], a);
@@ -297,17 +242,14 @@ const ManageBorrowers: React.FC = () => {
             });
         }
         return sortableItems;
-    }, [filteredApplications, sortConfig]);
+    }, [filteredUsers, sortConfig]);
 
-    
-    const totalPages = Math.ceil(sortedApplications.length / itemsPerPage);
+    const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
 
-    
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, statusFilter, dateFilter, sortConfig]);
+    }, [searchTerm, verificationFilter, borrowerFilter, sortConfig]);
 
-  
     useEffect(() => {
         const createPaginationRange = (): (number | string)[] => {
             const delta = 2; 
@@ -319,12 +261,10 @@ const ManageBorrowers: React.FC = () => {
                 range.push(i);
             }
 
-          
             if (totalPages > 1) {
                 range.push(totalPages);
             }
 
-           
             let rangeWithEllipsis: (number | string)[] = [];
             let l: number | undefined;
 
@@ -344,19 +284,17 @@ const ManageBorrowers: React.FC = () => {
         setPaginationRange(createPaginationRange());
     }, [currentPage, totalPages]);
 
-
     const paginatedData = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
-        return sortedApplications.slice(startIndex, startIndex + itemsPerPage);
-    }, [sortedApplications, currentPage, itemsPerPage]);
-
+        return sortedUsers.slice(startIndex, startIndex + itemsPerPage);
+    }, [sortedUsers, currentPage, itemsPerPage]);
 
     const tableHeaders = [
+        { label: 'ID', key: 'id', sortable: true },
         { label: 'Name', key: 'name', sortable: true },
-        { label: 'End Date', key: 'end_date', sortable: false },
-      
-        { label: 'Status', key: 'status', sortable: true },
-        { label: 'Submitted Date', key: 'created_at', sortable: true },
+        { label: 'Email', key: 'email', sortable: true },
+        { label: 'Borrower', key: 'is_borrower', sortable: true },
+        { label: 'Verification Status', key: 'is_verified', sortable: true },
         { label: 'Actions', key: 'actions', sortable: false, center: true }
     ];
 
@@ -375,24 +313,24 @@ const ManageBorrowers: React.FC = () => {
     };
 
     // Calculate stats
-    const totalApplications = loanApplications?.length;
-    const pendingApplications = loanApplications?.filter(app => app.status === "Pending").length;
-    const approvedApplications = loanApplications?.filter(app => app.status === "Approved").length;
+    const totalUsers = users?.length || 0;
+    const borrowers = users?.filter(user => user.is_borrower).length || 0;
+    const verifiedUsers = users?.filter(user => user.is_verified === "verified").length || 0;
 
     const stats: StatCard[] = [
-        { title: "Total Disbursements", value: totalApplications, icon: faMoneyBillWave, color: "from-blue-400 to-blue-600" },
-        { title: "Pending Disbursements", value: pendingApplications, icon: faClock, color: "from-yellow-400 to-yellow-600" },
-        { title: "Approved Disbursements", value: approvedApplications, icon: faCheckCircle, color: "from-green-400 to-green-600" }
+        { title: "Total Users", value: totalUsers, icon: faUserFriends, color: "from-blue-400 to-blue-600" },
+        { title: "Borrowers", value: borrowers, icon: faCheckCircle, color: "from-green-400 to-green-600" },
+        { title: "Verified Users", value: verifiedUsers, icon: faCheckCircle, color: "from-yellow-400 to-yellow-600" }
     ];
 
     if (isError) {
         return (
             <div className="p-8 text-center">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-4xl mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Error Loading Applications</h3>
-                <p className="text-gray-600 mb-4">We couldn't load the application data. Please try again later.</p>
+                <h3 className="text-xl font-semibold mb-2">Error Loading Users</h3>
+                <p className="text-gray-600 mb-4">We couldn't load the user data. Please try again later.</p>
                 <button
-                    onClick={() => queryClient.invalidateQueries(["loanApplications"])}
+                    onClick={() => queryClient.invalidateQueries(["loanUsers"])}
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
                 >
                     Retry
@@ -400,7 +338,6 @@ const ManageBorrowers: React.FC = () => {
             </div>
         );
     }
-
 
     return (
         <div className="p-6 w-full min-h-screen max-w-7xl mx-auto">
@@ -411,10 +348,10 @@ const ManageBorrowers: React.FC = () => {
                 className="mb-8"
             >
                 <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-2">
-                    Manage Disbursment
+                    Manage Users
                 </h2>
                 <p className="text-gray-600">
-                    Review and manage disbursement requests submitted by users
+                    View and manage user accounts in the system
                 </p>
             </motion.div>
 
@@ -431,7 +368,7 @@ const ManageBorrowers: React.FC = () => {
                     >
                         <div className={`h-2 bg-gradient-to-r ${stat.color}`}></div>
                         <div className="p-5 flex items-center">
-                            <div className={`rounded-full px-3 py-2.5  bg-gradient-to-br ${stat.color} text-white mr-4`}>
+                            <div className={`rounded-full px-3 py-2.5 bg-gradient-to-br ${stat.color} text-white mr-4`}>
                                 <FontAwesomeIcon icon={stat.icon} className="text-3xl" />
                             </div>
                             <div>
@@ -455,7 +392,7 @@ const ManageBorrowers: React.FC = () => {
                             <input
                                 type="text"
                                 className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                placeholder="Search by name..."
+                                placeholder="Search by name or email..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -466,13 +403,14 @@ const ManageBorrowers: React.FC = () => {
                             <div className="flex items-center">
                                 <select
                                     className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full"
-                                    value={statusFilter}
-                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    value={verificationFilter}
+                                    onChange={(e) => setVerificationFilter(e.target.value)}
                                 >
-                                    <option value="All">All Status</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Approved">Approved</option>
-                                    <option value="Rejected">Rejected</option>
+                                    <option value="All">All Verifications</option>
+                                    <option value="verified">Verified</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="not applied">Not Applied</option>
                                 </select>
                             </div>
 
@@ -489,7 +427,6 @@ const ManageBorrowers: React.FC = () => {
                     {/* Advanced filters section */}
                     <AnimatePresence>
                         {isAdvancedFilterOpen && (
-
                             <motion.div
                                 initial={{ opacity: 0, height: 0, overflow: "hidden" }}
                                 animate={{ opacity: 1, height: "auto", overflow: "hidden" }}
@@ -499,17 +436,15 @@ const ManageBorrowers: React.FC = () => {
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Borrower Status</label>
                                         <select
                                             className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                            value={dateFilter}
-                                            onChange={(e) => setDateFilter(e.target.value)}
+                                            value={borrowerFilter}
+                                            onChange={(e) => setBorrowerFilter(e.target.value)}
                                         >
-                                            <option value="All">All Time</option>
-                                            <option value="today">Today</option>
-                                            <option value="yesterday">Yesterday</option>
-                                            <option value="thisWeek">This Week</option>
-                                            <option value="thisMonth">This Month</option>
+                                            <option value="All">All Users</option>
+                                            <option value="Yes">Borrowers</option>
+                                            <option value="No">Non-Borrowers</option>
                                         </select>
                                     </div>
 
@@ -530,10 +465,10 @@ const ManageBorrowers: React.FC = () => {
                 {/* Results count */}
                 <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
                     <p className="text-sm text-gray-600">
-                        Showing <span className="font-medium">{Math.min(sortedApplications.length, itemsPerPage)}</span> of <span className="font-medium">{sortedApplications.length}</span> applications
+                        Showing <span className="font-medium">{Math.min(sortedUsers.length, itemsPerPage)}</span> of <span className="font-medium">{sortedUsers.length}</span> users
                     </p>
 
-                    {(searchTerm || statusFilter !== "All" || dateFilter !== "All") && (
+                    {(searchTerm || verificationFilter !== "All" || borrowerFilter !== "All") && (
                         <div className="flex items-center">
                             <span className="text-sm text-gray-500 italic mr-2">Filters applied</span>
                             <button
@@ -550,9 +485,9 @@ const ManageBorrowers: React.FC = () => {
                 {isLoading ? (
                     <div className="p-12 flex flex-col items-center justify-center">
                         <FontAwesomeIcon icon={faSpinner} spin className="text-blue-600 text-3xl mb-4" />
-                        <p className="text-gray-600">Loading application data...</p>
+                        <p className="text-gray-600">Loading user data...</p>
                     </div>
-                ) : sortedApplications.length === 0 ? (
+                ) : sortedUsers.length === 0 ? (
                     <div className="p-12 text-center">
                         <FontAwesomeIcon icon={faSearch} className="text-gray-400 text-4xl mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-1">No results found</h3>
@@ -573,8 +508,7 @@ const ManageBorrowers: React.FC = () => {
                                     {tableHeaders.map((header) => (
                                         <th
                                             key={header.key}
-                                            className={`px-6 py-4 text-${header.center ? 'center' : 'left'} text-xs font-medium uppercase tracking-wider ${header.sortable ? 'cursor-pointer' : ''
-                                                }`}
+                                            className={`px-6 py-4 text-${header.center ? 'center' : 'left'} text-xs font-medium uppercase tracking-wider ${header.sortable ? 'cursor-pointer' : ''}`}
                                             onClick={header.sortable ? () => handleSort(header.key) : undefined}
                                         >
                                             <div className={`flex items-center ${header.center ? 'justify-center' : ''}`}>
@@ -587,43 +521,49 @@ const ManageBorrowers: React.FC = () => {
                             </thead>
 
                             <tbody className="divide-y divide-gray-200">
-                                {paginatedData.map((loan, index) => (
+                                {paginatedData.map((user, index) => (
                                     <motion.tr
-                                        key={loan.id}
+                                        key={user.id}
                                         variants={rowVariants}
                                         className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
-                                                {loan.user.last_name}
+                                            <div className="text-sm text-gray-700">
+                                                {user.id}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                           {formatDateWords(loan.repay_date)}
-                                        </td>
-                                     
-                                        <td className="px-6 py-4">
-                                            <StatusBadge status={loan.status} />
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {user.first_name} {user.middle_name ? user.middle_name + " " : ""}
+                                                {user.last_name}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm text-gray-700">
-                                                {formatDate(loan.created_at)}
+                                                {user.email || "Not provided"}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm text-gray-700">
+                                                {user.is_borrower ? "Yes" : "No"}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <VerificationStatusBadge status={user.is_verified} />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="flex justify-center space-x-2">
                                                 <button
-                                                    onClick={() => handleSelect(loan.id)}
+                                                    onClick={() => handleViewUser(user.id)}
                                                     className="text-blue-600 hover:text-blue-800 cursor-pointer hover:bg-blue-100 transition-colors rounded-full p-2"
                                                     title="View details"
                                                 >
                                                     <FontAwesomeIcon icon={faEye} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleOpenDeleteModal(loan.id)}
+                                                    onClick={() => handleOpenDeleteModal(user.id)}
                                                     className="text-red-600 hover:text-red-800 cursor-pointer hover:bg-red-100 transition-colors rounded-full p-2"
-                                                    title="Delete application"
+                                                    title="Delete user"
                                                 >
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
@@ -636,16 +576,13 @@ const ManageBorrowers: React.FC = () => {
                     </div>
                 )}
 
-
-                {sortedApplications.length > 0 && (
+                {sortedUsers.length > 0 && (
                     <div className="px-6 py-4 bg-white border-t border-gray-200">
                         <div className="flex flex-col sm:flex-row justify-between items-center">
-
                             <div className="flex items-center mb-4 sm:mb-0">
                                 <span className="text-sm text-gray-700 mr-2">Show</span>
                                 <select
                                     className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
-
                                     value={itemsPerPage}
                                     onChange={handleItemsPerPageChange}
                                 >
@@ -663,7 +600,6 @@ const ManageBorrowers: React.FC = () => {
                                 </span>
 
                                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-
                                     <button
                                         onClick={goToFirstPage}
                                         disabled={currentPage === 1}
@@ -675,7 +611,6 @@ const ManageBorrowers: React.FC = () => {
                                         <span className="sr-only">First page</span>
                                         <FontAwesomeIcon icon={faAngleDoubleLeft} className="h-4 w-4" />
                                     </button>
-
 
                                     <button
                                         onClick={goToPrevPage}
@@ -689,7 +624,6 @@ const ManageBorrowers: React.FC = () => {
                                         <FontAwesomeIcon icon={faChevronLeft} className="h-4 w-4" />
                                     </button>
 
-
                                     {paginationRange.map((pageNumber, i) => (
                                         pageNumber === '...' ? (
                                             <span
@@ -701,7 +635,7 @@ const ManageBorrowers: React.FC = () => {
                                         ) : (
                                             <button
                                                 key={`page-${pageNumber}`}
-                                                onClick={() => goToPage(pageNumber)}
+                                                onClick={() => typeof pageNumber === 'number' && goToPage(pageNumber)}
                                                 className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${currentPage === pageNumber
                                                     ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
                                                     : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
@@ -711,7 +645,6 @@ const ManageBorrowers: React.FC = () => {
                                             </button>
                                         )
                                     ))}
-
 
                                     <button
                                         onClick={goToNextPage}
@@ -724,7 +657,6 @@ const ManageBorrowers: React.FC = () => {
                                         <span className="sr-only">Next</span>
                                         <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
                                     </button>
-
 
                                     <button
                                         onClick={goToLastPage}
@@ -748,8 +680,8 @@ const ManageBorrowers: React.FC = () => {
                 <Modal
                     loading={deleteMutation.isLoading}
                     isOpen={isModalOpen}
-                    title="Delete User Payment Application?"
-                    message="Are you sure you want to delete this user payment application? This action cannot be undone."
+                    title="Delete User Account?"
+                    message="Are you sure you want to delete this user account? This action cannot be undone."
                     onClose={() => setIsModalOpen(false)}
                     onConfirm={handleDelete}
                 />
@@ -758,4 +690,4 @@ const ManageBorrowers: React.FC = () => {
     );
 };
 
-export default ManageBorrowers;
+export default ManageUsers;

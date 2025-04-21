@@ -4,6 +4,8 @@ import { getLoanApplication } from "../../../services/user/userData";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
+import ImageButton from "../../../components/ImageButton";
+
 const Step2 = ({
   prevStep,
   nextStep,
@@ -38,13 +40,11 @@ const Step2 = ({
   return (
     <div className="flex items-center h-screen">
       <div className="bg-white p-10 border border-gray-300 rounded-lg shadow-lg w-[500px] text-center">
-        {/* Header */}
+  
         <h2 className="text-2xl font-bold mb-4">🎉 CONGRATULATIONS!</h2>
         <p className="text-base mb-6 text-gray-600">
           Only take what you need. You can always draw as long as you pay on time. Happy Loaning!
         </p>
-
-        {/* Loan Amount Info */}
         <h3 className="text-3xl font-semibold text-gray-800 mb-2">
           {formatCurrency(data?.loan_amount || 0)} PHP
         </h3>
@@ -68,7 +68,6 @@ const Step2 = ({
           className="w-full p-3 border border-gray-300 rounded-md text-center text-lg mb-6"
         />
 
-        {/* Buttons Row */}
         <div className="flex justify-between mt-6">
           <button
             onClick={prevStep}

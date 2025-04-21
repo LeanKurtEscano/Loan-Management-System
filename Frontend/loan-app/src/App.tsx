@@ -41,6 +41,7 @@ import UserLoan from './sections/user/UserLoan';
 import TransactionDetail from './sections/user/TransactionDetail';
 import ManageTransaction from './sections/admin/ManageTransaction';
 import Analytics from './sections/admin/Analytics';
+import ManageUsers from './sections/admin/ManageUsers';
 function App() {
 
   return (
@@ -96,6 +97,7 @@ const Main: React.FC = () => {
           <Route path="user-verification" element={<UserVerification />} />
           <Route path="loan-applications" element={<UsersLoanApplication />} />
           <Route path="manage-borrowers" element={<ManageBorrowers />} />
+          <Route path="manage-users" element={<ManageUsers />} />
           <Route path="manage-payments" element={<ManagePayments />} />
           <Route path="verify/:id" element={<Verification />} />
           <Route path="verify/application/:id" element={<VerifyApplication />} />

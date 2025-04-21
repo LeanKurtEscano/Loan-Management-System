@@ -32,11 +32,7 @@ ChartJS.register(
   Filler
 );
 
-// Simple mock data structure
 
-
-// Line Chart Component that accepts data as a prop
-// Line Chart Component that accepts data as a prop
 const DisbursementLineChart = ({ data }) => {
   // Create chart data from the provided data
   const chartData = {
@@ -215,7 +211,7 @@ const Analytics = () => {
     labels: ['Approved', 'Pending', 'Rejected'],
     datasets: [
       {
-        data: data.pie_chart.data,
+        data: data?.pie_chart?.data,
         backgroundColor: [
           'rgba(56, 189, 248, 0.8)', // Light blue
           'rgba(14, 165, 233, 0.8)', // Medium blue

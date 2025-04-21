@@ -18,8 +18,14 @@ from rest_framework.decorators import api_view, permission_classes
 from .models import LoanApplication
 import cloudinary.uploader
 import locale
+from user.serializers import CustomUserSerializer
+from user.models import CustomUser
 from datetime import datetime
 from decimal import Decimal
+
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def approve_loan_disbursement(request):
@@ -458,3 +464,16 @@ def loan_submission(request):
         return Response({"error": str(e)}, status=400)
     
     
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_users(request):
+    try:
+        users = CustomUser.objects.filter(is_admin=False)
+        serializer = CustomUserSerializer(users, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

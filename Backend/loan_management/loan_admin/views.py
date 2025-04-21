@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate,logout
 from user.models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 import os
+from user.serializers import CustomUserSerializer
 from django.core.cache import cache
 from .serializers import VerificationRequestsSerializer
 from user.models import VerificationRequests
@@ -21,7 +22,7 @@ from .serializers import VerificationRequestsSerializer
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-
+from user.models import CustomUser
 
 
 @api_view(["POST"])
@@ -248,7 +249,7 @@ def reject_user_verification(request):
         loan_app.save()
         user = loan_app.user
         
-        user.is_verified = "not applied"
+        user.is_verified = "rejected"
         user.save()
         subject = "Your Account Verification Was Unsuccessful"
         html_content = render_to_string("email/rejection_email.html", {
@@ -270,3 +271,6 @@ def reject_user_verification(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
