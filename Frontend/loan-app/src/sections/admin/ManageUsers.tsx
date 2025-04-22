@@ -140,6 +140,8 @@ const ManageUsers: React.FC = () => {
         queryFn: () => fetchLoanData(endpoint),
     });
 
+    console.log(users);
+
     const deleteMutation = useMutation({
         mutationFn: async (id: number) => {
             const response = await loanApi.post('/remove/user/', {
@@ -290,8 +292,8 @@ const ManageUsers: React.FC = () => {
     }, [sortedUsers, currentPage, itemsPerPage]);
 
     const tableHeaders = [
-        { label: 'ID', key: 'id', sortable: true },
-        { label: 'Name', key: 'name', sortable: true },
+        { label: 'Username', key: 'username', sortable: true },
+        { label: 'Full Name', key: 'name', sortable: true },
         { label: 'Email', key: 'email', sortable: true },
         { label: 'Borrower', key: 'is_borrower', sortable: true },
         { label: 'Verification Status', key: 'is_verified', sortable: true },
@@ -527,11 +529,12 @@ const ManageUsers: React.FC = () => {
                                         variants={rowVariants}
                                         className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                                     >
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm text-gray-700">
-                                                {user.id}
+                                          <td className="px-6 py-4">
+                                            <div className="text-sm font-medium text-gray-900">
+                                               {user.username}
                                             </div>
                                         </td>
+                                       
                                         <td className="px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
                                                 {user.first_name} {user.middle_name ? user.middle_name + " " : ""}

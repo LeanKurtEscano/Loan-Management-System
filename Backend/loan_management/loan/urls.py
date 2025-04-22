@@ -18,4 +18,5 @@ urlpatterns = [
     path('approve/disbursement/', views.approve_loan_disbursement, name="approve_loan_disbursment"),
     path('user/submission/', views.loan_submission, name="loansub"),
     path('users/', views.get_users, name="getusers"),
+    path('remove/user/', views.delete_loan_submission, name="delete-loansub"),
 ]

@@ -358,7 +358,27 @@ def delete_loan_submission(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-       
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_loan_submission(request):
+    try:
+                
+        id = request.data.get("id")
+        
+        user = CustomUser.objects.get(id = int(id))
+        user.delete()
+
+        
+        
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+              
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def reject_loan_application(request):
