@@ -113,6 +113,8 @@ def approve_loan_payment(request):
             #loan_sub.loan_app.save() 
             
             user = loan_payment.user
+            user.is_borrower = False
+            user.save()
             subject = "You're Loan is fully paid!"
             html_content = render_to_string("email/loanfullypaid.html", {
                 'username': user.username,

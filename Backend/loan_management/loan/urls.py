@@ -19,4 +19,5 @@ urlpatterns = [
     path('user/submission/', views.loan_submission, name="loansub"),
     path('users/', views.get_users, name="getusers"),
     path('remove/user/', views.delete_loan_submission, name="delete-loansub"),
+    path('user/<int:id>', views.account_detail_view, name="account_detail_view"),
 ]

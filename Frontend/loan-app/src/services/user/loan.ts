@@ -13,6 +13,18 @@ export const fetchLoanData = async (endpoint: string) => {
   };
 
 
+export const fetchUserData = async (endpoint: string, id:string) => {
+    try {
+      const response = await loanApi.get(`/${endpoint}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching loan data:", error);
+      throw error;
+    }
+  };
+
+
+
 export const sendLoanApplication = async(data: LoanApplicationDetails) => {
   try {
     const response = await userLoanApi.post(`/loan/apply/`, data, {

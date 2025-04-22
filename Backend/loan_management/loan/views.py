@@ -22,7 +22,7 @@ from user.serializers import CustomUserSerializer
 from user.models import CustomUser
 from datetime import datetime
 from decimal import Decimal
-
+from .serializers import AccountDetailSerializer
 
 
 
@@ -39,6 +39,8 @@ def approve_loan_disbursement(request):
         
         
         user = loan_sub.user
+        user.is_borrower = True
+        user.save()
         subject = "You're Loan has been approved"
         html_content = render_to_string("email/loandisbursementsuccess.html", {
             "cashout": loan_sub.cashout,
@@ -497,3 +499,15 @@ def get_users(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    
+@api_view(['GET'])
+def account_detail_view(request, id):
+    try:
+        user = CustomUser.objects.get(id=id)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = AccountDetailSerializer(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
