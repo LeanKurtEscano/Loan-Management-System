@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -134,6 +133,7 @@ const ManagePayments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [dateFilter, setDateFilter] = useState<string>("All");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("All"); // New payment method filter
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "created_at", direction: "desc" });
   const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState<boolean>(false);
 
@@ -156,6 +156,17 @@ const ManagePayments: React.FC = () => {
 
   console.log(loanApplications)
 
+  // Extract unique payment methods for the filter dropdown
+  const paymentMethods = useMemo(() => {
+    if (!loanApplications || !Array.isArray(loanApplications)) return [];
+
+    const methods = loanApplications.map(loan =>
+      loan.loan.cashout.charAt(0).toUpperCase() + loan.loan.cashout.slice(1)
+    );
+
+    return [...new Set(methods)];
+  }, [loanApplications]);
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
       return await adminDisbursementApi.post('/remove/payment/', {
@@ -170,8 +181,6 @@ const ManagePayments: React.FC = () => {
   const handleSelect = (id) => {
     navigate(`/dashboard/payment/approve/${id}`);
   };
-
-
 
   const handleOpenDeleteModal = (id: number): void => {
     setSelectedId(id);
@@ -197,6 +206,7 @@ const ManagePayments: React.FC = () => {
     setSearchTerm("");
     setStatusFilter("All");
     setDateFilter("All");
+    setPaymentMethodFilter("All"); // Clear payment method filter
   };
 
   // Helper functions for date filtering
@@ -241,6 +251,10 @@ const ManagePayments: React.FC = () => {
       // Status filter
       const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
 
+      // Payment method filter
+      const paymentMethod = loan.loan.cashout.charAt(0).toUpperCase() + loan.loan.cashout.slice(1);
+      const matchesPaymentMethod = paymentMethodFilter === "All" || paymentMethod === paymentMethodFilter;
+
       // Date filter
       let matchesDate = true;
       if (dateFilter !== "All") {
@@ -251,11 +265,11 @@ const ManagePayments: React.FC = () => {
         }
       }
 
-      return matchesSearch && matchesStatus && matchesDate;
+      return matchesSearch && matchesStatus && matchesDate && matchesPaymentMethod;
     });
-  }, [loanApplications, searchTerm, statusFilter, dateFilter]);
+  }, [loanApplications, searchTerm, statusFilter, dateFilter, paymentMethodFilter]);
 
-  // Sort applications based on sort config
+
   const sortedApplications = useMemo(() => {
     if (!filteredApplications || !Array.isArray(filteredApplications)) {
       return [];
@@ -267,13 +281,21 @@ const ManagePayments: React.FC = () => {
       sortableItems.sort((a, b) => {
         let aValue: any, bValue: any;
 
-        // Handle nested properties and special cases
+
         if (sortConfig.key === 'name') {
           aValue = `${a.user.first_name} ${a.user.last_name}`;
           bValue = `${b.user.first_name} ${b.user.last_name}`;
         } else if (sortConfig.key === 'created_at') {
           aValue = new Date(a.created_at);
           bValue = new Date(b.created_at);
+        } else if (sortConfig.key === 'amount') {
+
+          aValue = parseFloat(a.amount);
+          bValue = parseFloat(b.amount);
+        } else if (sortConfig.key === 'payment_method') {
+
+          aValue = a.loan.cashout;
+          bValue = b.loan.cashout;
         } else if (sortConfig.key.includes('.')) {
           const keys = sortConfig.key.split('.');
           aValue = keys.reduce((obj: any, key: string) => obj && obj[key], a);
@@ -295,34 +317,34 @@ const ManagePayments: React.FC = () => {
     return sortableItems;
   }, [filteredApplications, sortConfig]);
 
-  // Pagination logic
+
   const totalPages = Math.ceil(sortedApplications.length / itemsPerPage);
 
-  // Reset to first page when filters change
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, dateFilter, sortConfig]);
+  }, [searchTerm, statusFilter, dateFilter, paymentMethodFilter, sortConfig]);
 
-  // Generate pagination range
+
   useEffect(() => {
     const createPaginationRange = (): (number | string)[] => {
-      const delta = 2; // Number of pages to show on each side of current page
+      const delta = 2;
       let range: number[] = [];
 
-      // Always include first page
+
       range.push(1);
 
-      // Calculate range of page numbers
+
       for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
         range.push(i);
       }
 
-      // Always include last page if not already included
+
       if (totalPages > 1) {
         range.push(totalPages);
       }
 
-      // Add ellipses
+
       let rangeWithEllipsis: (number | string)[] = [];
       let l: number | undefined;
 
@@ -351,8 +373,8 @@ const ManagePayments: React.FC = () => {
 
   const tableHeaders = [
     { label: 'Name', key: 'name', sortable: true },
-    { label: 'Payment Method', key: 'payment_method', sortable: false },
-    { label: 'Amount', key: 'amount', sortable: false },
+    { label: 'Payment Method', key: 'payment_method', sortable: true },
+    { label: 'Amount', key: 'amount', sortable: true },
     { label: 'Status', key: 'status', sortable: true },
     { label: 'Submitted Date', key: 'created_at', sortable: true },
     { label: 'Actions', key: 'actions', sortable: false, center: true }
@@ -369,7 +391,7 @@ const ManagePayments: React.FC = () => {
 
   const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Reset to first page when changing items per page
+    setCurrentPage(1);
   };
 
   // Calculate stats
@@ -416,7 +438,7 @@ const ManagePayments: React.FC = () => {
         </p>
       </motion.div>
 
-      {/* Stats Cards */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
         {stats.map((stat, i) => (
           <motion.div
@@ -441,11 +463,11 @@ const ManagePayments: React.FC = () => {
         ))}
       </div>
 
-      {/* Search and Filter Section */}
+
       <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
         <div className="p-5 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Search bar */}
+
             <div className="relative flex-grow max-w-md">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
@@ -459,7 +481,7 @@ const ManagePayments: React.FC = () => {
               />
             </div>
 
-            {/* Basic filters */}
+
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex items-center">
                 <select
@@ -471,6 +493,20 @@ const ManagePayments: React.FC = () => {
                   <option value="Pending">Pending</option>
                   <option value="Approved">Approved</option>
                   <option value="Rejected">Rejected</option>
+                </select>
+              </div>
+
+              {/* Payment Method Filter */}
+              <div className="flex items-center">
+                <select
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full"
+                  value={paymentMethodFilter}
+                  onChange={(e) => setPaymentMethodFilter(e.target.value)}
+                >
+                  <option value="All">All Payment Methods</option>
+                  {paymentMethods.map((method, index) => (
+                    <option key={index} value={method}>{method}</option>
+                  ))}
                 </select>
               </div>
 
@@ -531,7 +567,7 @@ const ManagePayments: React.FC = () => {
             Showing <span className="font-medium">{Math.min(sortedApplications.length, itemsPerPage)}</span> of <span className="font-medium">{sortedApplications.length}</span> applications
           </p>
 
-          {(searchTerm || statusFilter !== "All" || dateFilter !== "All") && (
+          {(searchTerm || statusFilter !== "All" || dateFilter !== "All" || paymentMethodFilter !== "All") && (
             <div className="flex items-center">
               <span className="text-sm text-gray-500 italic mr-2">Filters applied</span>
               <button
@@ -575,7 +611,7 @@ const ManagePayments: React.FC = () => {
                         }`}
                       onClick={header.sortable ? () => handleSort(header.key) : undefined}
                     >
-                      <div className={`flex items-center ${header.center ? 'justify-center' : ''}`}>
+                      <div className={`flex items-center whitespace-nowrap ${header.center ? 'justify-center' : ''}`}>
                         {header.label}
                         {header.sortable && <SortIcon column={header.key} sortConfig={sortConfig} />}
                       </div>
@@ -592,30 +628,25 @@ const ManagePayments: React.FC = () => {
                     className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
                         {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
                         {loan.user.last_name}
                       </div>
                     </td>
+
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-gray-900">
                         {loan.loan.cashout.charAt(0).toUpperCase() + loan.loan.cashout.slice(1)}
-
-
                       </div>
                     </td>
                     <td className="px-6 py-4">
-
-
-
-
                       {formatCurrency(loan.amount)}
                     </td>
                     <td className="px-6 py-4">
                       <StatusBadge status={loan.status} />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-700">
+                      <div className="text-sm whitespace-nowrap text-gray-700">
                         {formatDate(loan.created_at)}
                       </div>
                     </td>
@@ -683,6 +714,7 @@ const ManagePayments: React.FC = () => {
                     <span className="sr-only">First page</span>
                     <FontAwesomeIcon icon={faAngleDoubleLeft} className="h-4 w-4" />
                   </button>
+
 
 
                   <button

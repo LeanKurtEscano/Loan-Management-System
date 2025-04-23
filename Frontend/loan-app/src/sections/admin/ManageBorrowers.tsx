@@ -105,7 +105,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
             colorClass = "bg-red-100 text-red-800 border-red-200";
             icon = faExclamationTriangle;
             break;
-        default: 
+        default:
             colorClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
             icon = faClock;
     }
@@ -232,21 +232,21 @@ const ManageBorrowers: React.FC = () => {
         }
     };
 
-  
+
     const filteredApplications = useMemo(() => {
         if (!loanApplications || !Array.isArray(loanApplications)) {
             return [];
         }
 
         return loanApplications.filter(loan => {
-           
+
             const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
             const matchesSearch = fullName.includes(searchTerm.toLowerCase());
 
-          
+
             const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
 
-        
+
             let matchesDate = true;
             if (dateFilter !== "All") {
                 const dateRange = getDateRange(dateFilter);
@@ -260,7 +260,7 @@ const ManageBorrowers: React.FC = () => {
         });
     }, [loanApplications, searchTerm, statusFilter, dateFilter]);
 
-    
+
     const sortedApplications = useMemo(() => {
         if (!filteredApplications || !Array.isArray(filteredApplications)) {
             return [];
@@ -299,18 +299,18 @@ const ManageBorrowers: React.FC = () => {
         return sortableItems;
     }, [filteredApplications, sortConfig]);
 
-    
+
     const totalPages = Math.ceil(sortedApplications.length / itemsPerPage);
 
-    
+
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, statusFilter, dateFilter, sortConfig]);
 
-  
+
     useEffect(() => {
         const createPaginationRange = (): (number | string)[] => {
-            const delta = 2; 
+            const delta = 2;
             let range: number[] = [];
 
             range.push(1);
@@ -319,12 +319,12 @@ const ManageBorrowers: React.FC = () => {
                 range.push(i);
             }
 
-          
+
             if (totalPages > 1) {
                 range.push(totalPages);
             }
 
-           
+
             let rangeWithEllipsis: (number | string)[] = [];
             let l: number | undefined;
 
@@ -354,7 +354,7 @@ const ManageBorrowers: React.FC = () => {
     const tableHeaders = [
         { label: 'Name', key: 'name', sortable: true },
         { label: 'End Date', key: 'end_date', sortable: false },
-      
+
         { label: 'Status', key: 'status', sortable: true },
         { label: 'Submitted Date', key: 'created_at', sortable: true },
         { label: 'Actions', key: 'actions', sortable: false, center: true }
@@ -594,15 +594,16 @@ const ManageBorrowers: React.FC = () => {
                                         className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">
+                                            <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
                                                 {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
                                                 {loan.user.last_name}
                                             </div>
                                         </td>
+
                                         <td className="px-6 py-4">
-                                           {formatDateWords(loan.repay_date)}
+                                            {formatDateWords(loan.repay_date)}
                                         </td>
-                                     
+
                                         <td className="px-6 py-4">
                                             <StatusBadge status={loan.status} />
                                         </td>

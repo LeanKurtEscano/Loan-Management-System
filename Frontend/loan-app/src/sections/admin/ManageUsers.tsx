@@ -93,7 +93,7 @@ const VerificationStatusBadge: React.FC<VerificationStatusBadgeProps> = ({ statu
             colorClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
             icon = faClock;
             break;
-        default: 
+        default:
             colorClass = "bg-gray-100 text-gray-800 border-gray-200";
             icon = faExclamationTriangle;
     }
@@ -193,18 +193,18 @@ const ManageUsers: React.FC = () => {
         return users.filter(user => {
             // Search by name
             const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.toLowerCase();
-            const matchesSearch = searchTerm ? 
-                fullName.includes(searchTerm.toLowerCase()) || 
+            const matchesSearch = searchTerm ?
+                fullName.includes(searchTerm.toLowerCase()) ||
                 (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())) : 
+                (user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())) :
                 true;
 
             // Filter by verification status
             const matchesVerification = verificationFilter === "All" || user.is_verified === verificationFilter;
 
             // Filter by borrower status
-            const matchesBorrower = borrowerFilter === "All" || 
-                (borrowerFilter === "Yes" && user.is_borrower) || 
+            const matchesBorrower = borrowerFilter === "All" ||
+                (borrowerFilter === "Yes" && user.is_borrower) ||
                 (borrowerFilter === "No" && !user.is_borrower);
 
             return matchesSearch && matchesVerification && matchesBorrower;
@@ -254,7 +254,7 @@ const ManageUsers: React.FC = () => {
 
     useEffect(() => {
         const createPaginationRange = (): (number | string)[] => {
-            const delta = 2; 
+            const delta = 2;
             let range: number[] = [];
 
             range.push(1);
@@ -357,7 +357,7 @@ const ManageUsers: React.FC = () => {
                 </p>
             </motion.div>
 
-            {/* Stats Cards */}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
                 {stats.map((stat, i) => (
                     <motion.div
@@ -382,11 +382,11 @@ const ManageUsers: React.FC = () => {
                 ))}
             </div>
 
-            {/* Search and Filter Section */}
+
             <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
                 <div className="p-5 border-b border-gray-200">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        {/* Search bar */}
+
                         <div className="relative flex-grow max-w-md">
                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
@@ -400,7 +400,6 @@ const ManageUsers: React.FC = () => {
                             />
                         </div>
 
-                        {/* Basic filters */}
                         <div className="flex flex-col sm:flex-row gap-3">
                             <div className="flex items-center">
                                 <select
@@ -426,7 +425,7 @@ const ManageUsers: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Advanced filters section */}
+
                     <AnimatePresence>
                         {isAdvancedFilterOpen && (
                             <motion.div
@@ -464,7 +463,6 @@ const ManageUsers: React.FC = () => {
                     </AnimatePresence>
                 </div>
 
-                {/* Results count */}
                 <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
                     <p className="text-sm text-gray-600">
                         Showing <span className="font-medium">{Math.min(sortedUsers.length, itemsPerPage)}</span> of <span className="font-medium">{sortedUsers.length}</span> users
@@ -483,7 +481,6 @@ const ManageUsers: React.FC = () => {
                     )}
                 </div>
 
-                {/* Table Section */}
                 {isLoading ? (
                     <div className="p-12 flex flex-col items-center justify-center">
                         <FontAwesomeIcon icon={faSpinner} spin className="text-blue-600 text-3xl mb-4" />
@@ -529,18 +526,19 @@ const ManageUsers: React.FC = () => {
                                         variants={rowVariants}
                                         className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                                     >
-                                          <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">
-                                               {user.username}
-                                            </div>
-                                        </td>
-                                       
                                         <td className="px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
+                                                {user.username}
+                                            </div>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
                                                 {user.first_name} {user.middle_name ? user.middle_name + " " : ""}
                                                 {user.last_name}
                                             </div>
                                         </td>
+
                                         <td className="px-6 py-4">
                                             <div className="text-sm text-gray-700">
                                                 {user.email || "Not provided"}

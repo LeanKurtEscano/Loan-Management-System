@@ -227,7 +227,7 @@ const UserVerification: React.FC = () => {
     if (!loanApplications || !Array.isArray(loanApplications)) {
       return [];
     }
-    
+
     return loanApplications.filter(loan => {
       // Search filter
       const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
@@ -255,9 +255,9 @@ const UserVerification: React.FC = () => {
     if (!filteredApplications || !Array.isArray(filteredApplications)) {
       return [];
     }
-    
+
     const sortableItems = [...filteredApplications];
-    
+
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         let aValue: any, bValue: any;
@@ -600,11 +600,12 @@ const UserVerification: React.FC = () => {
                     className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
                         {loan.first_name} {loan.middle_name ? loan.middle_name + " " : ""}
                         {loan.last_name}
                       </div>
                     </td>
+
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-gray-900">
                         {loan.birthdate}
@@ -644,11 +645,11 @@ const UserVerification: React.FC = () => {
           </div>
         )}
 
-    
+
         {sortedApplications.length > 0 && (
           <div className="px-6 py-4 bg-white border-t border-gray-200">
             <div className="flex flex-col sm:flex-row justify-between items-center">
-           
+
               <div className="flex items-center mb-4 sm:mb-0">
                 <span className="text-sm text-gray-700 mr-2">Show</span>
                 <select
@@ -671,33 +672,33 @@ const UserVerification: React.FC = () => {
                 </span>
 
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-           
+
                   <button
                     onClick={goToFirstPage}
                     disabled={currentPage === 1}
                     className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${currentPage === 1
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
                       }`}
                   >
                     <span className="sr-only">First page</span>
                     <FontAwesomeIcon icon={faAngleDoubleLeft} className="h-4 w-4" />
                   </button>
 
-              
+
                   <button
                     onClick={goToPrevPage}
                     disabled={currentPage === 1}
                     className={`relative inline-flex items-center px-2 py-2 border border-gray-300 text-sm font-medium ${currentPage === 1
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
                       }`}
                   >
                     <span className="sr-only">Previous</span>
                     <FontAwesomeIcon icon={faChevronLeft} className="h-4 w-4" />
                   </button>
 
-               
+
                   {paginationRange.map((pageNumber, i) => (
                     pageNumber === '...' ? (
                       <span
@@ -711,8 +712,8 @@ const UserVerification: React.FC = () => {
                         key={`page-${pageNumber}`}
                         onClick={() => goToPage(pageNumber)}
                         className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${currentPage === pageNumber
-                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                            : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                          ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                          : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
                           }`}
                       >
                         {pageNumber}
@@ -720,26 +721,26 @@ const UserVerification: React.FC = () => {
                     )
                   ))}
 
-               
+
                   <button
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
                     className={`relative inline-flex items-center px-2 py-2 border border-gray-300 text-sm font-medium ${currentPage === totalPages
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
                       }`}
                   >
                     <span className="sr-only">Next</span>
                     <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
                   </button>
 
-                
+
                   <button
                     onClick={goToLastPage}
                     disabled={currentPage === totalPages}
                     className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${currentPage === totalPages
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-500 hover:bg-blue-50 hover:text-blue-600'
                       }`}
                   >
                     <span className="sr-only">Last page</span>

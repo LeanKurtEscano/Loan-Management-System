@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
     ${toggle ? 'w-16' : 'w-64'}`}
         >
             <div className='flex justify-center align-center absolute pl-3 pt-4'>
-                <button onClick={showSideBar} className='w-4'>
+                <button onClick={showSideBar} className='w-4 cursor-pointer'>
                     <FontAwesomeIcon icon={toggle ? faBars : faTimes} className='text-blue-500' />
                 </button>
             </div>
