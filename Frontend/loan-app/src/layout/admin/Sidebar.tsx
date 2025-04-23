@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { menuItems } from '../../constants/render';
 import { Link } from 'react-router-dom';
-import { faBars, faChartLine, faSignOutAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChartLine, faSignOutAlt, faTimes, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 import Modal from '../../components/Modal';
@@ -26,7 +26,6 @@ const Sidebar: React.FC = () => {
 
     const navigate = useNavigate();
 
-
     const toUserProfile = () => {
         navigate('/dashboard/analytics');
         setActiveIndex(10);
@@ -41,8 +40,6 @@ const Sidebar: React.FC = () => {
             localStorage.setItem("currentPath", selectedPath);
             setActiveIndex(index);
         }
-
-
     };
 
     const adminLogout = async () => {
@@ -54,7 +51,6 @@ const Sidebar: React.FC = () => {
                 setIsAdminAuthenticated(false);
                 setToggleLog(false);
             }
-
         } catch (error) {
             alert("Something Went Wrong")
         }
@@ -65,11 +61,8 @@ const Sidebar: React.FC = () => {
         setActiveIndex(null);
     };
 
-
     const showSideBar = () => {
         setToggle(!toggle);
-
-
     };
 
     return (
@@ -77,32 +70,30 @@ const Sidebar: React.FC = () => {
             className={`fixed top-0 left-0 h-full transition-all bg-white duration-700 z-50 bg-cardbg shadow-xl
     ${toggle ? 'w-16' : 'w-64'}`}
         >
-
             <div className='flex justify-center align-center absolute pl-3 pt-4'>
                 <button onClick={showSideBar} className='w-4'>
                     <FontAwesomeIcon icon={toggle ? faBars : faTimes} className='text-blue-500' />
                 </button>
             </div>
 
-            <div
-                className={`flex items-center justify-center transition-all duration-300 cursor-pointer ${toggle ? 'opacity-0' : 'opacity-100'}`}
-                onClick={toUserProfile}
-                style={{ height: '80px', visibility: toggle ? 'hidden' : 'visible' }}
-            >
-                <div className='flex p-2 rounded-lg flex-col items-center'>
-                    <div className='w-full flex flex-row'>
-                        <p className=' text-xs'>Hello Admin!</p>
-                    </div>
-                    <div className='overflow-hidden'>
-                        <p className='flex text-gray-700 text-xs whitespace-nowrap'>
-                            Loan Management System
-                        </p>
+            {/* Improved Admin Profile Section with better transitions */}
+            <div className="pt-12 px-2 mb-2">
+                <div 
+                    className="cursor-pointer relative"
+                    onClick={toUserProfile}
+                >
+                    <div className="bg-blue-50 rounded-lg border border-blue-100 shadow-sm p-2 flex items-center">
+                        <div className="bg-blue-500 rounded-full h-8 w-8 min-w-8 flex items-center justify-center text-white">
+                            <FontAwesomeIcon icon={faUser} className="text-xs" />
+                        </div>
+                        <div className={`absolute left-12 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                            <p className="font-medium text-xs text-blue-800 whitespace-nowrap">Hello Admin!</p>
+                            <p className="text-xs text-gray-600 whitespace-nowrap">Loan Management System</p>
+                        </div>
                     </div>
                 </div>
             </div>
-
             <nav className='h-auto flex flex-col justify-center p-4 items-center pb-20'>
-
 
                 <div className='pl-3 w-full'>
                     <p className={`text-gray-700 text-[14px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Insight</p>
@@ -148,7 +139,7 @@ const Sidebar: React.FC = () => {
                         <div
                             key={index}
                             onClick={() => (index === 5 ? handleLogout(index) : handleMenuClick(index))}
-                            className={`flex flex-row  cursor-pointer items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
+                            className={`flex flex-row cursor-pointer items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
             ${activeIndex === index ? 'bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white group'}
             ${toggle ? 'w-full h-11 pr-8' : ''}`}
                         >
@@ -180,7 +171,7 @@ const Sidebar: React.FC = () => {
                                     {index !== 5 ? (
                                         <Link to={item.url ?? "/"}>{item.text}</Link>
                                     ) : (
-                                        <span className=" cursor-pointer">Logout</span>
+                                        <span className="cursor-pointer">Logout</span>
                                     )}
                                 </p>
                             </div>
@@ -199,9 +190,6 @@ const Sidebar: React.FC = () => {
                 />
             )}
         </aside>
-
-
-
     );
 };
 

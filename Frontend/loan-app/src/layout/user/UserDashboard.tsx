@@ -30,7 +30,7 @@ const UserDashboard: React.FC<DashboardProps> = ({ data, activeFilters, setActiv
       icon: faCreditCard,
       color: "blue",
       borderColor: "border-blue-500",
-      bgColor: "bg-blue-100",
+      bgColor: "bg-blue-600",
     },
     {
       label: "Approved Loans",
@@ -38,7 +38,7 @@ const UserDashboard: React.FC<DashboardProps> = ({ data, activeFilters, setActiv
       icon: faCheckCircle,
       color: "green",
       borderColor: "border-green-500",
-      bgColor: "bg-green-100",
+      bgColor: "bg-green-500",
     },
     {
       label: "Pending Loans",
@@ -46,7 +46,7 @@ const UserDashboard: React.FC<DashboardProps> = ({ data, activeFilters, setActiv
       icon: faHourglassHalf,
       color: "yellow",
       borderColor: "border-yellow-500",
-      bgColor: "bg-yellow-100",
+      bgColor: "bg-yellow-500",
     },
     {
       label: "Total Amount",
@@ -54,7 +54,7 @@ const UserDashboard: React.FC<DashboardProps> = ({ data, activeFilters, setActiv
       icon: faMoneyBillWave,
       color: "purple",
       borderColor: "border-purple-500",
-      bgColor: "bg-purple-100",
+      bgColor: "bg-purple-600",
     },
   ];
  
@@ -97,7 +97,7 @@ const UserDashboard: React.FC<DashboardProps> = ({ data, activeFilters, setActiv
           >
             <div className="flex items-center">
               <div className={`p-5 ${stat.bgColor} rounded-full`}>
-                <FontAwesomeIcon icon={stat.icon} className={`text-2xl text-${stat.color}-500`} />
+                <FontAwesomeIcon icon={stat.icon} className={`text-2xl text-slate-100`} />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-semibold text-gray-500">{stat.label}</p>

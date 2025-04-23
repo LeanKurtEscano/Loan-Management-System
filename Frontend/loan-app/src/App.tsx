@@ -43,6 +43,7 @@ import ManageTransaction from './sections/admin/ManageTransaction';
 import Analytics from './sections/admin/Analytics';
 import ManageUsers from './sections/admin/ManageUsers';
 import User from './sections/admin/User';
+import Support from './sections/user/Support';
 function App() {
 
   return (
@@ -130,6 +131,7 @@ const Main: React.FC = () => {
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/support" element={<Support />} />
 
         <Route path="/email-verification" element={<EmailForm />} />
         <Route path="/otp-verify" element={<OtpVerification />} />

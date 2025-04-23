@@ -388,3 +388,12 @@ const User = () => {
 };
 
 export default User;
+
+
+
+{/* <div className='pl-3 w-full'>
+                    <p className={`text-gray-700 text-[14px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Insight</p>
+                </div>
+                 <div className='pl-3 w-full'>
+                    <p className={`text-gray-700 text-[14px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Operations</p>
+                </div>  */}
