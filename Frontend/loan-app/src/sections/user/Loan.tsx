@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
 import { LoadingAnimation } from '../../components/LoadingAnimation';
+import { PlusCircle, ChevronRight, DollarSign, Clock, Shield } from 'lucide-react';
 import PaymentStep1 from './PaymentsSteps/Step1';
 import PaymentStep2 from "./PaymentsSteps/Step2";
 import PaymentStep3 from "./PaymentsSteps/Step3";
@@ -26,7 +27,7 @@ const Loan: React.FC = () => {
 
 
   const queryClient = useQueryClient();
-
+  const [isHovering, setIsHovering] = useState(false);
 
 
   const { data: loanSubmissions, isLoading: isSubLoading, isError: isSubError } = useQuery(
@@ -187,14 +188,58 @@ const Loan: React.FC = () => {
           <>
 
             {applicationData.status !== 'Approved' && applicationData.is_active !== "true" && (
-              <div className="text-center bg-gray-100 p-8 rounded-2xl border-gray-200 shadow-md  w-[700px] transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:translate-y-2">
-                <FontAwesomeIcon icon={faPlusCircle} className="text-blue-500 text-5xl mb-4 animate-pulse" />
-                <h1 className="text-3xl font-bold mb-2">You don't have a Loan</h1>
-                <p className="text-gray-600 mb-4">Start your financial journey with us today!</p>
-                <button onClick={goApply} className="px-6 py-3 bg-blue-500 cursor-pointer text-white text-lg font-semibold rounded-lg hover:bg-blue-600 transition hover:scale-110">
-                  Apply for Loan Now
-                </button>
+            <div 
+            className="relative bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl border border-gray-200 shadow-lg w-full max-w-md mx-auto overflow-hidden"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-8 -mt-8 z-0"></div>
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-50 rounded-full -ml-6 -mb-6 z-0"></div>
+            
+            {/* Content container */}
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="flex justify-center mb-6">
+                <div className={`p-4 bg-blue-100 rounded-full text-blue-600 transform transition-all duration-500 ${isHovering ? 'scale-110' : ''}`}>
+                  <PlusCircle size={36} />
+                </div>
               </div>
+              
+              <h1 className="text-3xl font-bold text-center mb-3 text-gray-800">Ready for Your First Loan?</h1>
+              <p className="text-gray-600 text-center mb-6">Take the first step toward your financial goals today.</p>
+              
+              {/* Features */}
+              <div className="grid grid-cols-3 gap-2 mb-6">
+                <div className="flex flex-col items-center p-2 text-center">
+                  <DollarSign size={20} className="text-green-500 mb-1" />
+                  <span className="text-xs text-gray-600">Competitive Rates</span>
+                </div>
+                <div className="flex flex-col items-center p-2 text-center">
+                  <Clock size={20} className="text-blue-500 mb-1" />
+                  <span className="text-xs text-gray-600">Quick Approval</span>
+                </div>
+                <div className="flex flex-col items-center p-2 text-center">
+                  <Shield size={20} className="text-purple-500 mb-1" />
+                  <span className="text-xs text-gray-600">Secure Process</span>
+                </div>
+              </div>
+              
+              {/* CTA Button */}
+              <button 
+                onClick={goApply} 
+                className={`w-full cursor-pointer flex items-center justify-center py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg transition-all duration-300 ${isHovering ? 'shadow-lg shadow-blue-200 translate-y-0' : 'shadow-md shadow-blue-100 translate-y-1'}`}
+              >
+                Apply for Loan Now
+                <ChevronRight size={18} className="ml-2" />
+              </button>
+              
+              {/* Trust elements */}
+              <p className="text-xs text-gray-500 text-center mt-4">
+                Secure application • No hidden fees • 24/7 support
+              </p>
+            </div>
+          </div>
             )}
 
             {applicationData.status === 'Approved' && (
