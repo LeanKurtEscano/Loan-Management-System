@@ -5,7 +5,8 @@ import { RegisterData } from "../../constants/interfaces/authInterface";
 import { sendRegister } from "../../services/user/userAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { useMyContext } from "../../context/MyContext";
-
+import { validateEmail } from "../../utils/validation";
+import { validateUsername } from "../../utils/validation";
 import logo2 from '../../assets/tuloan3.png';
 
 const Register: React.FC = () => {
@@ -51,19 +52,21 @@ const Register: React.FC = () => {
     let valid = true;
     const newErrors = { username: "", email: "", password: "", confirmPassword: "" };
 
-    if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
+    // Validate username using your validation function
+    const usernameError = validateUsername(formData.username);
+    if (usernameError) {
+      newErrors.username = usernameError;
+      valid = false;
+    }
+
+    // Validate email using your validation function
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      newErrors.email = emailError;
       valid = false;
     }
     
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-      valid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-      valid = false;
-    }
-    
+    // Password validation
     if (!formData.password.trim()) {
       newErrors.password = "Password is required";
       valid = false;
@@ -72,6 +75,7 @@ const Register: React.FC = () => {
       valid = false;
     }
     
+    // Confirm password validation
     if (!formData.confirmPassword.trim()) {
       newErrors.confirmPassword = "Please confirm your password";
       valid = false;
@@ -129,6 +133,7 @@ const Register: React.FC = () => {
         </p>
         
         <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
+          {/* Username Field */}
           <div className="relative">
             <label htmlFor="username" className="font-medium text-gray-700 mb-1 block">
               Username
@@ -142,7 +147,7 @@ const Register: React.FC = () => {
                 type="text"
                 id="username"
                 name="username"
-                className="border border-gray-300 text-gray-800 pl-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                className={`border ${errors.username ? 'border-red-500' : 'border-gray-300'} text-gray-800 pl-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
                 placeholder="Type your username"
                 value={formData.username}
                 onChange={handleChange}
@@ -153,6 +158,7 @@ const Register: React.FC = () => {
             )}
           </div>
 
+          {/* Email Field */}
           <div className="relative">
             <label htmlFor="email" className="font-medium text-gray-700 mb-1 block">
               Email Address
@@ -166,7 +172,7 @@ const Register: React.FC = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="border border-gray-300 text-gray-800 pl-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                className={`border ${errors.email ? 'border-red-500' : 'border-gray-300'} text-gray-800 pl-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
                 placeholder="your.email@example.com"
                 value={formData.email}
                 onChange={handleChange}
@@ -177,6 +183,7 @@ const Register: React.FC = () => {
             )}
           </div>
 
+          {/* Password Field */}
           <div className="relative">
             <label htmlFor="password" className="font-medium text-gray-700 mb-1 block">
               Password
@@ -190,7 +197,7 @@ const Register: React.FC = () => {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                className="border border-gray-300 text-gray-800 pl-10 pr-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                className={`border ${errors.password ? 'border-red-500' : 'border-gray-300'} text-gray-800 pl-10 pr-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
                 placeholder="Create a secure password"
                 value={formData.password}
                 onChange={handleChange}
@@ -207,6 +214,7 @@ const Register: React.FC = () => {
             )}
           </div>
 
+          {/* Confirm Password Field */}
           <div className="relative">
             <label htmlFor="confirmPassword" className="font-medium text-gray-700 mb-1 block">
               Confirm Password
@@ -220,7 +228,7 @@ const Register: React.FC = () => {
                 type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"
                 name="confirmPassword"
-                className="border border-gray-300 text-gray-800 pl-10 pr-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                className={`border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} text-gray-800 pl-10 pr-10 rounded-lg p-3 w-full bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -240,7 +248,7 @@ const Register: React.FC = () => {
           <div className="mt-2">
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full cursor-pointer flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? (

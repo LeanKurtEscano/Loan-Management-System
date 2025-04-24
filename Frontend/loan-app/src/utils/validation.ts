@@ -1,8 +1,36 @@
 
 
+export const validateUsername = (username: string): string => {
+    // Trim leading/trailing spaces
+    if (!username.trim()) {
+        return "Username is required.";
+    }
 
+    username = username.trim();
 
+    // Length check
+    if (username.length < 3 || username.length > 20) {
+        return "Username must be between 3 and 20 characters long.";
+    }
 
+    // Allow letters, numbers, dots, underscores, hyphens, and spaces
+    const usernameRegex = /^[a-zA-Z0-9._\- ]+$/;
+    if (!usernameRegex.test(username)) {
+        return "Username can only contain letters, numbers, spaces, dots (.), underscores (_), or hyphens (-).";
+    }
+
+    // Disallow starting/ending with symbols or space
+    if (/^[ ._-]|[ ._-]$/.test(username)) {
+        return "Username cannot start or end with a space, dot (.), underscore (_), or hyphen (-).";
+    }
+
+    // Disallow repeated special symbols or spaces
+    if (/([ ._-])\1/.test(username)) {
+        return "Username cannot contain repeated spaces or symbols like '..', '__', or '--'.";
+    }
+
+    return "";
+};
 
 
 
