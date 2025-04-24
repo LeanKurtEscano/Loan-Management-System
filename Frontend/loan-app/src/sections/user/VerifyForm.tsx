@@ -5,11 +5,19 @@ import { faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { sendVerifyData } from "../../services/user/userData";
 import { VerifyData } from "../../constants/interfaces/authInterface";
 import { useQueryClient } from "@tanstack/react-query";
-
+import { validateFirstName, validateMiddleName, validateLastName, validateAddress, validatePostalCode } from "../../utils/validation";
+import { ValidationError } from "../../constants/interfaces/errorInterface";
 const VerifyForm = ({ onClose }: { onClose: () => void }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const queryClient = useQueryClient();
+  const [validationError, setValidationError] = useState<ValidationError>({
+    fnameError: "",
+    lnameError: "",
+    mnameError: "",
+    addressError: "",
+    postalError: "",
+  })
 
   const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
@@ -28,6 +36,40 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+
+    setValidationError({
+      fnameError: "",
+      lnameError: "",
+      mnameError: "",
+      addressError: "",
+      postalError: "",
+    });
+
+
+
+    const fnameError = validateFirstName(formData.firstName);
+    const lnameError = validateLastName(formData.lastName);
+    const mnameError = validateMiddleName(formData.middleName || "");
+    const addressError = validateAddress(formData.address);
+    const postalError = validatePostalCode(formData.postalCode || "");
+
+
+
+    setValidationError({
+      fnameError: fnameError,
+      lnameError: lnameError,
+      mnameError: mnameError,
+      addressError: addressError,
+      postalError: postalError
+    });
+
+    if (fnameError || lnameError || mnameError || addressError || postalError) {
+      return;
+
+    }
+
+
 
 
 
@@ -53,45 +95,51 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
     const today = new Date();
     let updatedFormData = { ...formData, [name]: value };
-
+  
     if (name === "birthdate") {
       const birthDate = new Date(value);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      const dayDiff = today.getDate() - birthDate.getDate();
-
-      // Adjust age if birthday hasn't happened this year
-      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-        age--;
-      }
-
-      if (age < 21) {
-        setErrors((prev) => ({ ...prev, birthdate: "You must be exactly 21 years or older." }));
+  
+      if (isNaN(birthDate.getTime())) {
+        // Invalid date format
+        setErrors((prev) => ({
+          ...prev,
+          birthdate: "Please enter a valid birthdate.",
+        }));
       } else {
-        setErrors((prev) => ({ ...prev, birthdate: "" }));
-        updatedFormData = { ...updatedFormData, age: age.toString() };
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+  
+        // Adjust age if birthday hasn't happened this year
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+          age--;
+        }
+      
+        if (age > 90) {
+          setErrors((prev) => ({
+            ...prev,
+            birthdate: "Age must not exceed 90 years.",
+          }));
+        } else if (age < 21) {
+          setErrors((prev) => ({
+            ...prev,
+            birthdate: "You must be at least 21 years old.",
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, birthdate: "" }));
+          updatedFormData = { ...updatedFormData, age: age.toString() };
+        }
       }
     }
-
+  
     setFormData(updatedFormData);
-
-    // Save to localStorage
     localStorage.setItem("formData", JSON.stringify(updatedFormData));
   };
+  
 
 
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFormData((prev) => ({ ...prev, image: file }));
-      setPreview(URL.createObjectURL(file));
-      e.target.value = "";
-    }
-  };
   useEffect(() => {
     const savedData = localStorage.getItem("formData");
     if (savedData) {
@@ -171,6 +219,12 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
             {errors.lastName && <p className="absolute text-red-500 text-xs mt-1">{errors.lastName}</p>}
           </div>
         </div>
+        
+        {validationError.fnameError && <p className=" text-red-500 text-xs mb-0 mt-1">{validationError.fnameError}</p>}
+        
+        {validationError.mnameError && <p className=" text-red-500 text-xs mb-0 mt-1">{validationError.mnameError}</p>}
+
+        {validationError.lnameError && <p className=" text-red-500 text-xs mt-1">{validationError.lnameError}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="relative">
@@ -255,9 +309,11 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
+
+      {validationError.addressError && <p className=" text-red-500 text-xs mt-1">{validationError.addressError}</p>}
           </div>
 
-          <div className="relative">
+          <div className="relative flex flex-col">
             <label htmlFor="postalCode" className="block text-gray-700 font-medium">Postal Code</label>
             <input
               value={formData.postalCode}
@@ -269,6 +325,8 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
+
+         {validationError.postalError && <p className=" text-red-500 text-xs mt-1">{validationError.postalError}</p>}
           </div>
 
         </div>
