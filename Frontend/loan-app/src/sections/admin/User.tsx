@@ -275,15 +275,10 @@ const User = () => {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {user.loan_applications.map((application, i) => (
-                          <motion.tr 
+                          <tr 
                             key={application.id}
-                            custom={i}
-                            variants={tableRowVariants}
-                            initial="hidden"
-                            animate="visible"
-                            whileHover={{ backgroundColor: "rgba(249, 250, 251, 1)" }}
                             onClick={() => handleRowClick(application.id)}
-                            className="cursor-pointer"
+                            className="cursor-pointer hover:bg-gray-50 transition-colors"
                           >
                             <td className="px-3 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                               {new Date(application.created_at).toLocaleDateString()}
@@ -339,7 +334,7 @@ const User = () => {
                                 'None'
                               )}
                             </td>
-                          </motion.tr>
+                          </tr>
                         ))}
                       </tbody>
                     </table>
@@ -388,7 +383,6 @@ const User = () => {
 };
 
 export default User;
-
 
 
 {/* <div className='pl-3 w-full'>

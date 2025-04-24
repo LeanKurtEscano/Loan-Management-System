@@ -1,43 +1,110 @@
 import React, { useState, useEffect } from "react";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
+import { validateAmountSpent } from "../../../utils/validation";
 
 const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
   const { loanApplication, setLoanApplication } = useMyContext();
   const [isNextDisabled, setIsNextDisabled] = useState(true);
-
+  const [errors, setErrors] = useState({
+    monthlyIncome: "",
+    moneyReceive: "",
+    totalSpend: ""
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string) => {
-    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    
+    // Update the loan application state
+    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [field]: value }));
+    
+    // Validate numeric fields
+    if (e.target.type === "number" || field === "moneyReceive") {
+      // Skip validation for "N/A" in moneyReceive field
+      if (field === "moneyReceive" && value === "N/A") {
+        setErrors(prev => ({ ...prev, [field]: "" }));
+        return;
+      }
+      
+      const errorMessage = validateAmountSpent(value);
+      setErrors(prev => ({ ...prev, [field]: errorMessage }));
+    }
   };
-
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
-
-    setLoanApplication((prev: LoanApplicationDetails) => ({
-      ...prev,
-      otherSourcesOfIncome: checked
-        ? [...(prev.otherSourcesOfIncome || []), value]
-        : prev.otherSourcesOfIncome?.filter((source) => source !== value),
-    }));
+    
+    // Create a copy of the current sources of income
+    let updatedSources = [...(loanApplication.otherSourcesOfIncome || [])];
+    
+    if (value === "None" && checked) {
+      // If "None" is checked, clear all other sources and only include "None"
+      updatedSources = ["None"];
+      
+      // Automatically set related fields when None is selected
+      setLoanApplication((prev: LoanApplicationDetails) => ({
+        ...prev,
+        otherSourcesOfIncome: updatedSources,
+        incomeFrequency: "None",
+        moneyReceive: "N/A",
+        primarySource: "No"  // Automatically set to "No"
+      }));
+      
+      // Clear any error for moneyReceive since it's set to N/A
+      setErrors(prev => ({ ...prev, moneyReceive: "" }));
+    } else if (value === "None" && !checked) {
+      // If "None" is unchecked, just remove it
+      updatedSources = updatedSources.filter(source => source !== "None");
+      
+      setLoanApplication((prev: LoanApplicationDetails) => ({
+        ...prev,
+        otherSourcesOfIncome: updatedSources,
+        // Reset values if needed
+        incomeFrequency: "",
+        moneyReceive: ""
+      }));
+    } else if (checked) {
+      // If any other option is checked, remove "None" and add the selected option
+      updatedSources = updatedSources.filter(source => source !== "None");
+      updatedSources.push(value);
+      
+      setLoanApplication((prev: LoanApplicationDetails) => ({
+        ...prev,
+        otherSourcesOfIncome: updatedSources
+      }));
+    } else {
+      // If any other option is unchecked, just remove it
+      updatedSources = updatedSources.filter(source => source !== value);
+      
+      setLoanApplication((prev: LoanApplicationDetails) => ({
+        ...prev,
+        otherSourcesOfIncome: updatedSources
+      }));
+    }
   };
 
-
-
   useEffect(() => {
-    const { educationLevel, employmentStatus, monthlyIncome, incomeVariation, otherIncomeSources, incomeFrequency } =
+    const { educationLevel, employmentStatus, monthlyIncome, incomeVariation, otherSourcesOfIncome, incomeFrequency, totalSpend } =
       loanApplication;
+    
+    // Check for validation errors
+    const hasErrors = Object.values(errors).some(error => error !== "");
+    
     setIsNextDisabled(
-      !(
+      hasErrors || !(
         educationLevel &&
         employmentStatus &&
         monthlyIncome &&
         incomeVariation &&
-        (otherIncomeSources?.length > 0 || incomeFrequency === "None" || incomeFrequency)
+        totalSpend &&
+        (otherSourcesOfIncome?.length > 0 || incomeFrequency === "None" || incomeFrequency)
       )
     );
-  }, [loanApplication]);
+  }, [loanApplication, errors]);
+
+  // Check if "None" is selected or if any other option is selected
+  const isNoneSelected = loanApplication.otherSourcesOfIncome?.includes("None");
+  const isAnyOtherSelected = loanApplication.otherSourcesOfIncome?.some(source => source !== "None");
 
   return (
     <div className="flex flex-col items-center min-h-screen">
@@ -87,8 +154,11 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             value={loanApplication.monthlyIncome || ""}
             onChange={(e) => handleInputChange(e, "monthlyIncome")}
             placeholder="Enter your income in PHP"
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className={`w-full p-4 border rounded-lg text-lg ${errors.monthlyIncome ? "border-red-500 bg-red-50" : "bg-gray-50 text-gray-700"}`}
           />
+          {errors.monthlyIncome && (
+            <p className="text-red-500 mt-1">{errors.monthlyIncome}</p>
+          )}
         </div>
 
         {/* Income Variation Dropdown */}
@@ -125,8 +195,6 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           </select>
         </div>
 
-
-        {/* Additional Income Sources (Checkboxes) */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             Do you have other sources of income aside from your employment or business? (Check all that apply)
@@ -137,18 +205,22 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
                 <input
                   type="checkbox"
                   value={source}
-                  checked={loanApplication.otherSourcesOfIncome?.includes(source)} // ✅ Keep checked on next step
+                  checked={loanApplication.otherSourcesOfIncome?.includes(source)}
                   onChange={handleCheckboxChange}
+                  disabled={
+                    (source === "None" && isAnyOtherSelected) || 
+                    (source !== "None" && isNoneSelected)
+                  }
                   className="w-5 h-5"
                 />
-                <span className="text-gray-700 text-lg">{source}</span>
+                <span className={`text-lg ${(source === "None" && isAnyOtherSelected) || (source !== "None" && isNoneSelected) ? "text-gray-400" : "text-gray-700"}`}>
+                  {source}
+                </span>
               </div>
             )
           )}
-
         </div>
 
-        {/* Income Frequency Dropdown */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             How frequently do you receive money from other sources on average? (Select "None" if you have no other income)
@@ -156,7 +228,8 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.incomeFrequency || ""}
             onChange={(e) => handleInputChange(e, "incomeFrequency")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className={`w-full p-4 border rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
+            disabled={isNoneSelected}
           >
             <option value="">Select Frequency</option>
             <option value="Once a year">Once a year</option>
@@ -175,7 +248,8 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.primarySource || ""}
             onChange={(e) => handleInputChange(e, "primarySource")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className={`w-full p-4 border rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
+            disabled={isNoneSelected}
           >
             <option value="">Select</option>
             <option value="Yes">Yes</option>
@@ -183,22 +257,26 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           </select>
         </div>
 
-        {/* Money from Other Source of Income */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             How much money do you receive from other sources of income on average? (Type N/A if you have no other source of income)
           </label>
           <input
             type="text"
-            value={loanApplication.moneyReceive || ""} // Correct spelling here
-            onChange={(e) => handleInputChange(e, "moneyReceive")} // Correct spelling here too
+            value={loanApplication.moneyReceive || ""} 
+            onChange={(e) => handleInputChange(e, "moneyReceive")} 
             placeholder="Enter amount or N/A"
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className={`w-full p-4 border rounded-lg text-lg ${
+              isNoneSelected ? "bg-gray-200 text-gray-500" : 
+              errors.moneyReceive ? "border-red-500 bg-red-50" : "bg-gray-50 text-gray-700"
+            }`}
+            disabled={isNoneSelected}
           />
+          {!isNoneSelected && errors.moneyReceive && (
+            <p className="text-red-500 mt-1">{errors.moneyReceive}</p>
+          )}
         </div>
 
-
-        {/* Total Spending in the Last 30 Days */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             How much in total did you spend on basic needs, rent, bills, and existing loan (if you have) in the last 30 days?
@@ -208,26 +286,39 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             value={loanApplication.totalSpend || ""}
             onChange={(e) => handleInputChange(e, "totalSpend")}
             placeholder="Enter your total spending in PHP"
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className={`w-full p-4 border rounded-lg text-lg ${
+              errors.totalSpend ? "border-red-500 bg-red-50" : "bg-gray-50 text-gray-700"
+            }`}
           />
+          {errors.totalSpend && (
+            <p className="text-red-500 mt-1">{errors.totalSpend}</p>
+          )}
         </div>
 
-
-
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center mt-6">
-          <button onClick={prevStep} className="py-3 px-8 bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition">
-            Back
-          </button>
+        <div className="flex flex-col mt-6">
+          <div className="flex justify-between items-center">
+            <button onClick={prevStep} className="py-3 px-8 bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition">
+              Back
+            </button>
 
-          <button
-            onClick={nextStep}
-            disabled={isNextDisabled}
-            className={`py-3 px-8 font-medium text-lg rounded-lg transition ${isNextDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            <button
+              onClick={nextStep}
+              disabled={isNextDisabled}
+              className={`py-3 px-8 font-medium text-lg rounded-lg transition ${
+                isNextDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
               }`}
-          >
-            Next
-          </button>
+            >
+              Next
+            </button>
+          </div>
+          
+          {/* Form completion message */}
+          {isNextDisabled && (
+            <p className="text-red-500 text-center mt-4 font-medium">
+              Please fill out all required fields and fix any errors to proceed.
+            </p>
+          )}
         </div>
       </div>
     </div>

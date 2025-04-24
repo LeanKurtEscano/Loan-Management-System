@@ -231,9 +231,9 @@ const Verification = () => {
           {/* Action buttons */}
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
             {data?.status.trim() === "pending" || data?.status.trim() === "Rejected" ? (
-              <div className="flex flex-col sm:flex-row gap-3 justify-center sm:justify-end">
+              <div className="flex  flex-col sm:flex-row gap-3 justify-center sm:justify-end">
                 <motion.button
-                  className="bg-white border border-red-500 text-red-500 font-medium px-6 py-2 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                  className="bg-white cursor-pointer border border-red-500 text-red-500 font-medium px-6 py-2 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => openReject(data?.id)}
@@ -242,7 +242,7 @@ const Verification = () => {
                 </motion.button>
                 
                 <motion.button
-                  className="bg-blue-500 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center gap-2"
+                  className="bg-blue-500 cursor-pointer text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setIsModalOpen(true)}

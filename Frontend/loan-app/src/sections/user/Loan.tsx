@@ -206,7 +206,7 @@ const Loan: React.FC = () => {
                 </div>
               </div>
               
-              <h1 className="text-3xl font-bold text-center mb-3 text-gray-800">Ready for Your First Loan?</h1>
+              <h1 className="text-3xl font-bold text-center mb-3 text-gray-800">Ready for Your Loan?</h1>
               <p className="text-gray-600 text-center mb-6">Take the first step toward your financial goals today.</p>
               
               {/* Features */}

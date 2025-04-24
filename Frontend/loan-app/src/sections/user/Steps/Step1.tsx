@@ -144,11 +144,17 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
 
         {/* Next Button */}
         <button
+          disabled={!loanApplication.idType || !loanApplication.front || !loanApplication.back}
           onClick={handleNext}
-          className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+          className={`w-full py-3 font-medium rounded-lg transition 
+    ${!loanApplication.idType || !loanApplication.front || !loanApplication.back
+              ? "bg-gray-400 cursor-not-allowed text-white"
+              : "bg-blue-600 hover:bg-blue-700 cursor-pointer text-white"
+            }`}
         >
           Next
         </button>
+
       </div>
     </div>
   );
