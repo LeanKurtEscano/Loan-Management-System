@@ -215,6 +215,35 @@ export const validateUsername = (username: string): string => {
 };
 
 
+export const validateExplanation = (text: string): string => {
+    // Trim input
+    if (!text.trim()) {
+        return "Explanation is required.";
+    }
+
+    text = text.trim();
+
+    // Minimum and maximum length
+    if (text.length < 10) {
+        return "Explanation must be at least 10 characters long.";
+    }
+
+    if (text.length > 1000) {
+        return "Explanation must be under 1000 characters.";
+    }
+
+    // Disallow all-numeric inputs
+    if (/^\d+$/.test(text)) {
+        return "Explanation cannot consist of only numbers.";
+    }
+
+    // Optional: Prevent repeated punctuation marks (e.g., "!!!", "....")
+    if (/([.?!,])\1{2,}/.test(text)) {
+        return "Explanation contains too many repeated punctuation marks.";
+    }
+
+    return "";
+};
 
 
 
@@ -342,3 +371,41 @@ export const validateAmountSpent = (amount: string): string => {
     
     return "";
 };
+
+
+
+export const validateLoanAmount = (amount: number): string => {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+      return "Loan amount is required.";
+    }
+  
+    if (amount <= 0) {
+      return "Loan amount must be greater than 0.";
+    }
+  
+  
+  
+    return "";
+  };
+  
+  export const validateInterest = (interest: number): string => {
+    if (interest === null || interest === undefined || isNaN(interest)) {
+      return "Interest rate is required.";
+    }
+  
+    if (interest <= 0) {
+      return "Interest rate must be greater than 0%.";
+    }
+  
+    if (interest > 100) {
+      return "Interest rate must not exceed 100%.";
+    }
+  
+    // Optional: limit to 2 decimal places
+    if (!/^\d+(\.\d{1,2})?$/.test(interest.toString())) {
+      return "Interest rate must have up to 2 decimal places.";
+    }
+  
+    return "";
+  };
+  

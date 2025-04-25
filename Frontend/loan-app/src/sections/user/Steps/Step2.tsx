@@ -86,8 +86,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
   useEffect(() => {
     const { educationLevel, employmentStatus, monthlyIncome, incomeVariation, otherSourcesOfIncome, incomeFrequency, totalSpend } =
       loanApplication;
-    
-    // Check for validation errors
+
     const hasErrors = Object.values(errors).some(error => error !== "");
     
     setIsNextDisabled(
@@ -102,7 +101,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
     );
   }, [loanApplication, errors]);
 
-  // Check if "None" is selected or if any other option is selected
+  
   const isNoneSelected = loanApplication.otherSourcesOfIncome?.includes("None");
   const isAnyOtherSelected = loanApplication.otherSourcesOfIncome?.some(source => source !== "None");
 
@@ -111,7 +110,6 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
       <div className="bg-white shadow-lg rounded-lg p-10 w-full max-w-2xl border-gray-200 border-2 space-y-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Education, Employment, and Income</h2>
 
-        {/* Education Level Dropdown */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             Which of the following describes your level of education?
@@ -130,7 +128,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           </select>
         </div>
 
-        {/* Employment Status Dropdown */}
+       
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">Employment Status</label>
           <select
@@ -144,7 +142,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           </select>
         </div>
 
-        {/* Monthly Income Input */}
+      
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             How much money in total did you earn in the last 30 days (in PHP)?
@@ -161,7 +159,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           )}
         </div>
 
-        {/* Income Variation Dropdown */}
+       
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             How much does your pay change from one month to the next?

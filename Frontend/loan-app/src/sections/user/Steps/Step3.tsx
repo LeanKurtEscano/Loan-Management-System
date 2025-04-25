@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanApplicationDetails } from "../../../constants/interfaces/loanInterface";
+import { validateExplanation } from "../../../utils/validation";
 
 const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => {
   const { loanApplication, setLoanApplication } = useMyContext();
   const [isNextDisabled, setIsNextDisabled] = useState(true);
-
+  const [explanationError, setExplanationError] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, field: string) => {
-    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    
+    if (field === "explanation") {
+      const textError = validateExplanation(value);
+      setExplanationError(textError || "");
+    }
+    
+    setLoanApplication((prev: LoanApplicationDetails) => ({ ...prev, [field]: value }));
   };
 
- 
   useEffect(() => {
     const { purpose, explanation, outstanding } = loanApplication;
-    setIsNextDisabled(!(purpose && explanation && outstanding));
-  }, [loanApplication]);
+    setIsNextDisabled(!(purpose && explanation && outstanding) || !!explanationError);
+  }, [loanApplication, explanationError]);
 
   return (
     <div className="flex flex-col items-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg p-10 w-full max-w-2xl border-gray-200 border-2 space-y-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Loan Purpose and Details</h2>
 
-        {/* Loan Purpose Dropdown */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">What would you like to use your cash for?</label>
           <select
@@ -40,7 +46,6 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           </select>
         </div>
 
-        {/* Explanation Textarea */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">
             Please describe how you will use the money in more detail
@@ -50,11 +55,15 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "explanation")}
             placeholder="Explain how you will use the money..."
             rows={4}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className={`w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg ${
+              explanationError ? "border-red-500" : ""
+            }`}
           />
+          {explanationError && (
+            <p className="text-red-500 text-sm mt-1">{explanationError}</p>
+          )}
         </div>
 
-        {/* Outstanding Loans Yes/No */}
         <div className="w-full space-y-2">
           <label className="block text-gray-700 font-medium text-lg">Do you have any outstanding loans?</label>
           <div className="flex space-x-4">
@@ -82,7 +91,6 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           </div>
         </div>
 
-      
         <div className="flex justify-between items-center mt-6">
           <button
             onClick={prevStep}
@@ -103,6 +111,12 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             Next
           </button>
         </div>
+        
+        {isNextDisabled && (
+          <p className="text-red-500 text-center mt-4 font-medium">
+            Please fill out all required fields and fix any errors to proceed.
+          </p>
+        )}
       </div>
     </div>
   );

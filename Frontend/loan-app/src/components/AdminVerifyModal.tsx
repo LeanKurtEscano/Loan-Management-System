@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import { useMyContext } from "../context/MyContext";
 import { AdminApprove } from "../constants/interfaces/loanInterface";
+import { validateLoanAmount, validateInterest } from "../utils/validation";
+import { useState, useEffect } from "react";
+
 interface ModalProps {
   isOpen: boolean;
   title?: string;
@@ -12,11 +15,48 @@ interface ModalProps {
 
 const AdminVerifyModal: React.FC<ModalProps> = ({ isOpen, title, message, onClose, onConfirm, loading }) => {
   if (!isOpen) return null;
+  
   const { approveLoan, setApproveLoan } = useMyContext();
+  const [errors, setErrors] = useState({
+    loanAmount: "",
+    interest: ""
+  });
+  const [isFormValid, setIsFormValid] = useState(false);
+
+
+  useEffect(() => {
+    validateForm();
+  }, [approveLoan.loanAmount, approveLoan.interest]);
+
+  const validateForm = () => {
+    const loanAmountError = validateLoanAmount(approveLoan.loanAmount);
+    const interestError = validateInterest(approveLoan.interest);
+    
+    setErrors({
+      loanAmount: loanAmountError || "",
+      interest: interestError || ""
+    });
+
+    
+    const hasValues = approveLoan.loanAmount > 0 && approveLoan.interest > 0;
+    const hasNoErrors = !loanAmountError && !interestError;
+    setIsFormValid(hasValues && hasNoErrors);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setApproveLoan((prev:AdminApprove) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    const numValue = parseFloat(value) || 0;
+    
+    setApproveLoan((prev: AdminApprove) => ({ ...prev, [name]: numValue }));
+    
+    // Validate the current field
+    if (name === "loanAmount") {
+      const error = validateLoanAmount(numValue);
+      setErrors(prev => ({ ...prev, loanAmount: error || "" }));
+    } else if (name === "interest") {
+      const error = validateInterest(numValue);
+      setErrors(prev => ({ ...prev, interest: error || "" }));
+    }
   };
 
   return (
@@ -35,19 +75,25 @@ const AdminVerifyModal: React.FC<ModalProps> = ({ isOpen, title, message, onClos
           <input
             type="number"
             name="loanAmount"
-            value={approveLoan.loanAmount}
+            value={approveLoan.loanAmount || ""}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-2"
+            className={`w-full p-2 border ${errors.loanAmount ? 'border-red-500' : 'border-gray-300'} rounded-md mb-1`}
           />
+          {errors.loanAmount && (
+            <p className="text-red-500 text-xs mb-2">{errors.loanAmount}</p>
+          )}
 
-          <label className="block text-gray-700 text-sm font-bold mb-2">Interest Rate (%)</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2 mt-3">Interest Rate (%)</label>
           <input
             type="number"
             name="interest"
-            value={approveLoan.interest}
+            value={approveLoan.interest || ""}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+            className={`w-full p-2 border ${errors.interest ? 'border-red-500' : 'border-gray-300'} rounded-md mb-1`}
           />
+          {errors.interest && (
+            <p className="text-red-500 text-xs mb-2">{errors.interest}</p>
+          )}
         </div>
 
         <div className="mt-4 flex justify-end space-x-3">
@@ -58,8 +104,9 @@ const AdminVerifyModal: React.FC<ModalProps> = ({ isOpen, title, message, onClos
             Cancel
           </button>
           <button
-            className="px-4 py-2 flex-center flex items-center cursor-pointer bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            className={`px-4 py-2 flex-center flex items-center ${!isFormValid ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'} text-white rounded-md transition`}
             onClick={onConfirm}
+            disabled={!isFormValid || loading}
           >
             {loading ? (
               <>
