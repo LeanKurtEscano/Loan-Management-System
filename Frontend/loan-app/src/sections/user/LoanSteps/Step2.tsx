@@ -36,7 +36,7 @@ const Step2 = ({
       return newSubmission;
     });
     
-    // Validate loan amount when changed
+
     if (numericValue > maxLoanAmount) {
       setError(`Amount exceeds your eligible loan amount of ${formatCurrency(maxLoanAmount)} PHP`);
     }

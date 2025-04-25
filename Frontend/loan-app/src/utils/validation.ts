@@ -409,3 +409,30 @@ export const validateLoanAmount = (amount: number): string => {
     return "";
   };
   
+
+
+  export const validateRepayDate = (date: string): string => {
+    // Check if date is provided
+    if (!date.trim()) {
+      return "Repayment date is required.";
+    }
+  
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize to midnight
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 180); // 6 months from today
+  
+    // Check if the selected date is valid
+    if (isNaN(selectedDate.getTime())) {
+      return "Invalid date format.";
+    }
+  
+    // Check if the selected date is at least 6 months ahead
+    if (selectedDate < minDate) {
+      return "Repayment date must be at least 6 months from today.";
+    }
+  
+    return "";
+  };
+  
