@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarCheck, faChevronDown, faBars, faUser, faSignOutAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faCalendarCheck, 
+  faChevronDown, 
+  faBars, 
+  faUser, 
+  faSignOutAlt, 
+  faTimes,
+  faBell // Added bell icon for notifications
+} from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../context/MyContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../../services/user/userAuth";
@@ -16,7 +24,7 @@ const menuItems = [
     { name: "My Loan", path: "/user/my-loan" },
     { name: "Apply for Loan", path: "/user/apply-loan" },
 ];
-
+import NotificationBell from "../../components/NotificationBell";
 const NavBar: React.FC = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -25,7 +33,14 @@ const NavBar: React.FC = () => {
     const { userDetails, isLoading, isError, error } = useUserDetails();
     const queryClient = useQueryClient();
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const notificationRef = useRef<HTMLDivElement>(null);
 
+
+    // Added state for notification dropdown
+    const [showNotifications, setShowNotifications] = useState(false);
+    // Placeholder for notification count - will be replaced with real data in future
+    const [notificationCount, setNotificationCount] = useState(2);
+    
     const [menuOpen, setMenuOpen] = useState(false);
     const toggleDropdown = () => setShowDropdown(!showDropdown);
     const nav = useNavigate();
@@ -42,6 +57,10 @@ const NavBar: React.FC = () => {
 
     const handleClose = () => {
         setToggleLog(false);
+    };
+
+    const toggleNotifications = () => {
+        setShowNotifications(!showNotifications);
     };
 
     const handleLogout = async () => {
@@ -71,6 +90,9 @@ const NavBar: React.FC = () => {
                 setShowDropdown(false);
                 setMenuOpen(false);
             }
+            if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+                setShowNotifications(false);
+            }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -99,8 +121,10 @@ const NavBar: React.FC = () => {
                 <div className="flex items-center space-x-4 md:order-2">
                     {isAuthenticated ? (
                         <>
+                        <NotificationBell id={userDetails?.id}/>
+
                             <div className="hidden md:block">
-                                {userDetails?.is_verified === "not applied" || userDetails?.is_verified === "pending" ? (
+                                {userDetails?.is_verified === "not applied" || userDetails?.is_verified === "pending"  || userDetails?.is_verified === "rejected"? (
                                     <div
                                         onClick={showAccount}
                                         className="font-medium rounded-lg hover:bg-gray-200 text-sm px-4 py-2 text-center transition-all duration-300 ease-in-out cursor-pointer"
@@ -163,7 +187,7 @@ const NavBar: React.FC = () => {
 
                 {/* Desktop Navigation Menu */}
                 <div className="hidden  items-center justify-between w-full md:flex md:w-auto md:order-1">
-                    <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                    <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border pl-20 text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                         {["Home", "Support", "Loans", ...(userDetails?.is_verified?.trim() !== "verified" ? [] : ["Menu"])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
@@ -260,6 +284,26 @@ const NavBar: React.FC = () => {
                                     </li>
                                 )}
                                 
+                                {/* Mobile Notifications */}
+                                {isAuthenticated && (
+                                    <li>
+                                        <Link 
+                                            to="/notifications"
+                                            className="block py-3 px-4 font-medium text-gray-700 hover:bg-gray-100 rounded-lg flex items-center justify-between"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            <div className="flex items-center">
+                                                <FontAwesomeIcon icon={faBell} className="mr-2" />
+                                                Notifications
+                                            </div>
+                                            {notificationCount > 0 && (
+                                                <span className="bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                                    {notificationCount > 9 ? '9+' : notificationCount}
+                                                </span>
+                                            )}
+                                        </Link>
+                                    </li>
+                                )}
                                
                                 {isAuthenticated ? (
                                     <>

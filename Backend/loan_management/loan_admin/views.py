@@ -22,9 +22,10 @@ from .serializers import VerificationRequestsSerializer
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from user.models import CustomUser
+from user.models import CustomUser,Notification
 
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def remove_verification(request):
@@ -237,40 +238,62 @@ def reset_password_admin_email(request):
 @permission_classes([IsAuthenticated])
 def reject_user_verification(request):
     try:
-        
-        
         id = request.data.get("id")
         subject_heading = request.data.get("subject")
-        
         desc = request.data.get("description")
-        
-        loan_app = VerificationRequests.objects.get(id = int(id))
+
+        loan_app = VerificationRequests.objects.get(id=int(id))
         loan_app.status = "Rejected"
         loan_app.save()
-        user = loan_app.user
         
+        user = loan_app.user
         user.is_verified = "rejected"
         user.save()
+
+       
         subject = "Your Account Verification Was Unsuccessful"
         html_content = render_to_string("email/rejection_email.html", {
-            "subject":subject_heading,
+            "subject": subject_heading,
             "user_name": user.username,
             "description": desc
         })
         plain_message = strip_tags(html_content)
 
-    
         email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
 
+    
+        notification_message = f"Your verification was rejected: {subject_heading}"
 
-        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
-        
-        
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False ,
+            status = "Rejected"
+        )
+
+       
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+             f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                'id': notification.id,
+                'message': notification.message,
+                'is_read': notification.is_read,
+                'created_at': str(notification.created_at),
+               
+            }
+            }
+        )
+
+        return Response({"success": "Loan Application has been rejected"}, status=status.HTTP_200_OK)
+
     except Exception as e:
         print(f"{e}")
-        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
 

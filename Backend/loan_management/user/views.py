@@ -8,9 +8,9 @@ from rest_framework import status
 from django.contrib.auth import authenticate, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
-from .models import CustomUser, VerificationRequests
+from .models import CustomUser, VerificationRequests,Notification
 from .email.emails import send_otp_to_email
-from .serializers import CustomUserSerializer,VerificationRequestsSerializer
+from .serializers import CustomUserSerializer,VerificationRequestsSerializer,NotificationSerializer
 import cloudinary.uploader
 from loan.models import LoanApplication
 @api_view(["POST"])
@@ -352,6 +352,26 @@ def get_verify_details(request):
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_notifications(request):
+    try:
+        user = request.user.id
+        
+      
+        request_data = Notification.objects.filter(user=user).order_by('-created_at')
+  
+        serializer = NotificationSerializer(request_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"Error: {e}")
         return Response(

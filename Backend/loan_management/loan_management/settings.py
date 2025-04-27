@@ -51,9 +51,19 @@ INSTALLED_APPS = [
     'cloudinary',
     'loan_admin',
     'loan',
+    'notifications',
+    "channels",
     'cloudinary_storage',
     'disbursement'
 ]
+
+ASGI_APPLICATION = "loan_management.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    },
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 

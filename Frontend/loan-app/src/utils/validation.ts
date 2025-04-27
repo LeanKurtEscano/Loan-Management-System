@@ -436,3 +436,31 @@ export const validateLoanAmount = (amount: number): string => {
     return "";
   };
   
+
+  export const validateContactNumber = (contactNumber: string): string => {
+    
+    const regex = /^09\d{9}$/; 
+
+    if (!contactNumber) return "Contact number is required.";
+
+    const trimmedContactNumber = contactNumber.trim();
+    
+
+    if (/[^0-9]/.test(trimmedContactNumber)) {
+        return "Contact number must not contain letters or special characters.";
+    }
+  
+    if (!regex.test(trimmedContactNumber)) {
+        return "Contact number must be a valid Philippine mobile number.";
+    }
+
+   
+    if (/(\d)\1{3,}/.test(trimmedContactNumber)) {
+        return "Contact number must not contain 4 or more repeating digits.";
+    }
+
+   
+ 
+
+    return "";
+};

@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCloudUploadAlt, faTimesCircle, faUpload } from "@fortawesome/free-solid-svg-icons";
+import React, { useState, useRef } from "react";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
+
 const Step4 = ({
   prevStep,
   nextStep,
@@ -10,98 +9,177 @@ const Step4 = ({
   prevStep: () => void;
   nextStep: () => void;
 }) => {
-
   const { loanSubmission, setLoanSubmission } = useMyContext();
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setLoanSubmission((prev: LoanSubmission) => ({ ...prev, idSelfie: file }))
+      const file = e.target.files[0];
+      setLoanSubmission((prev: LoanSubmission) => ({ ...prev, idSelfie: file }));
       e.target.value = "";
-
     }
   };
 
-  const handleContinue = () => {
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
-    nextStep();
-  }
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      setLoanSubmission((prev: LoanSubmission) => ({ ...prev, idSelfie: file }));
+    }
+  };
 
-const handleRemoveFile = () => {
-  setLoanSubmission((prev: LoanSubmission) => ({ ...prev, idSelfie: null }))
-};
+  const handleBoxClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-return (
-  <div className="flex h-auto pb-9 items-center min-h-screen">
-    <div className="bg-white p-10 border border-gray-300 rounded-lg shadow-lg w-[500px] text-center">
-      {/* Header */}
+  const handleRemoveFile = () => {
+    setLoanSubmission((prev: LoanSubmission) => ({ ...prev, idSelfie: null }));
+  };
 
-      <h3 className="text-xl font-semibold mb-2">SELFIE WITH YOUR ID</h3>
-      <p className="text-base mb-6 text-gray-600">
-        You're almost done with your application! To verify your identity,
-        please take a selfie while holding your ID (front side visible).
-      </p>
-
-      <div className="relative">
-        <label htmlFor="fileUploadBack" className="block text-gray-700 font-medium mb-2">
-         
-        </label>
-        <div className="border-2 border-dashed border-gray-300 p-6 rounded-lg w-full flex flex-col items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
-          <label htmlFor="fileUploadBack" className="flex flex-col items-center cursor-pointer">
-            <FontAwesomeIcon icon={faUpload} className="text-gray-500 text-2xl mb-2" />
-            <p className="text-gray-600 font-medium">Drag & Drop or Click to Upload</p>
-            <span className="text-xs text-gray-500">(JPG, PNG, or PDF - Max 5MB)</span>
-          </label>
-          <input
-            id="fileUploadBack"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold text-center text-gray-800">
+            Selfie with Your ID
+          </h3>
+          <div className="w-16 h-1 bg-blue-500 mx-auto mt-2 mb-4 rounded-full"></div>
+          <p className="text-gray-600 text-center">
+            Take a selfie while holding your ID with the front side clearly visible
+          </p>
         </div>
-      </div>
 
-      {loanSubmission.idSelfie && (
-        <div className="relative w-full mt-2">
-          <img
-            src={URL.createObjectURL(loanSubmission.idSelfie)}
-            alt="Back ID"
-            className="w-full h-48 object-cover rounded-lg shadow"
-          />
-          <button
-            onClick={handleRemoveFile}
-            className="absolute top-2 right-2 bg-red-500 cursor-pointer text-white rounded-full px-1 hover:bg-red-600 transition"
+        {!loanSubmission.idSelfie ? (
+          <div
+            onClick={handleBoxClick}
+            className={`border-2 border-dashed rounded-lg p-8 transition-all cursor-pointer ${
+              isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50"
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
-            <FontAwesomeIcon icon={faTimesCircle} />
+            <div className="flex flex-col items-center">
+              <div className="mb-4 p-4 bg-blue-100 rounded-full">
+                <svg
+                  className="w-10 h-10 text-blue-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  ></path>
+                </svg>
+              </div>
+              <div className="text-center">
+                <span className="block text-blue-500 font-medium mb-1">
+                  Drag & drop or click to upload
+                </span>
+                <span className="text-sm text-gray-500">
+                  JPG, PNG, or PDF (Max 5MB)
+                </span>
+              </div>
+              <input
+                ref={fileInputRef}
+                id="fileUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="relative rounded-lg overflow-hidden border border-gray-200">
+            <img
+              src={URL.createObjectURL(loanSubmission.idSelfie)}
+              alt="ID Selfie"
+              className="w-full h-64 object-cover"
+            />
+            <button
+              onClick={handleRemoveFile}
+              className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-md"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+            <div className="bg-green-100 p-2 border-t border-gray-200">
+              <p className="text-green-700 text-sm font-medium flex items-center">
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                File uploaded successfully
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-8 gap-4">
+          <button
+            onClick={prevStep}
+            className="px-6 py-3 border cursor-pointer border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-100 transition flex-1 flex items-center justify-center"
+          >
+          
+            ←  Go Back
+          </button>
+          <button
+            onClick={nextStep}
+            disabled={!loanSubmission.idSelfie}
+            className={`px-6 py-3 rounded-md font-medium flex-1 flex items-center justify-center ${
+              !loanSubmission.idSelfie
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            } transition`}
+          >
+            Next →
+         
           </button>
         </div>
-      )}
-
-      {/* Buttons Row */}
-      <div className="flex justify-between mt-6">
-        <button
-          onClick={prevStep}
-          className="bg-gray-400 text-white cursor-pointer font-semibold py-3 px-5 rounded-md hover:bg-gray-500 transition"
-        >
-          Go Back
-        </button>
-
-        <button
-          onClick={handleContinue}
-          disabled={!loanSubmission.idSelfie}
-          className={`${!loanSubmission.idSelfie
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-            } text-white font-semibold py-3 px-5 rounded-md transition`}
-        >
-          Continue
-        </button>
       </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Step4;

@@ -70,7 +70,7 @@ const Step3 = ({
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-50">
+    <div className="flex items-center pt-24 justify-center h-screen bg-gray-50">
       <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-[500px] text-center">
         <h3 className="text-2xl font-semibold mb-3 text-gray-800">CHOOSE WHEN TO REPAY</h3>
         <p className="text-base mb-6 text-gray-600">Please select the date by which you plan to repay the loan.</p>
@@ -112,7 +112,7 @@ const Step3 = ({
           >
             <option value="">Select Payment Frequency</option>
             <option value="monthly" disabled={isMonthlyDisabled()}>Monthly</option>
-            <option value="yearly" disabled={isYearlyDisabled()}>Yearly</option>
+       
           </select>
         </div>
 
@@ -150,7 +150,7 @@ const Step3 = ({
                 : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
             } text-white font-medium rounded-lg py-3 transition`}
           >
-            Proceed to Loan →
+          Next →
           </button>
         </div>
       </div>

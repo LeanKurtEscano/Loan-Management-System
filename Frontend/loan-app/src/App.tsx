@@ -44,6 +44,7 @@ import Analytics from './sections/admin/Analytics';
 import ManageUsers from './sections/admin/ManageUsers';
 import User from './sections/admin/User';
 import Support from './sections/user/Support';
+import NotificationPage from './components/Notification';
 function App() {
 
   return (
@@ -134,6 +135,8 @@ const Main: React.FC = () => {
         <Route path="/support" element={<Support />} />
 
         <Route path="/email-verification" element={<EmailForm />} />
+        <Route path="/notifications" element={<NotificationPage/>} />
+
         <Route path="/otp-verify" element={<OtpVerification />} />
         <Route path="/otp-reset" element={<OtpReset />} />
         <Route path="/otp-register" element={<OtpRegister />} />
