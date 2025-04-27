@@ -117,7 +117,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.educationLevel || ""}
             onChange={(e) => handleInputChange(e, "educationLevel")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className="w-full p-4 border cursor-pointer rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
             <option value="">Select Education Level</option>
             <option value="None">None</option>
@@ -134,7 +134,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.employmentStatus || ""}
             onChange={(e) => handleInputChange(e, "employmentStatus")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className="w-full cursor-pointer p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
             <option value="">Select Employment Status</option>
             <option value="Employed">Employed</option>
@@ -167,7 +167,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.incomeVariation || ""}
             onChange={(e) => handleInputChange(e, "incomeVariation")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className="w-full p-4 cursor-pointer border rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
             <option value="">Select Income Change</option>
             <option value="No Change">No change (Fixed or consistent salary)</option>
@@ -182,7 +182,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.primaryIncomeSource || ""}
             onChange={(e) => handleInputChange(e, "primaryIncomeSource")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className="w-full p-4 border cursor-pointer rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
             <option value="">Select Source</option>
             <option value="Business Profit">Business Profit</option>
@@ -209,7 +209,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
                     (source === "None" && isAnyOtherSelected) || 
                     (source !== "None" && isNoneSelected)
                   }
-                  className="w-5 h-5"
+                  className="w-5 h-5 cursor-pointer"
                 />
                 <span className={`text-lg ${(source === "None" && isAnyOtherSelected) || (source !== "None" && isNoneSelected) ? "text-gray-400" : "text-gray-700"}`}>
                   {source}
@@ -226,7 +226,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.incomeFrequency || ""}
             onChange={(e) => handleInputChange(e, "incomeFrequency")}
-            className={`w-full p-4 border rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
+            className={`w-full p-4 border cursor-pointer rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
             disabled={isNoneSelected}
           >
             <option value="">Select Frequency</option>
@@ -246,7 +246,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <select
             value={loanApplication.primarySource || ""}
             onChange={(e) => handleInputChange(e, "primarySource")}
-            className={`w-full p-4 border rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
+            className={`w-full p-4 border cursor-pointer rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
             disabled={isNoneSelected}
           >
             <option value="">Select</option>
@@ -296,14 +296,14 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
         {/* Navigation Buttons */}
         <div className="flex flex-col mt-6">
           <div className="flex justify-between items-center">
-            <button onClick={prevStep} className="py-3 px-8 bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition">
+            <button onClick={prevStep} className="py-3 cursor-pointer px-8 bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition">
               Back
             </button>
 
             <button
               onClick={nextStep}
               disabled={isNextDisabled}
-              className={`py-3 px-8 font-medium text-lg rounded-lg transition ${
+              className={`py-3 px-8 cursor-pointer font-medium text-lg rounded-lg transition ${
                 isNextDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
               }`}
             >

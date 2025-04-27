@@ -275,17 +275,6 @@ const UserLoan = () => {
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">My Loans</h2>
           <div className="flex flex-wrap items-center gap-3">
             {/* Date Sort Filter */}
-            <button
-              onClick={toggleSortDirection}
-              className="flex items-center gap-2 px-3 cursor-pointer py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700 text-sm transition-colors"
-            >
-              <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-600" />
-              <span>Date</span>
-              <FontAwesomeIcon 
-                icon={sortDirection === 'asc' ? faSortAmountUp : faSortAmountDown} 
-                className="text-gray-600" 
-              />
-            </button>
             
             {/* Filter Button */}
             <div className="flex items-center gap-2">

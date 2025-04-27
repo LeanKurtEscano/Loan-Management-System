@@ -33,6 +33,7 @@ const Sidebar: React.FC = () => {
 
     const handleMenuClick = (index: number) => {
         const selectedPath = menuItems[index]?.url;
+        setActiveIndex(index);
 
         // If it's NOT index 5, navigate as usual
         if (index !== 5 && selectedPath) {

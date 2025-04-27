@@ -167,7 +167,7 @@ const Step4 = ({
           <button
             onClick={nextStep}
             disabled={!loanSubmission.idSelfie}
-            className={`px-6 py-3 rounded-md font-medium flex-1 flex items-center justify-center ${
+            className={`px-6 py-3 rounded-md font-medium cursor-pointer flex-1 flex items-center justify-center ${
               !loanSubmission.idSelfie
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"

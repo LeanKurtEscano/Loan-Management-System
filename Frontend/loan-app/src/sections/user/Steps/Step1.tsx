@@ -46,7 +46,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
           <select
             value={loanApplication.idType}
             onChange={handleSelectChange}
-            className="w-full p-3 border rounded-lg text-gray-700 bg-gray-50"
+            className="w-full p-3 border cursor-pointer rounded-lg text-gray-700 bg-gray-50"
           >
             <option value="">Select ID</option>
             <option value="SSS Unified Multi-Purpose ID (UMID)">SSS Unified Multi-Purpose ID (UMID)</option>

@@ -199,7 +199,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
 
           <button
             onClick={prevStep}
-            className="flex items-center justify-center text-gray-700 font-medium py-3 px-6 rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none w-full max-w-xs mr-2 transition"
+            className="flex items-center cursor-pointer justify-center text-gray-700 font-medium py-3 px-6 rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none w-full max-w-xs mr-2 transition"
           >
             ← Go Back
           </button>
@@ -207,7 +207,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
           <button
             onClick={handleContinue}
             disabled={!!contactError || !loanSubmission.cashout}
-            className={`flex items-center justify-center font-medium py-3 px-6 rounded-md w-full max-w-xs ml-2 transition ${
+            className={`flex items-center justify-center cursor-pointer font-medium py-3 px-6 rounded-md w-full max-w-xs ml-2 transition ${
               contactError || !loanSubmission.cashout
                 ? "bg-blue-300 text-white cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 text-white"

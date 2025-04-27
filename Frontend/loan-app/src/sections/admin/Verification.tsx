@@ -18,7 +18,8 @@ import {
   faRing, 
   faLocationDot, 
   faEnvelope, 
-  faPhone 
+  faPhone ,
+  faSignature
 } from "@fortawesome/free-solid-svg-icons";
 import { useMutation } from "@tanstack/react-query";
 import { useMyContext } from "../../context/MyContext";
@@ -181,6 +182,35 @@ const Verification = () => {
               </div>
             </div>
           </div>
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <FontAwesomeIcon icon={faSignature} className="text-gray-400 mr-2" />
+              Personal Information
+            </h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-blue-50 p-4 rounded-lg">
+              <div className="flex flex-col">
+                <span className="text-sm text-gray-500 mb-1">First Name</span>
+                <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
+                  {data?.first_name || "N/A"}
+                </span>
+              </div>
+              
+              <div className="flex flex-col">
+                <span className="text-sm text-gray-500 mb-1">Middle Name</span>
+                <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
+                  {data?.middle_name || "N/A"}
+                </span>
+              </div>
+              
+              <div className="flex flex-col">
+                <span className="text-sm text-gray-500 mb-1">Last Name</span>
+                <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
+                  {data?.last_name || "N/A"}
+                </span>
+              </div>
+            </div>
+          </div>
 
           {/* User details section */}
           <div className="p-6">
@@ -209,13 +239,7 @@ const Verification = () => {
                 </div>
               </div>
               
-              <div className="flex items-start">
-                <FontAwesomeIcon icon={faPhone} className="text-gray-400 mt-1 mr-3" />
-                <div>
-                  <p className="text-gray-500 text-sm">Contact Number</p>
-                  <p className="font-medium">{data?.contact_number}</p>
-                </div>
-              </div>
+            
               
               <div className="flex items-start sm:col-span-2">
                 <FontAwesomeIcon icon={faLocationDot} className="text-gray-400 mt-1 mr-3" />

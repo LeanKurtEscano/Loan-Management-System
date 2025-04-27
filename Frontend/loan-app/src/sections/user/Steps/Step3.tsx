@@ -30,11 +30,11 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Loan Purpose and Details</h2>
 
         <div className="w-full space-y-2">
-          <label className="block text-gray-700 font-medium text-lg">What would you like to use your cash for?</label>
+          <label className="block text-gray-700  font-medium text-lg">What would you like to use your cash for?</label>
           <select
             value={loanApplication.purpose || ""}
             onChange={(e) => handleInputChange(e, "purpose")}
-            className="w-full p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
+            className="w-full p-4 cursor-pointer border rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
             <option value="">Select Purpose</option>
             <option value="Business Purposes">Business Purposes</option>
@@ -73,7 +73,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
                 value="Yes"
                 checked={loanApplication.outstanding === "Yes"}
                 onChange={(e) => handleInputChange(e, "outstanding")}
-                className="w-5 h-5"
+                className="w-5 h-5  cursor-pointer"
               />
               <span className="text-gray-700 text-lg">Yes</span>
             </label>
@@ -84,7 +84,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
                 value="No"
                 checked={loanApplication.outstanding === "No"}
                 onChange={(e) => handleInputChange(e, "outstanding")}
-                className="w-5 h-5"
+                className="w-5 h-5  cursor-pointer"
               />
               <span className="text-gray-700 text-lg">No</span>
             </label>
@@ -94,7 +94,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
         <div className="flex justify-between items-center mt-6">
           <button
             onClick={prevStep}
-            className="py-3 px-8 bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition"
+            className="py-3 px-8  cursor-pointer bg-gray-300 text-gray-700 font-medium text-lg rounded-lg hover:bg-gray-400 transition"
           >
             Back
           </button>
@@ -102,7 +102,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
           <button
             onClick={nextStep}
             disabled={isNextDisabled}
-            className={`py-3 px-8 font-medium text-lg rounded-lg transition ${
+            className={`py-3 px-8 font-medium   cursor-pointer text-lg rounded-lg transition ${
               isNextDisabled
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-600"

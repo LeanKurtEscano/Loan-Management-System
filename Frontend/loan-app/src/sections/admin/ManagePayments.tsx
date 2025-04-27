@@ -504,12 +504,10 @@ const ManagePayments: React.FC = () => {
                   onChange={(e) => setPaymentMethodFilter(e.target.value)}
                 >
                   <option value="All">All Payment Methods</option>
-                  {paymentMethods.map((method, index) => (
-                    <option key={index} value={method}>{method}</option>
-                  ))}
+                  <option value="Gcash">Gcash</option>
+                  <option value="Maya">Maya</option>
                 </select>
               </div>
-
               <button
                 className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
                 onClick={() => setIsAdvancedFilterOpen(!isAdvancedFilterOpen)}

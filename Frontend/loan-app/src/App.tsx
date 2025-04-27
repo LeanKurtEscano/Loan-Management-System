@@ -56,7 +56,7 @@ function App() {
 const Main: React.FC = () => {
   const { toggleLog, setToggleLog, isAuthenticated, userDetails, isAdminAuthenticated, setUserDetails, setIsAdminAuthenticated } = useMyContext();
   const location = useLocation();
-   
+  
 
   useTokenHandler();
 

@@ -13,6 +13,7 @@ from .email.emails import send_otp_to_email
 from .serializers import CustomUserSerializer,VerificationRequestsSerializer,NotificationSerializer
 import cloudinary.uploader
 from loan.models import LoanApplication
+
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def verify_account(request):
@@ -23,7 +24,6 @@ def verify_account(request):
         last_name = request.data.get("lastName")
         birthdate = request.data.get("birthdate")
         age = request.data.get("age")
-        contact_number = request.data.get("contactNumber")
         address = request.data.get("address")
         gender = request.data.get("gender")
         civil_status = request.data.get("civilStatus")
@@ -33,7 +33,7 @@ def verify_account(request):
         user = CustomUser.objects.get(id = request.user.id)
         user.is_verified = "pending"
         user.save()
-        if not first_name or not last_name or not birthdate or not contact_number or not address:
+        if not first_name or not last_name or not birthdate  or not address:
             return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
 
      
@@ -46,7 +46,6 @@ def verify_account(request):
             last_name=last_name,
             birthdate=birthdate,
             age=age,
-            contact_number=contact_number,
             address=address,
             gender = gender,
             postal_code = postal_code,

@@ -7,17 +7,19 @@ import { VerifyData } from "../../constants/interfaces/authInterface";
 import { useQueryClient } from "@tanstack/react-query";
 import { validateFirstName, validateMiddleName, validateLastName, validateAddress, validatePostalCode } from "../../utils/validation";
 import { ValidationError } from "../../constants/interfaces/errorInterface";
+
 const VerifyForm = ({ onClose }: { onClose: () => void }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const queryClient = useQueryClient();
+  const [termsAgreed, setTermsAgreed] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<ValidationError>({
     fnameError: "",
     lnameError: "",
     mnameError: "",
     addressError: "",
     postalError: "",
-  })
+  });
 
   const [formData, setFormData] = useState<VerifyData>({
     firstName: "",
@@ -32,11 +34,25 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
     postalCode: ""
   });
 
-  console.log(formData);
+  // Function to check if form is valid and complete
+  const isFormValid = () => {
+    return (
+      formData.firstName.trim() !== "" &&
+      formData.lastName.trim() !== "" &&
+      formData.address.trim() !== "" &&
+      formData.birthdate !== "" &&
+      formData.gender !== "" &&
+      formData.civilStatus !== "" &&
+      formData.postalCode.trim() !== "" &&
+      formData.age !== "" &&
+      termsAgreed &&
+      Object.values(errors).every(error => error === "") &&
+      Object.values(validationError).every(error => error === "")
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
 
     setValidationError({
       fnameError: "",
@@ -46,15 +62,11 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
       postalError: "",
     });
 
-
-
     const fnameError = validateFirstName(formData.firstName);
     const lnameError = validateLastName(formData.lastName);
     const mnameError = validateMiddleName(formData.middleName || "");
     const addressError = validateAddress(formData.address);
     const postalError = validatePostalCode(formData.postalCode || "");
-
-
 
     setValidationError({
       fnameError: fnameError,
@@ -66,12 +78,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
 
     if (fnameError || lnameError || mnameError || addressError || postalError) {
       return;
-
     }
-
-
-
-
 
     try {
       const response = await sendVerifyData(formData);
@@ -79,16 +86,13 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
       if (response?.status === 201) {
         queryClient.invalidateQueries(["userDetails"]);
         queryClient.invalidateQueries(["userAccountDetails"]);
-
         onClose();
-
       }
     } catch (error) {
       alert("something went wrong");
-
     }
-
   };
+
   const today = new Date();
   const maxDate = new Date(today);
   maxDate.setFullYear(today.getFullYear() - 21); // 21 years ago
@@ -137,16 +141,17 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
     setFormData(updatedFormData);
     localStorage.setItem("formData", JSON.stringify(updatedFormData));
   };
+
+  const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTermsAgreed(e.target.checked);
+  };
   
-
-
   useEffect(() => {
     const savedData = localStorage.getItem("formData");
     if (savedData) {
       setFormData(JSON.parse(savedData));
     }
   }, []);
-
 
   return (
     <motion.div
@@ -155,7 +160,6 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
       transition={{ duration: 0.3 }}
       className="relative p-6 rounded-lg h-[550px] overflow-y-auto bg-white shadow-lg max-w-2xl w-full"
     >
-
       <button
         onClick={onClose}
         className="absolute top-4 cursor-pointer right-4 text-gray-500 hover:text-gray-700"
@@ -164,7 +168,6 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
         <FontAwesomeIcon icon={faTimes} size="lg" />
       </button>
 
-
       <h2 className="text-2xl font-semibold text-gray-800 text-center">
         Verify Your Account
       </h2>
@@ -172,9 +175,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
         Complete your details to verify. Verification may take up to 3-5 business days.
       </p>
 
-
       <form className="space-y-4 mt-6" onSubmit={handleSubmit}>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <label htmlFor="firstName" className="block text-gray-700 font-medium">First Name</label>
@@ -220,11 +221,9 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
           </div>
         </div>
         
-        {validationError.fnameError && <p className=" text-red-500 text-xs mb-0 mt-1">{validationError.fnameError}</p>}
-        
-        {validationError.mnameError && <p className=" text-red-500 text-xs mb-0 mt-1">{validationError.mnameError}</p>}
-
-        {validationError.lnameError && <p className=" text-red-500 text-xs mt-1">{validationError.lnameError}</p>}
+        {validationError.fnameError && <p className="text-red-500 text-xs mb-0 mt-1">{validationError.fnameError}</p>}
+        {validationError.mnameError && <p className="text-red-500 text-xs mb-0 mt-1">{validationError.mnameError}</p>}
+        {validationError.lnameError && <p className="text-red-500 text-xs mt-1">{validationError.lnameError}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="relative">
@@ -309,8 +308,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
-
-      {validationError.addressError && <p className=" text-red-500 text-xs mt-1">{validationError.addressError}</p>}
+            {validationError.addressError && <p className="text-red-500 text-xs mt-1">{validationError.addressError}</p>}
           </div>
 
           <div className="relative flex flex-col">
@@ -325,15 +323,18 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
-
-         {validationError.postalError && <p className=" text-red-500 text-xs mt-1">{validationError.postalError}</p>}
+            {validationError.postalError && <p className="text-red-500 text-xs mt-1">{validationError.postalError}</p>}
           </div>
-
         </div>
 
-
         <label className="flex items-start gap-2 text-sm text-gray-700 mt-2">
-          <input type="checkbox" className="mt-1 cursor-pointer" />
+          <input 
+            type="checkbox" 
+            className="mt-1 cursor-pointer" 
+            checked={termsAgreed}
+            onChange={handleTermsChange}
+            required
+          />
           <span>
             I certify that I am at least 21 years old and that I agree to the{" "}
             <a
@@ -357,17 +358,17 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
           </span>
         </label>
 
-
-
         <button
           type="submit"
-          className="w-full cursor-pointer bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+          disabled={!isFormValid()}
+          className={`w-full cursor-pointer py-3 rounded-lg transition ${
+            isFormValid() 
+              ? "bg-blue-600 text-white hover:bg-blue-700" 
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
         >
           Submit
         </button>
-
-
-
       </form>
     </motion.div>
   );

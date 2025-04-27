@@ -85,7 +85,7 @@ const Step3 = ({
             type="date"
             value={loanSubmission.repayDate}
             onChange={handleChange}
-            className={`border ${dateError ? 'border-red-500' : 'border-gray-300'} p-3 rounded-lg w-full text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            className={`border ${dateError ? 'border-red-500' : 'border-gray-300'} p-3 rounded-lg w-full text-gray-700 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500`}
             min={getMinDate()}
           />
           {dateError && (
@@ -136,7 +136,7 @@ const Step3 = ({
         <div className="flex justify-between mt-8">
           <button
             onClick={prevStep}
-            className="flex-1 mr-4 border border-gray-300 rounded-lg py-3 text-gray-700 font-medium hover:bg-gray-50 transition"
+            className="flex-1 cursor-pointer mr-4 border border-gray-300 rounded-lg py-3 text-gray-700 font-medium hover:bg-gray-50 transition"
           >
             ← Go Back
           </button>
