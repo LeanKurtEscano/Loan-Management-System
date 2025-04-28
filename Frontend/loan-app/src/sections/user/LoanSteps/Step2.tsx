@@ -5,7 +5,7 @@ import { formatCurrency } from "../../../utils/formatCurrency";
 import { useMyContext } from "../../../context/MyContext";
 import { LoanSubmission } from "../../../constants/interfaces/loanInterface";
 import ImageButton from "../../../components/ImageButton";
-
+import { validateLoanAmount } from "../../../utils/validation";
 const Step2 = ({
   prevStep,
   nextStep,
@@ -35,6 +35,10 @@ const Step2 = ({
       localStorage.setItem("loanAmount", JSON.stringify(updatedValue));
       return newSubmission;
     });
+
+
+    const validateError = validateLoanAmount(updatedValue);
+    setError(validateError);
     
 
     if (numericValue > maxLoanAmount) {

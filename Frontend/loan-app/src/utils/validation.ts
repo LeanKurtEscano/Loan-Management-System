@@ -382,6 +382,10 @@ export const validateLoanAmount = (amount: number): string => {
     if (amount <= 0) {
       return "Loan amount must be greater than 0.";
     }
+
+    if (amount < 500) {
+        return "Loan amount must be at least 500.";
+      }
   
   
   

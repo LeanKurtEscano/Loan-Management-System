@@ -749,8 +749,8 @@ const ManageBorrowers: React.FC = () => {
                 <Modal
                     loading={deleteMutation.isLoading}
                     isOpen={isModalOpen}
-                    title="Delete User Payment Application?"
-                    message="Are you sure you want to delete this user payment application? This action cannot be undone."
+                    title="Delete User Disbursement Application?"
+                    message="Are you sure you want to delete this user disbursement application? This action cannot be undone."
                     onClose={() => setIsModalOpen(false)}
                     onConfirm={handleDelete}
                 />

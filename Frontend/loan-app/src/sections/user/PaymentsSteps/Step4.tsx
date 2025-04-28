@@ -49,6 +49,8 @@ const Step4: React.FC<Step4Props> = ({ prevStep, setStep }) => {
      try {
       const response = await sendLoanPayment(disbursement);
 
+      localStorage.removeItem("selectedOption");
+
       if(response.status === 201) {
         
         queryClient.invalidateQueries(["userLoanSubmission"]);

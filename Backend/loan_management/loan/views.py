@@ -348,6 +348,7 @@ def delete_loan_submission(request):
     try:
                 
         id = request.data.get("id")
+        print(id)
         
         loan_application = LoanSubmission.objects.get(id = int(id))
         loan_application.delete()
@@ -364,7 +365,7 @@ def delete_loan_submission(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def delete_loan_submission(request):
+def delete_user(request):
     try:
                 
         id = request.data.get("id")

@@ -7,7 +7,7 @@ import {
   faUser, 
   faSignOutAlt, 
   faTimes,
-  faBell // Added bell icon for notifications
+  faBell
 } from "@fortawesome/free-solid-svg-icons";
 import { useMyContext } from "../../context/MyContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,7 +34,6 @@ const NavBar: React.FC = () => {
     const queryClient = useQueryClient();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const notificationRef = useRef<HTMLDivElement>(null);
-
 
     // Added state for notification dropdown
     const [showNotifications, setShowNotifications] = useState(false);
@@ -185,9 +184,9 @@ const NavBar: React.FC = () => {
                     )}
                 </div>
 
-                {/* Desktop Navigation Menu */}
-                <div className="hidden  items-center justify-between w-full md:flex md:w-auto md:order-1">
-                    <ul className="flex flex-col text-lg  p-4 md:p-0 mt-4 border pl-40 text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                {/* Desktop Navigation Menu - Now centered */}
+                <div className="hidden items-center justify-center w-full md:flex md:w-auto md:order-1 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+                    <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                         {["Home", "Support", ...(userDetails?.is_verified?.trim() !== "verified" ? [] : ["Menu"])].map((item) => (
                             <li key={item} className="relative">
                                 {item === "Menu" ? (
@@ -224,7 +223,9 @@ const NavBar: React.FC = () => {
                                                 <Link
                                                     to={menuItem.path}
                                                     className="block px-5 py-3 text-gray-700 text-md font-medium hover:bg-gray-100 transition"
-                                                    onClick={() => setMenuOpen(false)}
+                                                    onClick={() => {
+                                                        setMenuOpen(false);
+                                                    }}
                                                 >
                                                     {menuItem.name}
                                                 </Link>

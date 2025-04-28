@@ -549,7 +549,7 @@ const ManageUsers: React.FC = () => {
                                                 {user.is_borrower ? "Yes" : "No"}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 whitespace-nowrap py-4">
                                             <VerificationStatusBadge status={user.is_verified} />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">

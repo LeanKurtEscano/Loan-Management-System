@@ -125,10 +125,7 @@ const Account: React.FC = () => {
                                     <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Birthdate</p>
                                     <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.birthdate}</p>
                                 </div>
-                                <div>
-                                    <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Contact</p>
-                                    <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.contact_number}</p>
-                                </div>
+                               
                                 <div>
                                     <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Gender</p>
                                     <p className="text-gray-800 text-base font-semibold">{userVerifyDetails?.gender}</p>
