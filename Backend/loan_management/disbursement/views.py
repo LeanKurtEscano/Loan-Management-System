@@ -17,8 +17,12 @@ from django.utils import timezone
 from .utils import extract_duration
 from datetime import datetime, timedelta
 from django.db.models import Sum
+from user.models import CustomUser,Notification
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 import calendar
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])  
@@ -97,45 +101,64 @@ def approve_loan_payment(request):
     try:
         id = request.data.get("id")
         loan_payment = LoanPayments.objects.get(id=int(id))
-       
         loan_sub = loan_payment.loan 
 
         loan_payment.status = "Approved"
         loan_payment.save()
-        loan_sub.balance -= Decimal(loan_payment.amount)  
-        
-        
+        loan_sub.balance -= Decimal(loan_payment.amount)
+
+        user = loan_payment.user
+        notification_message = f"Your loan payment of ₱{loan_payment.amount} has been approved."
+
         if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
-            # loan_sub.is_fully_paid = True
-            #loan_sub.is_active = False
             loan_sub.is_celebrate = True
-            #loan_sub.loan_app.is_active = False
-            #loan_sub.loan_app.save() 
-            
-            user = loan_payment.user
             user.is_borrower = False
             user.save()
-            subject = "You're Loan is fully paid!"
+
+            subject = "Your Loan is Fully Paid!"
             html_content = render_to_string("email/loanfullypaid.html", {
                 'username': user.username,
                 'amount': loan_payment.loan.total_payment,
                 'interest_rate': loan_sub.loan_app.interest,
                 'start_date': loan_sub.start_date,
                 'end_date': loan_sub.repay_date,
-
             })
-            
             plain_message = strip_tags(html_content)
-
-    
             email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
             email.attach_alternative(html_content, "text/html")
             email.send()
 
-        
-        loan_sub.save() 
-        
-        return Response({"success": "Loan Payment has been approved, and balance updated"}, status=status.HTTP_200_OK)
+          
+            notification_message = "🎉 Congratulations! Your loan is fully paid."
+
+        loan_sub.save()
+
+   
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+
+        return Response({
+            "success": "Loan Payment has been approved, balance updated, and notification sent."
+        }, status=status.HTTP_200_OK)
 
     except Exception as e:
         print(f"Error: {e}")

@@ -71,18 +71,40 @@ def verify_user(request):
         user.contact_number = verification.contact_number
         user.save()  
 
-       
+        # Email
         subject = "You're now verified!"
         html_content = render_to_string("email/verification_success.html", {
             "username": user.username,
             "account_link": "http://localhost:5173/user/account"
         })
         plain_message = strip_tags(html_content)
-
-        # Send email
         email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
+
+        # In-app Notification
+        notification_message = "Your identity has been successfully verified. You now have full access to all features."
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+
+        # WebSocket Real-time Notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
 
         return Response({
             "success": "User Verified and email sent!"

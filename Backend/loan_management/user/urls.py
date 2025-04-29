@@ -18,4 +18,5 @@ urlpatterns = [
     path('account/verify/',views.verify_account, name="verify_account"),
     path('details/verify/',views.get_verify_details, name="get_verify_details"),
     path('notifications/',views.get_notifications, name="get_notifications"),
+    path('notifications/mark-all-read/',views.mark_all_read, name="mark-all-read"),
 ]

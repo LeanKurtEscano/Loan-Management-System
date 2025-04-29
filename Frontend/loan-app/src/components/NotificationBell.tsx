@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faCheck, faCheckDouble, faClock, faExclamationCircle, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faCheck, faCheckDouble, faClock, faExclamationCircle, faAngleRight,faTrophy } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { userApi } from '../services/axiosConfig';
 import { Notification } from '../constants/interfaces/notificationInterface';
@@ -202,9 +202,13 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
 
   const markAllAsRead = async () => {
     try {
-      await userApi.post('/notifications/mark-all-read/',{});
+      const response = await userApi.post('/notifications/mark-all-read/',{});
+      if (response.status === 200) {
+        fetchNotifications();
+       
+      }
      
-      setUnreadCount(0);
+    
     } catch (error) {
       console.error("Error marking notifications as read:", error);
     }
@@ -232,6 +236,8 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
       return <FontAwesomeIcon icon={faCheckDouble} className="text-green-500" />;
     } else if (message.includes("pending")) {
       return <FontAwesomeIcon icon={faClock} className="text-yellow-500" />;
+    } else if (message.includes("Congratulations") && message.includes("fully paid")) {
+      return <FontAwesomeIcon icon={faTrophy} className="text-purple-500" />;
     }
     return <FontAwesomeIcon icon={faCheck} className="text-blue-500" />;
   };
@@ -259,7 +265,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
             <h3 className="font-semibold text-gray-800">Notifications</h3>
             {unreadCount > 0 && (
               <button 
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium transition duration-150"
+                className="text-xs cursor-pointer text-blue-600 hover:text-blue-800 font-medium transition duration-150"
                 onClick={markAllAsRead}
               >
                 Mark all as read

@@ -23,7 +23,10 @@ from user.models import CustomUser
 from datetime import datetime
 from decimal import Decimal
 from .serializers import AccountDetailSerializer
+from user.models import CustomUser,Notification
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 @api_view(['POST'])
@@ -37,30 +40,54 @@ def approve_loan_disbursement(request):
         loan_sub.balance = Decimal(loan_sub.total_payment)
         loan_sub.save()
         
-        
         user = loan_sub.user
         user.is_borrower = True
         user.save()
-        subject = "You're Loan has been approved"
+
+        subject = "Your Loan Has Been Approved"
         html_content = render_to_string("email/loandisbursementsuccess.html", {
             "cashout": loan_sub.cashout,
             "loan_amount": loan_sub.loan_amount,
             "interest": loan_sub.loan_app.interest,
             "start_date": loan_sub.start_date,
             "end_date": loan_sub.repay_date
-          
         })
         plain_message = strip_tags(html_content)
 
-    
         email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
-        return Response({"success": "Loan Disbursement has been approved"}, status= status.HTTP_200_OK)
+
+        # Create notification
+        notification_message = f"Your disbursement amount request of ₱{loan_sub.loan_amount} has been approved."
+
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+
+        # Send real-time WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+
+        return Response({"success": "Loan Disbursement has been approved"}, status=status.HTTP_200_OK)
+
     except Exception as e:
         print(f"Error: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 
@@ -264,52 +291,57 @@ def get_user_submission(request,id):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def verify_loan_application(request) :
-    
+def verify_loan_application(request):
     try:
         id = request.data.get("id")
-        loan_amount= request.data.get("loanAmount")
+        loan_amount = request.data.get("loanAmount")
         interest = request.data.get("interest")
-     
+
         application = get_object_or_404(LoanApplication, id=int(id))
-        
+
         application.loan_amount = Decimal(loan_amount)
         application.interest = int(interest)
         application.status = "Approved"
         application.save()
-        locale.setlocale(locale.LC_ALL, 'en_PH.UTF-8')  
-        
-        """
-        repayment_term = int(application.plan.repayment_term)
 
-       
-        end_date = now() + relativedelta(months=repayment_term)
-        application.status = "Approved"
-        application.end_date = end_date
-        application.save()
-        
-        formatted_end_date = end_date.strftime("%B %d, %Y")
-
-        print(formatted_end_date)
-        
-        """
         user = application.user
+        locale.setlocale(locale.LC_ALL, 'en_PH.UTF-8')
         formatted_loan_amount = f"₱{float(application.loan_amount):,.2f}"
-        
-        subject = "You're Loan Application has been approved!"
+
+        subject = "Your Loan Application Has Been Approved!"
         html_content = render_to_string("email/loanapplication_success.html", {
             "loan_amount": formatted_loan_amount,
-            "interest":application.interest,
+            "interest": application.interest,
         })
         plain_message = strip_tags(html_content)
 
-    
         email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
 
-      
-    
+        # Create in-app notification
+        notification_message = f"Your loan application has been approved for {formatted_loan_amount}."
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+
+        # Send WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
 
         return Response({
             "success": "Loan application verified",
@@ -386,74 +418,115 @@ def delete_user(request):
 @permission_classes([IsAuthenticated])
 def reject_loan_application(request):
     try:
-        
-        
         id = request.data.get("id")
         subject_heading = request.data.get("subject")
-        
         desc = request.data.get("description")
-        
-        loan_app = LoanApplication.objects.get(id = int(id))
+
+        loan_app = LoanApplication.objects.get(id=int(id))
         loan_app.status = "Rejected"
         loan_app.save()
+
         user = loan_app.user
-        subject = "You're Loan Application has been rejected"
+
+        subject = "Your Loan Application Has Been Rejected"
         html_content = render_to_string("email/rejection_email.html", {
-            "subject":subject_heading,
+            "subject": subject_heading,
             "user_name": user.username,
             "description": desc
         })
         plain_message = strip_tags(html_content)
 
-    
         email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
 
+        # Create in-app notification
+        notification_message = f"Your loan application has been rejected: {subject_heading}"
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Rejected"
+        )
 
-        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
-        
-        
+        # Send WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+
+        return Response({"success": "Loan Application has been rejected"}, status=status.HTTP_200_OK)
+
     except Exception as e:
         print(f"{e}")
-        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+        return Response({"error": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def reject_loan_submission(request):
     try:
-        
-        
         id = request.data.get("id")
         subject_heading = request.data.get("subject")
-        
         desc = request.data.get("description")
-        
-        loan_app = LoanSubmission.objects.get(id = int(id))
+
+        loan_app = LoanSubmission.objects.get(id=int(id))
         loan_app.status = "Rejected"
         loan_app.is_active = False
         loan_app.save()
+
         user = loan_app.user
-        subject = "You're Loan Disbursement has been rejected"
+
+        subject = "Your Loan Disbursement Has Been Rejected"
         html_content = render_to_string("email/rejection_email.html", {
-            "subject":subject_heading,
+            "subject": subject_heading,
             "user_name": user.username,
             "description": desc
         })
         plain_message = strip_tags(html_content)
 
-    
         email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
         email.attach_alternative(html_content, "text/html")
         email.send()
 
+        # In-app notification
+        notification_message = f"Your loan disbursement request was rejected: {subject_heading}"
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Rejected"
+        )
 
-        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
-        
-        
+        # WebSocket broadcast
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+
+        return Response({"success": "Loan Disbursement has been rejected"}, status=status.HTTP_200_OK)
+
     except Exception as e:
         print(f"{e}")
-        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

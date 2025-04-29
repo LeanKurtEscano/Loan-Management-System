@@ -379,6 +379,27 @@ def get_notifications(request):
         )
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_all_read(request):
+    try:
+        user = request.user
+      
+        notifications = Notification.objects.filter(user=user)
+
+        notifications.update(is_read=True)
+
+    
+       
+        return Response({"success" :"Mark all as read"}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
 """    
 @api_view(["POST"])
 @permission_classes([AllowAny])
