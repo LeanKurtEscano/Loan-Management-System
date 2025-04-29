@@ -414,7 +414,6 @@ export const validateLoanAmount = (amount: number): string => {
   };
   
 
-
   export const validateRepayDate = (date: string): string => {
     // Check if date is provided
     if (!date.trim()) {
@@ -424,8 +423,12 @@ export const validateLoanAmount = (amount: number): string => {
     const selectedDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // normalize to midnight
+    
     const minDate = new Date(today);
     minDate.setDate(minDate.getDate() + 180); // 6 months from today
+  
+    const maxDate = new Date(today);
+    maxDate.setFullYear(maxDate.getFullYear() + 5); // 6 years from today
   
     // Check if the selected date is valid
     if (isNaN(selectedDate.getTime())) {
@@ -437,8 +440,14 @@ export const validateLoanAmount = (amount: number): string => {
       return "Repayment date must be at least 6 months from today.";
     }
   
+    // Check if the selected date is within 6 years
+    if (selectedDate > maxDate) {
+      return "Repayment date must not be more than 5 years from today.";
+    }
+  
     return "";
   };
+  
   
 
   export const validateContactNumber = (contactNumber: string): string => {

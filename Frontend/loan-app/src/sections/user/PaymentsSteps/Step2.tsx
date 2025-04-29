@@ -92,20 +92,19 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
       const discrepancy = Math.abs(option.amount - remainingBalance);
 
       if (discrepancy <= maxDiscrepancy) {
-        // If the option is within the acceptable discrepancy range, adjust the option
         return {
           ...option,
-          amount: remainingBalance,  // Adjust to match the remaining balance
-          disabled: false,  // Allow selection
+          amount: remainingBalance,  
+          disabled: false,  
         };
       } else if (option.amount > remainingBalance) {
-        // If the option is greater than the balance, disable it
+      
         return {
           ...option,
           disabled: true,
         };
       } else {
-        // If the option is not close enough to the remaining balance, keep it selectable
+ 
         return {
           ...option,
           disabled: false,

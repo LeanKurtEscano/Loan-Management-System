@@ -185,7 +185,7 @@ const NavBar: React.FC = () => {
                 </div>
 
                 {/* Desktop Navigation Menu - Now centered */}
-                <div className="hidden items-center justify-center w-full md:flex md:w-auto md:order-1 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
+                <div className="hidden z-50 items-center justify-center w-full md:flex md:w-auto md:order-1 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
                     <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border text-slate-900 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                         {["Home", "Support", ...(userDetails?.is_verified?.trim() !== "verified" ? [] : ["Menu"])].map((item) => (
                             <li key={item} className="relative">
