@@ -15,7 +15,8 @@ import {
   Trash2
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-
+import { userApi } from '../services/axiosConfig'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 const NotificationPage = () => {
   // State management
   const [activeFilter, setActiveFilter] = useState('all')
@@ -26,6 +27,30 @@ const NotificationPage = () => {
   const nav = useNavigate();
   const dropdownRef = useRef(null);
   const buttonRefs = useRef({});
+
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async (notificationId : number) => {
+      const response = await userApi.post(`/notifications/${notificationId}/`, {});
+      if (response.status !== 200) {
+        throw new Error("Failed to delete notification");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userNotifications"]);
+      setActiveDropdown(null);
+    },
+    onError: (error) => {
+      console.error("Delete failed:", error);
+    }
+  });
+
+
+  const handleDelete = async(notificationId:number) => {
+    deleteMutation.mutateAsync(notificationId);
+
+  }
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -79,12 +104,7 @@ const NotificationPage = () => {
     setActiveDropdown(null);
   }
   
-  const handleDelete = (notification) => {
-    // Implement delete functionality here
-    console.log("Delete notification:", notification.id);
-    setActiveDropdown(null);
-  }
-  
+ 
   // Toggle dropdown menu - improved version
   const toggleDropdown = (notificationId) => {
     setActiveDropdown(prevActive => prevActive === notificationId ? null : notificationId);
@@ -329,15 +349,15 @@ const NotificationPage = () => {
                       style={{ right: 0, top: "100%", marginTop: "4px" }}
                     >
                       <button 
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex  cursor-pointer items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => handleViewDetails(notification)}
                       >
                         <Eye size={16} className="mr-2" />
                         View Details
                       </button>
                       <button 
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                        onClick={() => handleDelete(notification)}
+                        className="flex cursor-pointer items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        onClick={() => handleDelete(notification.id)}
                       >
                         <Trash2 size={16} className="mr-2" />
                         Delete
