@@ -45,6 +45,7 @@ import ManageUsers from './sections/admin/ManageUsers';
 import User from './sections/admin/User';
 import Support from './sections/user/Support';
 import NotificationPage from './components/Notification';
+import NotificationDetail from './sections/user/NotificationDetail';
 function App() {
 
   return (
@@ -124,6 +125,7 @@ const Main: React.FC = () => {
           <Route path="my-transactions" element={<UserLoan/>} />
           <Route path="my-transactions/:id" element={<TransactionDetail/>} />
           <Route path="account" element={<Account />} />
+          
           <Route path="apply-loan" element={<LoanApplication />} />
         </Route>
 
@@ -136,7 +138,8 @@ const Main: React.FC = () => {
 
         <Route path="/email-verification" element={<EmailForm />} />
         <Route path="/notifications" element={<NotificationPage/>} />
-
+        <Route path="/notifications/:id" element={<NotificationDetail/>} />
+   
         <Route path="/otp-verify" element={<OtpVerification />} />
         <Route path="/otp-reset" element={<OtpReset />} />
         <Route path="/otp-register" element={<OtpRegister />} />

@@ -399,6 +399,29 @@ def delete_notification(request,id):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def notification_details(request, id):
+    try:
+        user = request.user.id
+        request_data = Notification.objects.get(user=user, id=int(id))
+        serializer = NotificationSerializer(request_data)
+        
+        # Add email to the serialized data
+        data_with_email = serializer.data.copy()
+        data_with_email["email"] = request_data.user.email
+
+        return Response({"data": data_with_email}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def mark_all_read(request):

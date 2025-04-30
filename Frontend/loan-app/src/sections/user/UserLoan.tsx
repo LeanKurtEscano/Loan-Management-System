@@ -447,32 +447,13 @@ const UserLoan = () => {
                       </td>
                       <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                         <div className="relative">
+                         
                           <button 
-                            onClick={(e) => toggleActions(tx.id, e)} 
-                            className="p-2 rounded-full cursor-pointer hover:bg-gray-200"
-                          >
-                            <FontAwesomeIcon icon={faEllipsisH} />
-                          </button>
-                          {activeIndex === tx.id && (
-                            <motion.div
-                              className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50"
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <button 
                                 onClick={(e) => handleView(tx.id, e)} 
                                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-500 transition-colors"
                               >
                                 <FontAwesomeIcon icon={faEye} className="mr-2" /> View Details
                               </button>
-                              <button 
-                                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                              >
-                                <FontAwesomeIcon icon={faTrash} className="mr-2" /> Delete
-                              </button>
-                            </motion.div>
-                          )}
                         </div>
                       </td>
                     </motion.tr>

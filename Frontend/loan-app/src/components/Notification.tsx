@@ -98,9 +98,10 @@ const NotificationPage = () => {
     nav('/user/account/')
   }
   
-  const handleViewDetails = (notification) => {
+  const handleViewDetails = (notificationId:number) => {
+    nav(`/notifications/${notificationId}`)
     // Implement view details functionality here
-    console.log("View details for notification:", notification.id);
+    
     setActiveDropdown(null);
   }
   
@@ -350,7 +351,7 @@ const NotificationPage = () => {
                     >
                       <button 
                         className="flex  cursor-pointer items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => handleViewDetails(notification)}
+                        onClick={() => handleViewDetails(notification.id)}
                       >
                         <Eye size={16} className="mr-2" />
                         View Details
