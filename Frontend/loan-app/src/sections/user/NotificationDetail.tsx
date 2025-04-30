@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
+import { userApi } from '../../services/axiosConfig';
 // Animation variants
 const pageVariants = {
   initial: { opacity: 0 },
@@ -34,14 +34,26 @@ const NotificationDetail = () => {
   const navigate = useNavigate();
   
   const handleGoBack = () => {
-    navigate(-1);
+    navigate('/notifications');
   };
+
+  const verifyAgain = () => {
+    navigate('/user/account');
+  }
+
+  const navSupport = () => {
+    navigate('/support');
+  }
+  
+
+  
   
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["userNotificationDetails", id],
     queryFn: () => getNotification(id),
     enabled: !!id,
   });
+
 
   // Handle loading state
   if (isLoading) {
@@ -337,6 +349,7 @@ const NotificationDetail = () => {
                           className="inline-flex w-full items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mb-3"
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.97 }}
+                          onClick={verifyAgain}
                         >
                           <RefreshCw className="mr-2 h-5 w-5" />
                           Try Verification Again
@@ -377,7 +390,8 @@ const NotificationDetail = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Need Help?</h3>
                 <p className="text-gray-600 mb-6">If you have any questions about this notification, please contact customer support.</p>
                 <motion.button 
-                  className="inline-flex w-full items-center justify-center px-6 py-3 border border-blue-600 text-base font-medium rounded-lg text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mt-auto"
+                onClick={navSupport}
+                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 border border-blue-600 text-base font-medium rounded-lg text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mt-auto"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >

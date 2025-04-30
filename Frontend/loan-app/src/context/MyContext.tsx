@@ -67,7 +67,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     purpose: "",
     explanation: "",
   });
-
+ const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const [penalty, setPenalty] = useState(false);
   
@@ -76,7 +76,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
 
   return (
-    <MyContext.Provider value={{penalty, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
+    <MyContext.Provider value={{penalty,unreadCount,setUnreadCount, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
       {children}
     </MyContext.Provider>
   );

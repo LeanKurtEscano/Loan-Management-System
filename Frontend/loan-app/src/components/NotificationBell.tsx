@@ -5,17 +5,17 @@ import { Link } from 'react-router-dom';
 import { userApi } from '../services/axiosConfig';
 import { Notification } from '../constants/interfaces/notificationInterface';
 import { formatDate } from '../utils/formatDate';
-
+import { useMyContext } from '../context/MyContext';
 interface NotificationBellProps {
   id: number | undefined;
 }
-
+import { useNavigate } from 'react-router-dom';
 const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
-  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const {unreadCount, setUnreadCount} = useMyContext();
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
-  
+  const nav = useNavigate();
   // Use refs to store WebSocket and timers
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -215,13 +215,22 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
   };
 
   const markAsRead = async (notificationId: number) => {
-    try {
-      await userApi.post(`/notifications/${notificationId}/mark-read/`,{
 
+    const notification = latestNotifications.find(n => n.id === notificationId);
+
+    if(notification?.is_read) {
+      nav(`/notifications/${notificationId}`);
+      return;
+    }
+    try {
+      const response = await userApi.post(`/notifications/${notificationId}/mark-read/`,{
       });
-  
- 
-      setUnreadCount(prev => Math.max(0, prev - 1));
+
+      if(response.status === 200) {
+        nav(`/notifications/${notificationId}`);
+        setUnreadCount(prev => Math.max(0, prev - 1));
+
+      }
       
     } catch (error) {
       console.error("Error marking notification as read:", error);

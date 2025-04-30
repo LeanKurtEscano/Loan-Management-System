@@ -17,6 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { userApi } from '../services/axiosConfig'
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMyContext } from '../context/MyContext'
 const NotificationPage = () => {
   // State management
   const [activeFilter, setActiveFilter] = useState('all')
@@ -27,7 +28,7 @@ const NotificationPage = () => {
   const nav = useNavigate();
   const dropdownRef = useRef(null);
   const buttonRefs = useRef({});
-
+  const { setUnreadCount} = useMyContext();
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async (notificationId : number) => {
@@ -98,13 +99,29 @@ const NotificationPage = () => {
     nav('/user/account/')
   }
   
-  const handleViewDetails = (notificationId:number) => {
-    nav(`/notifications/${notificationId}`)
-    // Implement view details functionality here
-    
-    setActiveDropdown(null);
-  }
+  const markAsRead = async (notificationId: number) => {
   
+    const notification = data.find(n => n.id === notificationId);
+    setActiveDropdown(null);
+    if(notification?.is_read) {
+      nav(`/notifications/${notificationId}`);
+      return;
+    }
+    try {
+      const response = await userApi.post(`/notifications/${notificationId}/mark-read/`,{
+      });
+
+      if(response.status === 200) {
+        nav(`/notifications/${notificationId}`);
+        setUnreadCount(prev => Math.max(0, prev - 1));
+
+      }
+      
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+ 
  
   // Toggle dropdown menu - improved version
   const toggleDropdown = (notificationId) => {
@@ -351,7 +368,7 @@ const NotificationPage = () => {
                     >
                       <button 
                         className="flex  cursor-pointer items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => handleViewDetails(notification.id)}
+                        onClick={() => markAsRead(notification.id)}
                       >
                         <Eye size={16} className="mr-2" />
                         View Details

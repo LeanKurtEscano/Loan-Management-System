@@ -19,6 +19,7 @@ urlpatterns = [
     path('details/verify/',views.get_verify_details, name="get_verify_details"),
     path('notifications/',views.get_notifications, name="get_notifications"),
     path('notifications/mark-all-read/',views.mark_all_read, name="mark-all-read"),
+    path('notifications/<int:id>/mark-read/',views.mark_read, name="mark-read"),
     path('notifications/<int:id>/',views.delete_notification, name="delete-notif"),
     path('notifications/details/<int:id>/',views.notification_details, name="delete-notif"),
 ]

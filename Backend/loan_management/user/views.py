@@ -443,6 +443,42 @@ def mark_all_read(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_read(request, id):
+    try:
+        user = request.user
+        notification = Notification.objects.filter(user=user, id=int(id)).first()
+
+        if not notification:
+            return Response(
+                {"error": "Notification not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if notification.is_read:
+            return Response(
+                {"message": "Notification already marked as read."},
+                status=status.HTTP_200_OK
+            )
+
+        notification.is_read = True
+        notification.save()
+
+        return Response(
+            {"success": "Notification marked as read."},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
 """    
 @api_view(["POST"])
 @permission_classes([AllowAny])
