@@ -3,8 +3,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { loanApi } from "../../services/axiosConfig";
 import { fetchLoanData } from "../../services/user/loan";
-import {
-    faTrash,
+import {  faTrash,
     faEye,
     faCheckCircle,
     faClock,
@@ -19,7 +18,8 @@ import {
     faChevronRight,
     faAngleDoubleLeft,
     faAngleDoubleRight,
-    faUserFriends
+    faUserFriends,
+    faStar
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -106,6 +106,15 @@ const VerificationStatusBadge: React.FC<VerificationStatusBadgeProps> = ({ statu
     );
 };
 
+const GoodPayerBadge: React.FC = () => {
+    return (
+        <span className="inline-flex items-center ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+            <FontAwesomeIcon icon={faStar} className="mr-1 text-yellow-500" />
+            Good Payer
+        </span>
+    );
+};
+
 const SortIcon: React.FC<SortIconProps> = ({ column, sortConfig }) => {
     if (!sortConfig || sortConfig.key !== column) {
         return <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 opacity-70" />;
@@ -122,6 +131,7 @@ const ManageUsers: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [verificationFilter, setVerificationFilter] = useState<string>("All");
     const [borrowerFilter, setBorrowerFilter] = useState<string>("All");
+    const [goodPayerFilter, setGoodPayerFilter] = useState<string>("All");
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "id", direction: "desc" });
     const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState<boolean>(false);
 
@@ -183,6 +193,7 @@ const ManageUsers: React.FC = () => {
         setSearchTerm("");
         setVerificationFilter("All");
         setBorrowerFilter("All");
+        setGoodPayerFilter("All");
     };
 
     const filteredUsers = useMemo(() => {
@@ -191,7 +202,7 @@ const ManageUsers: React.FC = () => {
         }
 
         return users.filter(user => {
-            // Search by name
+         
             const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.toLowerCase();
             const matchesSearch = searchTerm ?
                 fullName.includes(searchTerm.toLowerCase()) ||
@@ -199,17 +210,22 @@ const ManageUsers: React.FC = () => {
                 (user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())) :
                 true;
 
-            // Filter by verification status
+          
             const matchesVerification = verificationFilter === "All" || user.is_verified === verificationFilter;
 
-            // Filter by borrower status
+          
             const matchesBorrower = borrowerFilter === "All" ||
                 (borrowerFilter === "Yes" && user.is_borrower) ||
                 (borrowerFilter === "No" && !user.is_borrower);
+                
+            // Filter by good payer status
+            const matchesGoodPayer = goodPayerFilter === "All" ||
+                (goodPayerFilter === "Yes" && user.is_good_payer) ||
+                (goodPayerFilter === "No" && !user.is_good_payer);
 
-            return matchesSearch && matchesVerification && matchesBorrower;
+            return matchesSearch && matchesVerification && matchesBorrower && matchesGoodPayer;
         });
-    }, [users, searchTerm, verificationFilter, borrowerFilter]);
+    }, [users, searchTerm, verificationFilter, borrowerFilter, goodPayerFilter]);
 
     const sortedUsers = useMemo(() => {
         if (!filteredUsers || !Array.isArray(filteredUsers)) {
@@ -250,7 +266,7 @@ const ManageUsers: React.FC = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, verificationFilter, borrowerFilter, sortConfig]);
+    }, [searchTerm, verificationFilter, borrowerFilter, goodPayerFilter, sortConfig]);
 
     useEffect(() => {
         const createPaginationRange = (): (number | string)[] => {
@@ -318,11 +334,13 @@ const ManageUsers: React.FC = () => {
     const totalUsers = users?.length || 0;
     const borrowers = users?.filter(user => user.is_borrower).length || 0;
     const verifiedUsers = users?.filter(user => user.is_verified === "verified").length || 0;
+    const goodPayers = users?.filter(user => user.is_good_payer).length || 0;
 
     const stats: StatCard[] = [
         { title: "Total Users", value: totalUsers, icon: faUserFriends, color: "from-blue-400 to-blue-600" },
         { title: "Borrowers", value: borrowers, icon: faCheckCircle, color: "from-green-400 to-green-600" },
-        { title: "Verified Users", value: verifiedUsers, icon: faCheckCircle, color: "from-yellow-400 to-yellow-600" }
+        { title: "Verified Users", value: verifiedUsers, icon: faCheckCircle, color: "from-yellow-400 to-yellow-600" },
+        { title: "Good Payers", value: goodPayers, icon: faStar, color: "from-purple-400 to-purple-600" }
     ];
 
     if (isError) {
@@ -358,7 +376,7 @@ const ManageUsers: React.FC = () => {
             </motion.div>
 
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                 {stats.map((stat, i) => (
                     <motion.div
                         key={i}
@@ -448,8 +466,21 @@ const ManageUsers: React.FC = () => {
                                             <option value="No">Non-Borrowers</option>
                                         </select>
                                     </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Good Payer Status</label>
+                                        <select
+                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                            value={goodPayerFilter}
+                                            onChange={(e) => setGoodPayerFilter(e.target.value)}
+                                        >
+                                            <option value="All">All Users</option>
+                                            <option value="Yes">Good Payers</option>
+                                            <option value="No">Regular Payers</option>
+                                        </select>
+                                    </div>
 
-                                    <div className="md:col-span-2 flex justify-end items-end">
+                                    <div className="md:col-span-1 flex justify-end items-end">
                                         <button
                                             className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
                                             onClick={clearFilters}
@@ -468,7 +499,7 @@ const ManageUsers: React.FC = () => {
                         Showing <span className="font-medium">{Math.min(sortedUsers.length, itemsPerPage)}</span> of <span className="font-medium">{sortedUsers.length}</span> users
                     </p>
 
-                    {(searchTerm || verificationFilter !== "All" || borrowerFilter !== "All") && (
+                    {(searchTerm || verificationFilter !== "All" || borrowerFilter !== "All" || goodPayerFilter !== "All") && (
                         <div className="flex items-center">
                             <span className="text-sm text-gray-500 italic mr-2">Filters applied</span>
                             <button
@@ -527,16 +558,23 @@ const ManageUsers: React.FC = () => {
                                         className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">
+
+                                          
+                                            <div className="text-sm flex whitespace-nowrap font-medium text-gray-900">
                                                 {user.username}
+                                                {user.is_good_payer && ( <GoodPayerBadge />)}
                                             </div>
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
-                                                {user.first_name} {user.middle_name ? user.middle_name + " " : ""}
-                                                {user.last_name}
+                                            <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate flex items-center">
+                                                <span>
+                                                    {user.first_name} {user.middle_name ? user.middle_name + " " : ""}
+                                                    {user.last_name}
+                                                </span>
+                                              
                                             </div>
+                                           
                                         </td>
 
                                         <td className="px-6 py-4">
@@ -612,7 +650,6 @@ const ManageUsers: React.FC = () => {
                                         <span className="sr-only">First page</span>
                                         <FontAwesomeIcon icon={faAngleDoubleLeft} className="h-4 w-4" />
                                     </button>
-
                                     <button
                                         onClick={goToPrevPage}
                                         disabled={currentPage === 1}

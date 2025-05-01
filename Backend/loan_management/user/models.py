@@ -17,6 +17,7 @@ class CustomUser(AbstractUser):
     address = models.CharField(max_length=255, null=True, blank=True)
     password = models.CharField(max_length=255)  
     image_url = cloudinary.models.CloudinaryField('image', blank=True, null=True)
+    is_good_payer = models.BooleanField(default=False)
    # type_id = models.ForeignKey(IdType, on_delete=models.CASCADE, null=True, blank=True)
 
 class VerificationRequests(models.Model):

@@ -50,6 +50,11 @@ def handle_loan_payments(request):
         print("Received email:", email)
         print("Received periodPayment:", period_payment)
         print("Received receipt:", receipt)
+        penalty = request.data.get("penalty", None)
+        penalty = Decimal(penalty) if penalty not in [None, '', 'null'] else Decimal("0.00")
+        print(penalty)
+        
+        is_penalty = penalty > 0
 
         
         
@@ -62,8 +67,18 @@ def handle_loan_payments(request):
             loan = loan_sub,
             amount= Decimal(period_payment["amount"]),
             period=unit,
-            receipt=receipt_url
+            receipt=receipt_url,
+            is_penalty=is_penalty,
+            penalty_fee=penalty
         )
+        
+        user = loan_payment.user
+        
+        if is_penalty:
+            user.is_good_payer = False
+            user.save()
+        
+        
 
         return Response({
             "success": "Loan Payment has been received",
@@ -112,8 +127,18 @@ def approve_loan_payment(request):
 
         if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
             loan_sub.is_celebrate = True
-            user.is_borrower = False
+            user.is_borrower = False  
+            all_payments = LoanPayments.objects.filter(loan=loan_sub)
+            has_penalty = all_payments.filter(is_penalty=True).exists()
+            
+            
+            if not has_penalty:
+              user.is_good_payer = True
+            else:
+              user.is_good_payer = False
+              
             user.save()
+            
 
             subject = "Your Loan is Fully Paid!"
             html_content = render_to_string("email/loanfullypaid.html", {
