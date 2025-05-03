@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { fetchUserData } from '../../services/user/loan';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
 const User = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ const User = () => {
   const handleRowClick = (applicationId) => {
     navigate(`/dashboard/verify/application/${applicationId}`);
   };
+
+  console.log(user);
 
   const handleViewDisbursement = (e, submissionId) => {
     e.stopPropagation();
@@ -163,6 +166,17 @@ const User = () => {
                 >
                   {user?.email}
                 </motion.p>
+                {
+
+                  user.is_good_payer && (
+                    <span className="inline-flex items-center  px-2  py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                    <FontAwesomeIcon icon={faStar} className="mr-1 text-yellow-500" />
+                    Good Payer
+                </span>
+
+                  )
+                }
+               
               </div>
             </div>
           </div>

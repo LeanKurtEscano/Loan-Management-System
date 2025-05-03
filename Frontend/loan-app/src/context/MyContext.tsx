@@ -17,7 +17,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     interest:null,
   })
 
-
+  
 
   const [emailDetails, setEmailDetails] = useState({
     subject:"",
@@ -39,7 +39,7 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
   const [disbursement, setDisbursement] = useState<SubmitDisbursement>({
     periodPayment: [],
-    penalty: null,
+    penalty: false,
     receipt: null,
     email: "",
     disbursementId: null
@@ -68,15 +68,15 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     explanation: "",
   });
  const [unreadCount, setUnreadCount] = useState<number>(0);
-
-  const [penalty, setPenalty] = useState(false);
+ const [penalty, setPenalty] = useState<number>(0);
+const [noOfPenaltyDelay, setNoOfPenaltyDelay] = useState(0);
   
 
 
 
 
   return (
-    <MyContext.Provider value={{penalty,unreadCount,setUnreadCount, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
+    <MyContext.Provider value={{noOfPenaltyDelay,setNoOfPenaltyDelay,penalty,unreadCount,setUnreadCount, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
       {children}
     </MyContext.Provider>
   );

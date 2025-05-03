@@ -91,7 +91,7 @@ class AccountDetailSerializer(serializers.ModelSerializer):
             'id', 'username', 'first_name', 'middle_name', 'last_name',
             'email', 'contact_number', 'address', 'image_url',
             'is_verified', 'is_admin', 'is_borrower',
-            'verification_request', 'loan_applications'
+            'verification_request', 'loan_applications','is_good_payer'
         ]
 
     def get_verification_request(self, obj):

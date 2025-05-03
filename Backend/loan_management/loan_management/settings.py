@@ -65,6 +65,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
@@ -128,9 +129,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+
 CORS_ALLOW_CREDENTIALS = True  
 
 DATABASES = {

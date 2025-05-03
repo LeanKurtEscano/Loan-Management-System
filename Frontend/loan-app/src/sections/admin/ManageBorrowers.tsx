@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -20,8 +19,8 @@ import {
     faChevronRight,
     faAngleDoubleLeft,
     faAngleDoubleRight,
-
-    faMoneyBillWave
+    faMoneyBillWave,
+    faExclamationCircle // Added for penalty indicator
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +28,7 @@ import Modal from "../../components/Modal";
 import { formatDate, formatDateWords } from "../../utils/formatDate";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { fetchLoanData } from "../../services/user/loan";
+
 interface User {
     first_name: string;
     middle_name?: string;
@@ -40,6 +40,7 @@ interface LoanApplication {
     user: User;
     status: "Pending" | "Approved" | "Rejected";
     created_at: string;
+    penalty?: string;
 }
 
 interface SortConfig {
@@ -118,6 +119,16 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     );
 };
 
+// New component to display penalty indicator
+const PenaltyBadge = () => {
+    return (
+        <span className="inline-flex items-center px-2 py-0.5 ml-2 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+            <FontAwesomeIcon icon={faExclamationCircle} className="mr-1" />
+            Penalty
+        </span>
+    );
+};
+
 const SortIcon: React.FC<SortIconProps> = ({ column, sortConfig }) => {
     if (!sortConfig || sortConfig.key !== column) {
         return <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 opacity-70" />;
@@ -134,6 +145,7 @@ const ManageBorrowers: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [statusFilter, setStatusFilter] = useState<string>("All");
     const [dateFilter, setDateFilter] = useState<string>("All");
+    const [penaltyFilter, setPenaltyFilter] = useState<string>("All"); // Added penalty filter
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "created_at", direction: "desc" });
     const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState<boolean>(false);
 
@@ -147,36 +159,27 @@ const ManageBorrowers: React.FC = () => {
 
     const endpoint = "submissions"
 
-
     const { data: loanApplications, isLoading, isError, error } = useQuery({
         queryKey: ["loanSubmissions"],
         queryFn: () => fetchLoanData(endpoint),
     });
-
-
+    console.log(loanApplications);
 
     const deleteMutation = useMutation({
         mutationFn: async (id: number) => {
             const response = await loanApi.post('/remove/submission/', {
                 id: selectedId
             });
-
         },
-
         onSuccess: () => {
             queryClient.invalidateQueries(["loanSubmissions"]);
-
         }
     })
-
 
     const handleSelect = (id: number) => {
         navigate(`/dashboard/submission/approve/${id}`);
         console.log("Selected User ID:", id);
     };
-
-
-
 
     const handleOpenDeleteModal = (id: number): void => {
         setSelectedId(id);
@@ -202,6 +205,7 @@ const ManageBorrowers: React.FC = () => {
         setSearchTerm("");
         setStatusFilter("All");
         setDateFilter("All");
+        setPenaltyFilter("All"); // Clear penalty filter
     };
 
     // Helper functions for date filtering
@@ -232,6 +236,13 @@ const ManageBorrowers: React.FC = () => {
         }
     };
 
+    // Check if loan has a penalty (value greater than 0)
+    const hasPenalty = (loan: any) => {
+        return loan.penalty && parseFloat(loan.penalty) > 0;
+    };
+
+    // Calculate loans with penalties
+    const loansWithPenalties = loanApplications?.filter(loan => hasPenalty(loan)).length || 0;
 
     const filteredApplications = useMemo(() => {
         if (!loanApplications || !Array.isArray(loanApplications)) {
@@ -239,13 +250,17 @@ const ManageBorrowers: React.FC = () => {
         }
 
         return loanApplications.filter(loan => {
-
             const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
             const matchesSearch = fullName.includes(searchTerm.toLowerCase());
-
-
             const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
-
+            
+            // Add penalty filter logic
+            let matchesPenalty = true;
+            if (penaltyFilter === "WithPenalty") {
+                matchesPenalty = hasPenalty(loan);
+            } else if (penaltyFilter === "NoPenalty") {
+                matchesPenalty = !hasPenalty(loan);
+            }
 
             let matchesDate = true;
             if (dateFilter !== "All") {
@@ -256,10 +271,9 @@ const ManageBorrowers: React.FC = () => {
                 }
             }
 
-            return matchesSearch && matchesStatus && matchesDate;
+            return matchesSearch && matchesStatus && matchesDate && matchesPenalty;
         });
-    }, [loanApplications, searchTerm, statusFilter, dateFilter]);
-
+    }, [loanApplications, searchTerm, statusFilter, dateFilter, penaltyFilter]);
 
     const sortedApplications = useMemo(() => {
         if (!filteredApplications || !Array.isArray(filteredApplications)) {
@@ -278,6 +292,9 @@ const ManageBorrowers: React.FC = () => {
                 } else if (sortConfig.key === 'created_at') {
                     aValue = new Date(a.created_at);
                     bValue = new Date(b.created_at);
+                } else if (sortConfig.key === 'penalty') {
+                    aValue = parseFloat(a.penalty || '0');
+                    bValue = parseFloat(b.penalty || '0');
                 } else if (sortConfig.key.includes('.')) {
                     const keys = sortConfig.key.split('.');
                     aValue = keys.reduce((obj: any, key: string) => obj && obj[key], a);
@@ -299,14 +316,11 @@ const ManageBorrowers: React.FC = () => {
         return sortableItems;
     }, [filteredApplications, sortConfig]);
 
-
     const totalPages = Math.ceil(sortedApplications.length / itemsPerPage);
-
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, statusFilter, dateFilter, sortConfig]);
-
+    }, [searchTerm, statusFilter, dateFilter, penaltyFilter, sortConfig]);
 
     useEffect(() => {
         const createPaginationRange = (): (number | string)[] => {
@@ -319,11 +333,9 @@ const ManageBorrowers: React.FC = () => {
                 range.push(i);
             }
 
-
             if (totalPages > 1) {
                 range.push(totalPages);
             }
-
 
             let rangeWithEllipsis: (number | string)[] = [];
             let l: number | undefined;
@@ -344,17 +356,14 @@ const ManageBorrowers: React.FC = () => {
         setPaginationRange(createPaginationRange());
     }, [currentPage, totalPages]);
 
-
     const paginatedData = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         return sortedApplications.slice(startIndex, startIndex + itemsPerPage);
     }, [sortedApplications, currentPage, itemsPerPage]);
 
-
     const tableHeaders = [
         { label: 'Name', key: 'name', sortable: true },
         { label: 'End Date', key: 'end_date', sortable: false },
-
         { label: 'Status', key: 'status', sortable: true },
         { label: 'Submitted Date', key: 'created_at', sortable: true },
         { label: 'Actions', key: 'actions', sortable: false, center: true }
@@ -375,14 +384,14 @@ const ManageBorrowers: React.FC = () => {
     };
 
     // Calculate stats
-    const totalApplications = loanApplications?.length;
-    const pendingApplications = loanApplications?.filter(app => app.status === "Pending").length;
-    const approvedApplications = loanApplications?.filter(app => app.status === "Approved").length;
+    const totalApplications = loanApplications?.length || 0;
+    const pendingApplications = loanApplications?.filter(app => app.status === "Pending").length || 0;
+    const approvedApplications = loanApplications?.filter(app => app.status === "Approved").length || 0;
 
     const stats: StatCard[] = [
         { title: "Total Disbursements", value: totalApplications, icon: faMoneyBillWave, color: "from-blue-400 to-blue-600" },
         { title: "Pending Disbursements", value: pendingApplications, icon: faClock, color: "from-yellow-400 to-yellow-600" },
-        { title: "Approved Disbursements", value: approvedApplications, icon: faCheckCircle, color: "from-green-400 to-green-600" }
+        { title: "With Penalties", value: loansWithPenalties, icon: faExclamationCircle, color: "from-orange-400 to-orange-600" } // Changed the third card to show penalties
     ];
 
     if (isError) {
@@ -400,7 +409,6 @@ const ManageBorrowers: React.FC = () => {
             </div>
         );
     }
-
 
     return (
         <div className="p-6 w-full min-h-screen max-w-7xl mx-auto">
@@ -475,6 +483,19 @@ const ManageBorrowers: React.FC = () => {
                                     <option value="Rejected">Rejected</option>
                                 </select>
                             </div>
+                            
+                            {/* Added Penalty Filter */}
+                            <div className="flex items-center">
+                                <select
+                                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full"
+                                    value={penaltyFilter}
+                                    onChange={(e) => setPenaltyFilter(e.target.value)}
+                                >
+                                    <option value="All">All Penalties</option>
+                                    <option value="WithPenalty">With Penalty</option>
+                                    <option value="NoPenalty">No Penalty</option>
+                                </select>
+                            </div>
 
                             <button
                                 className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
@@ -489,7 +510,6 @@ const ManageBorrowers: React.FC = () => {
                     {/* Advanced filters section */}
                     <AnimatePresence>
                         {isAdvancedFilterOpen && (
-
                             <motion.div
                                 initial={{ opacity: 0, height: 0, overflow: "hidden" }}
                                 animate={{ opacity: 1, height: "auto", overflow: "hidden" }}
@@ -533,7 +553,7 @@ const ManageBorrowers: React.FC = () => {
                         Showing <span className="font-medium">{Math.min(sortedApplications.length, itemsPerPage)}</span> of <span className="font-medium">{sortedApplications.length}</span> applications
                     </p>
 
-                    {(searchTerm || statusFilter !== "All" || dateFilter !== "All") && (
+                    {(searchTerm || statusFilter !== "All" || dateFilter !== "All" || penaltyFilter !== "All") && (
                         <div className="flex items-center">
                             <span className="text-sm text-gray-500 italic mr-2">Filters applied</span>
                             <button
@@ -594,16 +614,18 @@ const ManageBorrowers: React.FC = () => {
                                         className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
-                                                {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
-                                                {loan.user.last_name}
+                                            <div className="flex items-center">
+                                                <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
+                                                    {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
+                                                    {loan.user.last_name}
+                                                </div>
+                                                {/* Add penalty badge if loan has penalty */}
+                                                {hasPenalty(loan) && <PenaltyBadge />}
                                             </div>
                                         </td>
-
                                         <td className="px-6 py-4">
                                             {formatDateWords(loan.repay_date)}
                                         </td>
-
                                         <td className="px-6 py-4">
                                             <StatusBadge status={loan.status} />
                                         </td>

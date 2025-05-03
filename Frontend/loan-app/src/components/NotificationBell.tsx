@@ -6,6 +6,7 @@ import { userApi } from '../services/axiosConfig';
 import { Notification } from '../constants/interfaces/notificationInterface';
 import { formatDate } from '../utils/formatDate';
 import { useMyContext } from '../context/MyContext';
+import { userDisbursementApi } from '../services/axiosConfig';
 interface NotificationBellProps {
   id: number | undefined;
 }
@@ -56,7 +57,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
     socketRef.current = socket;
     
     socket.onopen = () => {
-      console.log('Connected to the WebSocket server');
+    
       setConnectionStatus('connected');
       
       // Start heartbeat when connected
@@ -69,13 +70,13 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
         
         // Handle connection established message
         if (data.type === 'connection_established') {
-          console.log(data.message);
+         
           return;
         }
         
         // Handle heartbeat response
         if (data.type === 'heartbeat_response') {
-          console.log('Heartbeat acknowledged by server');
+         
           return;
         }
         
@@ -111,7 +112,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
     };
     
     socket.onclose = (event) => {
-      console.log('WebSocket connection closed:', event.code, event.reason);
+     
       setConnectionStatus('disconnected');
       
       // Stop heartbeat
@@ -122,13 +123,13 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
       
       // Attempt to reconnect after a delay
       reconnectTimeoutRef.current = setTimeout(() => {
-        console.log('Attempting to reconnect...');
+        
         connectWebSocket();
       }, 3000); // Reconnect after 3 seconds
     };
     
     socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      
       socket.close();
     };
   };

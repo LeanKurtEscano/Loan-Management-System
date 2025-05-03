@@ -108,9 +108,9 @@ const VerificationStatusBadge: React.FC<VerificationStatusBadgeProps> = ({ statu
 
 const GoodPayerBadge: React.FC = () => {
     return (
-        <span className="inline-flex items-center ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-            <FontAwesomeIcon icon={faStar} className="mr-1 text-yellow-500" />
-            Good Payer
+        <span className="inline-flex items-center ml-2 px-1 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+            <FontAwesomeIcon icon={faStar} className=" text-yellow-500" />
+        
         </span>
     );
 };

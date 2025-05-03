@@ -278,7 +278,7 @@ const UserLoan = () => {
             
             {/* Filter Button */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Filters:</span>
+             
               <Filter
                 label="Filters"
                 toggle={toggleFilter}
@@ -452,7 +452,7 @@ const UserLoan = () => {
                                 onClick={(e) => handleView(tx.id, e)} 
                                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-500 transition-colors"
                               >
-                                <FontAwesomeIcon icon={faEye} className="mr-2" /> View Details
+                                <FontAwesomeIcon icon={faEye} className="mr-2" /> 
                               </button>
                         </div>
                       </td>

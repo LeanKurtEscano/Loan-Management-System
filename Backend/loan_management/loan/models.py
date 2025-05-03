@@ -63,7 +63,7 @@ class LoanSubmission(models.Model):
     is_fully_paid = models.BooleanField(default=False)
     is_celebrate = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    penalty = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     def update_payment_status(self):
         """ Updates is_fully_paid based on the remaining balance. """
         self.is_fully_paid = self.balance <= 0

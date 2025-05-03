@@ -8,7 +8,7 @@ interface amountDetails {
 export interface SubmitDisbursement {
    disbursementId: number | null;
    periodPayment: amountDetails[];
-   penalty?: number | null;
+   penalty?: boolean;
    receipt: File | null;
    email?: string;
 }

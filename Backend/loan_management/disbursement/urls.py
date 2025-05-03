@@ -14,4 +14,5 @@ urlpatterns = [
     path('new/application/', views.new_loan, name="new-loan"),
     path('disbursement/transactions/<int:id>/', views.admin_user_payment_data, name="disbursement-transaction"),
     path('data/', views.get_dashboard_data, name="dashboard-data"),
+    path('penalty/',views.update_penalty, name="update-penalty"),
 ]

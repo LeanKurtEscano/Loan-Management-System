@@ -23,6 +23,25 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import calendar
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_penalty(request):
+    penalty_amount = request.data.get('penalty')
+
+    try:
+        loan = LoanSubmission.objects.get(user=request.user, is_fully_paid=False, is_active=True)
+        loan.penalty = penalty_amount
+        loan.save()
+        
+        user = loan.user
+        user.is_good_payer = False
+        user.save()
+        return Response({'message': 'Penalty updated successfully'}, status=status.HTTP_200_OK)
+    except LoanSubmission.DoesNotExist:
+        return Response({'error': 'Loan not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])  
@@ -36,7 +55,8 @@ def handle_loan_payments(request):
             "amount": request.data.get("periodPayment[amount]", ""),
             "duration": request.data.get("periodPayment[duration]", ""),
         }
-     
+        
+      
         
         unit = extract_duration(period_payment["label"])
         print(unit)
@@ -50,11 +70,7 @@ def handle_loan_payments(request):
         print("Received email:", email)
         print("Received periodPayment:", period_payment)
         print("Received receipt:", receipt)
-        penalty = request.data.get("penalty", None)
-        penalty = Decimal(penalty) if penalty not in [None, '', 'null'] else Decimal("0.00")
-        print(penalty)
-        
-        is_penalty = penalty > 0
+      
 
         
         
@@ -68,16 +84,7 @@ def handle_loan_payments(request):
             amount= Decimal(period_payment["amount"]),
             period=unit,
             receipt=receipt_url,
-            is_penalty=is_penalty,
-            penalty_fee=penalty
         )
-        
-        user = loan_payment.user
-        
-        if is_penalty:
-            user.is_good_payer = False
-            user.save()
-        
         
 
         return Response({
@@ -103,6 +110,7 @@ def get_user_payment(request,id):
     try:
       
         loan_applications = LoanPayments.objects.get(id = int(id))
+     
         serializer = LoanDisbursementSerializer(loan_applications)
         return Response(serializer.data, status=200)
     except Exception as e:
