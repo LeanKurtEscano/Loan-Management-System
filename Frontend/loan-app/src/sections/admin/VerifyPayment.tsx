@@ -112,11 +112,7 @@ const VerifyPayment = () => {
         rejectMutation.mutateAsync(selectedId ?? 0);
     };
 
-    const handleApplyPenalty = async () => {
-        if (penaltyAmount) {
-            penaltyMutation.mutateAsync();
-        }
-    };
+
 
     const getStatusColor = (status) => {
         if (!status) return "bg-gray-500";
@@ -424,7 +420,8 @@ const VerifyPayment = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={handleApplyPenalty}
+                                onClick={() => setIsPenaltyModalOpen(false)}
+                                
                                 disabled={!penaltyAmount || loadingPenalty}
                                 className={`bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-lg transition-colors flex items-center gap-2 ${(!penaltyAmount || loadingPenalty) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
@@ -436,7 +433,7 @@ const VerifyPayment = () => {
                                 ) : (
                                     <>
                                         <FontAwesomeIcon icon={faMoneyBillWave} />
-                                        Deduct
+                                        Confirm
                                     </>
                                 )}
                             </button>

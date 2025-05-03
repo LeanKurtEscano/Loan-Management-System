@@ -7,6 +7,7 @@ import { useMyContext } from "../../../context/MyContext";
 import { SubmitDisbursement } from "../../../constants/interfaces/disbursement";
 import { useEffect } from "react";
 import { userDisbursementApi } from "../../../services/axiosConfig";
+import { useQueryClient } from "@tanstack/react-query";
 interface Step2Props {
   nextStep: () => void;
   prevStep: () => void;
@@ -14,11 +15,13 @@ interface Step2Props {
 
 const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   const { data } = useQuery(["userLoanSubmission2"], getLoanSubmission);
+  const queryClient = useQueryClient();
+  console.log(data)
   const [selectedOption, setSelectedOption] = useState<number | null>(
     () => JSON.parse(localStorage.getItem("selectedOption") || "null")
   );
 
-  const { setDisbursement, disbursement,noOfPenaltyDelay, penalty,setPenalty } = useMyContext();
+  const { setDisbursement, disbursement, noOfPenaltyDelay, penalty, setPenalty } = useMyContext();
 
   const totalPayment = parseFloat(data?.total_payment || "0");
   const balance = parseFloat(data?.balance || "0");
@@ -150,31 +153,34 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   // change tommorow 
 
-  const totalWithPenalty = (roundedPaymentPerMonth * 0.10  ) * (noOfPenaltyDelay || 0);
-
+  const totalWithPenalty = (roundedPaymentPerMonth * 0.10) * (noOfPenaltyDelay);
+  console.log(totalWithPenalty);
 
   useEffect(() => {
 
-  
+
     setPenalty(totalWithPenalty);
-  
-   
+
+
     if (totalWithPenalty > 0) {
       const submitPenalty = async () => {
         try {
-        
-          const response = await userDisbursementApi.post('/penalty/', { penalty: totalWithPenalty });
-          
-          console.log(response.status)
-      
+
+          const response = await userDisbursementApi.post('/penalty/', { penalty: totalWithPenalty, no_penalty_delay: noOfPenaltyDelay });
+
+          if (response.status === 200) {
+            queryClient.invalidateQueries(['userLoanSubmission2']);
+
+          }
+
         } catch (error) {
-        
+
         }
       };
-  
+
       submitPenalty();
     }
-  }, [totalWithPenalty, setPenalty]); 
+  }, [totalWithPenalty, setPenalty]);
 
 
 
@@ -239,10 +245,19 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
           <span className="font-bold ml-2">{formatCurrency(balance)}</span>
         </div>
 
-        <div className="mt-6 p-4 border border-red-500 rounded-lg bg-red-100">
-          <span className="font-semibold text-red-600">Total Penalty:</span>
-          <span className="font-bold ml-2 text-red-600">{formatCurrency(totalWithPenalty) } ({noOfPenaltyDelay} {noOfPenaltyDelay === 1 ? "month" : "months"} delayed) </span>
-        </div>
+
+        {
+          parseFloat(data?.penalty) > 0 && (
+            <div className="mt-6 p-4 border border-red-500 rounded-lg bg-red-100">
+              <span className="font-semibold text-red-600">Total Penalty:</span>
+              <span className="font-bold ml-2 text-red-600">
+                {formatCurrency(data?.penalty || 0)} ({data?.no_penalty_delay} {data?.no_penalty_delay === 1 ? "month" : "months"} delayed)
+              </span>
+            </div>
+
+          )
+        }
+
 
         <div className="flex justify-between mt-6">
           <button

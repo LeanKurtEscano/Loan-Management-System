@@ -24,24 +24,44 @@ from asgiref.sync import async_to_sync
 import calendar
 
 
+from decimal import Decimal
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def update_penalty(request):
-    penalty_amount = request.data.get('penalty')
+   
+    penalty_amount = Decimal(request.data.get('penalty', '0'))
+    no_penalty_delay = int(request.data.get('no_penalty_delay', 0))
+  
+
+    today = timezone.now().date()
 
     try:
         loan = LoanSubmission.objects.get(user=request.user, is_fully_paid=False, is_active=True)
-        loan.penalty = penalty_amount
-        loan.save()
-        
-        user = loan.user
-        user.is_good_payer = False
-        user.save()
-        return Response({'message': 'Penalty updated successfully'}, status=status.HTTP_200_OK)
+
+        if loan.last_penalty_update is None or (today - loan.last_penalty_update).days >= 30:
+            if no_penalty_delay > 0:
+                # Safely initialize penalty and delay fields if they are None
+                loan.penalty = (loan.penalty or Decimal('0.00')) + penalty_amount
+                loan.no_penalty_delay = (loan.no_penalty_delay or 0) + no_penalty_delay
+                loan.last_penalty_update = today
+                loan.save()
+
+                # Mark user as not a good payer
+                user = loan.user
+                user.is_good_payer = False
+                user.save()
+
+                return Response({'message': 'Penalty updated successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'No penalty delay to apply'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Penalty has already been applied this month'}, status=status.HTTP_400_BAD_REQUEST)
+
     except LoanSubmission.DoesNotExist:
         return Response({'error': 'Loan not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])  
@@ -135,6 +155,7 @@ def approve_loan_payment(request):
          
         if penalty_decimal > Decimal("0.00"):
             loan_sub.penalty -= penalty_decimal
+            loan_payment.is_penalty = True
         loan_sub.balance -= Decimal(loan_payment.amount)
 
         user = loan_payment.user

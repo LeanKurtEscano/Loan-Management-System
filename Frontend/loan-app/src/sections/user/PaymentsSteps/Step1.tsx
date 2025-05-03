@@ -22,6 +22,8 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     );
     const navigate = useNavigate();
 
+    console.log(data);
+
     const goToTransactions = () => {
         navigate('/user/my-transactions');
     }
@@ -106,33 +108,33 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         if (dueDateString === "N/A" || dueDateString === "Invalid Frequency") {
             return { isPastDue: false, monthsOverdue: 0 };
         }
-    
-        const today = new Date("2025-08-02");
+
+        const today = new Date("2025-08-04");
         today.setHours(0, 0, 0, 0); // Reset time for today 2025-08-02
-    
+
         const dueDate = new Date(dueDateString);
         dueDate.setHours(0, 0, 0, 0); // Reset time for due date
-    
+
         if (today < dueDate) {
             return { isPastDue: false, monthsOverdue: 0 }; // Not overdue
         }
-    
+
         // Calculate months overdue (MONTHLY ONLY)
         const monthsOverdue =
             (today.getFullYear() - dueDate.getFullYear()) * 12 +
             (today.getMonth() - dueDate.getMonth());
-    
+
         // If today is before the due date of this month, no overdue months
         if (today.getDate() < dueDate.getDate()) {
             return { isPastDue: false, monthsOverdue: 0 };
         }
         console.log(monthsOverdue);
-    
+
         // Otherwise, calculate overdue months
         return { isPastDue: true, monthsOverdue };
     };
-    
-  
+
+
 
     const totalPayment = data?.total_payment || "0";
     const balance = data?.balance || "0";
@@ -231,6 +233,12 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                     {isPastDue && (
                         <span className="text-red-600 font-bold ml-1">
                             Your payment is past due! Please make a payment immediately to avoid additional penalties.
+                        </span>
+                    )}
+
+                    {!isPastDue && parseFloat(data?.penalty) > 0 && (
+                        <span className="text-red-600 font-bold ml-1">
+                            You have a penalty to pay! Please clear your penalty.
                         </span>
                     )}
                     {!isPastDue && (
