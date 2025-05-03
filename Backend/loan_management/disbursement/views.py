@@ -123,11 +123,18 @@ def get_user_payment(request,id):
 def approve_loan_payment(request):
     try:
         id = request.data.get("id")
+        penalty_amount = request.data.get("penaltyAmount")    
+        penalty_decimal = Decimal(penalty_amount) if penalty_amount not in [None, ""] else Decimal("0.00")
         loan_payment = LoanPayments.objects.get(id=int(id))
+        loan_payment.penalty_fee = penalty_decimal
+        
         loan_sub = loan_payment.loan 
 
         loan_payment.status = "Approved"
         loan_payment.save()
+         
+        if penalty_decimal > Decimal("0.00"):
+            loan_sub.penalty -= penalty_decimal
         loan_sub.balance -= Decimal(loan_payment.amount)
 
         user = loan_payment.user

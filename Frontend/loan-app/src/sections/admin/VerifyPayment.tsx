@@ -40,7 +40,8 @@ const VerifyPayment = () => {
         setLoading(true);
         try {
             const response = await adminDisbursementApi.post("/approve/payment/", {
-                id: id
+                id: id,
+                penaltyAmount:penaltyAmount
             });
 
             if (response.status === 200) {
