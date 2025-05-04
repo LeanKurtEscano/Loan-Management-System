@@ -24,7 +24,7 @@ const LoanApplication: React.FC = () => {
   );
 
  
-  console.log();
+  console.log(data);
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));

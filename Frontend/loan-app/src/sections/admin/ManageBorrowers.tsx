@@ -250,8 +250,10 @@ const ManageBorrowers: React.FC = () => {
         }
 
         return loanApplications.filter(loan => {
-            const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
-            const matchesSearch = fullName.includes(searchTerm.toLowerCase());
+            // Fix: Accessing user properties correctly for the name search
+            const fullName = `${loan.user?.first_name || loan.first_name || ''} ${loan.user?.middle_name || loan.middle_name || ''} ${loan.user?.last_name || loan.last_name || ''}`.toLowerCase().trim();
+            const matchesSearch = searchTerm === '' || fullName.includes(searchTerm.toLowerCase());
+            
             const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
             
             // Add penalty filter logic

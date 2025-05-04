@@ -78,7 +78,11 @@ const Loan: React.FC = () => {
         queryClient.invalidateQueries(["userLoanSubmission"])
         queryClient.invalidateQueries(["userLoanApplication"])
         queryClient.invalidateQueries(["userLoanApplication2"])
-        nav('/user/apply-loan');
+        window.location.reload(); // This reloads the current page
+        setTimeout(() => {
+          nav('/user/apply-loan');
+        }, 50); // Tiny delay to allow reload
+      
 
       }
 

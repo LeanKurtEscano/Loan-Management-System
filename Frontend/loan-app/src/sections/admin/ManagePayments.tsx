@@ -245,9 +245,8 @@ const ManagePayments: React.FC = () => {
 
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
-      const matchesSearch = fullName.includes(searchTerm.toLowerCase());
-
+      const fullName = `${loan.user?.first_name || loan.first_name || ''} ${loan.user?.middle_name || loan.middle_name || ''} ${loan.user?.last_name || loan.last_name || ''}`.toLowerCase().trim();
+      const matchesSearch = searchTerm === '' || fullName.includes(searchTerm.toLowerCase());
       // Status filter
       const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
 

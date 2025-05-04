@@ -535,7 +535,7 @@ def loan_application(request):
     try:
         
         user = request.user
-        loan_applications = LoanApplication.objects.get(user=request.user, is_active = True,status="Approved")
+        loan_applications = LoanApplication.objects.get(user=request.user, is_active = True)
         serializer = LoanAppSerializer(loan_applications)
         
         return Response(serializer.data, status=200)
