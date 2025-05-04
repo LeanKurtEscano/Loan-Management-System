@@ -164,14 +164,13 @@ def approve_loan_payment(request):
         if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
             loan_sub.is_celebrate = True
             user.is_borrower = False  
-            all_payments = LoanPayments.objects.filter(loan=loan_sub)
-            has_penalty = all_payments.filter(is_penalty=True).exists()
+            loan_penalty_count = int(loan_sub.no_penalty_delay or 0)
             
             
-            if not has_penalty:
-              user.is_good_payer = True
-            else:
+            if loan_penalty_count > 0:
               user.is_good_payer = False
+            else:
+              user.is_good_payer = True
               
             user.save()
             

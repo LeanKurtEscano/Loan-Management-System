@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck, faArrowLeft, faIdCard, faFileAlt, faUserCircle, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck, faArrowLeft, faIdCard, faFileAlt, faUserCircle, faMoneyBillWave, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDetail } from "../../services/user/loan";
@@ -158,7 +158,7 @@ const VerifyApplication = () => {
             Go Back
           </button>
 
-      
+
         </div>
 
         <motion.div
@@ -168,17 +168,17 @@ const VerifyApplication = () => {
           transition={{ type: "spring", stiffness: 100 }}
         >
           <div className="bg-blue-600 p-5 flex items-center flex-col text-white">
-       
+
             <h1 className="text-2xl font-bold text-center">Loan Application Review</h1>
             <p className="text-center mb-4  text-blue-100">
               Application #{`APP-${data?.id?.toString().padStart(6, "0")}`}
             </p>
 
-         
+
             <span className={`px-4 py-1.5 rounded-full text-white font-medium ${getStatusColor(data?.status)}`}>
               {data?.status || "Unknown Status"}
             </span>
-        
+
           </div>
 
 
@@ -299,7 +299,7 @@ const VerifyApplication = () => {
             {/* Action Buttons - Always visible */}
             <div className="mt-8 border-t pt-6">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                {data?.status.trim() === "Pending" || data?.status.trim() === "Rejected" ? (
+                {data?.status.trim() === "Pending" ? (
                   <>
                     <motion.button
                       className="w-full sm:w-auto bg-green-500 cursor-pointer text-white font-medium px-6 py-3 rounded-lg shadow transition-all hover:bg-green-600 active:scale-98 flex items-center justify-center gap-2"
@@ -320,12 +320,18 @@ const VerifyApplication = () => {
                       Reject Application
                     </motion.button>
                   </>
+                ) : data?.status.trim() === "Rejected" ? (
+                  <div className="flex items-center text-red-600 font-semibold text-lg p-3 bg-red-50 rounded-lg">
+                    <FontAwesomeIcon icon={faTimes} className="text-2xl mr-2" />
+                    Application Rejected
+                  </div>
                 ) : (
                   <div className="flex items-center text-green-600 font-semibold text-lg p-3 bg-green-50 rounded-lg">
                     <FontAwesomeIcon icon={faCircleCheck} className="text-2xl mr-2" />
                     Application Approved
                   </div>
                 )}
+
               </div>
             </div>
           </div>

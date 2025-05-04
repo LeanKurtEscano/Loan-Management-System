@@ -424,6 +424,7 @@ def reject_loan_application(request):
 
         loan_app = LoanApplication.objects.get(id=int(id))
         loan_app.status = "Rejected"
+        loan_app.is_active = False
         loan_app.save()
 
         user = loan_app.user
@@ -534,7 +535,7 @@ def loan_application(request):
     try:
         
         user = request.user
-        loan_applications = LoanApplication.objects.get(user=request.user, is_active = True)
+        loan_applications = LoanApplication.objects.get(user=request.user, is_active = True,status="Approved")
         serializer = LoanAppSerializer(loan_applications)
         
         return Response(serializer.data, status=200)

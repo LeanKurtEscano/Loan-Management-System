@@ -41,7 +41,7 @@ const VerifyPayment = () => {
         try {
             const response = await adminDisbursementApi.post("/approve/payment/", {
                 id: id,
-                penaltyAmount:penaltyAmount
+                penaltyAmount: penaltyAmount
             });
 
             if (response.status === 200) {
@@ -300,7 +300,7 @@ const VerifyPayment = () => {
 
                             {/* Action Buttons */}
                             <div className="mt-6 flex justify-center gap-4">
-                                {data?.status?.trim() === "Pending" || data?.status?.trim() === "Rejected" ? (
+                                {data?.status?.trim() === "Pending" ? (
                                     <>
                                         <motion.button
                                             className="bg-green-500 cursor-pointer text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all hover:bg-green-600 active:scale-95 flex items-center gap-2"
@@ -334,12 +334,18 @@ const VerifyPayment = () => {
                                             </motion.button>
                                         )}
                                     </>
+                                ) : data?.status?.trim() === "Rejected" ? (
+                                    <div className="flex items-center text-red-600 font-semibold text-lg bg-red-50 px-6 py-3 rounded-lg">
+                                        <FontAwesomeIcon icon={faBan} className="text-2xl mr-2" />
+                                        Payment Rejected
+                                    </div>
                                 ) : (
                                     <div className="flex items-center text-green-600 font-semibold text-lg bg-green-50 px-6 py-3 rounded-lg">
                                         <FontAwesomeIcon icon={faCircleCheck} className="text-2xl mr-2" />
                                         Payment Approved
                                     </div>
                                 )}
+
                             </div>
                         </div>
                     </div>
@@ -421,7 +427,7 @@ const VerifyPayment = () => {
                             </button>
                             <button
                                 onClick={() => setIsPenaltyModalOpen(false)}
-                                
+
                                 disabled={!penaltyAmount || loadingPenalty}
                                 className={`bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-lg transition-colors flex items-center gap-2 ${(!penaltyAmount || loadingPenalty) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >

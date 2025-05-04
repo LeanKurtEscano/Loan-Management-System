@@ -605,13 +605,7 @@ const UsersLoanApplication: React.FC = () => {
                         >
                           <FontAwesomeIcon icon={faEye} />
                         </button>
-                        <button
-                          onClick={() => handleOpenDeleteModal(loan.id)}
-                          className="text-red-600 hover:text-red-800 hover:bg-red-100 transition-colors rounded-full p-2"
-                          title="Delete application"
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
+                       
                       </div>
                     </td>
                   </motion.tr>

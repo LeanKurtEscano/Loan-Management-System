@@ -9,17 +9,18 @@ import Modal from "../../components/Modal";
 
 import { ApplicationId } from "../../constants/interfaces/adminInterface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faCircleCheck, 
-  faArrowLeft, 
-  faUser, 
-  faCalendarDays, 
-  faVenusMars, 
-  faRing, 
-  faLocationDot, 
-  faEnvelope, 
-  faPhone ,
-  faSignature
+import {
+  faCircleCheck,
+  faArrowLeft,
+  faUser,
+  faCalendarDays,
+  faVenusMars,
+  faRing,
+  faLocationDot,
+  faEnvelope,
+  faPhone,
+  faSignature,
+  faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import { useMutation } from "@tanstack/react-query";
 import { useMyContext } from "../../context/MyContext";
@@ -31,7 +32,7 @@ const Verification = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { emailDetails } = useMyContext();
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReject, setIsReject] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -39,7 +40,7 @@ const Verification = () => {
   const [loading2, setLoading2] = useState(false);
 
   const endpoint = "users";
-  
+
 
   const { data, isLoading, isError } = useQuery<ApplicationData>({
     queryKey: ["userDetail", id],
@@ -47,7 +48,7 @@ const Verification = () => {
     enabled: !!id,
   });
 
-  
+
   const rejectMutation = useMutation({
     mutationFn: async (id: number) => {
       setLoading2(true);
@@ -93,7 +94,7 @@ const Verification = () => {
     rejectMutation.mutateAsync(selectedId ?? 0);
   };
 
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -126,7 +127,7 @@ const Verification = () => {
 
   const getStatusBadge = () => {
     const status = data?.status.trim() || "";
-    
+
     if (status === "Approved") {
       return <span className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">Verified</span>;
     } else if (status === "Rejected") {
@@ -144,26 +145,26 @@ const Verification = () => {
       transition={{ duration: 0.4 }}
     >
       <div className="max-w-4xl mx-auto">
-     
+
         <div className="mb-6">
-        <button
-        onClick={() => navigate(-1)}
-        className="  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
-      >
-        <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
-        Go Back
-      </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="  cursor-pointer bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 active:scale-95"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+            Go Back
+          </button>
 
         </div>
-        
-    
-        <motion.div 
+
+
+        <motion.div
           className="bg-white rounded-xl shadow-md overflow-hidden"
           initial={{ y: 20 }}
           animate={{ y: 0 }}
           transition={{ delay: 0.2 }}
         >
-         
+
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6">
             <div className="flex flex-col sm:flex-row items-center sm:justify-between">
               <div className="flex items-center mb-4 sm:mb-0">
@@ -174,7 +175,7 @@ const Verification = () => {
                   <h1 className="text-xl sm:text-2xl font-bold">
                     {data?.first_name} {data?.middle_name} {data?.last_name}
                   </h1>
-                 
+
                 </div>
               </div>
               <div>
@@ -187,7 +188,7 @@ const Verification = () => {
               <FontAwesomeIcon icon={faSignature} className="text-gray-400 mr-2" />
               Personal Information
             </h2>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-blue-50 p-4 rounded-lg">
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500 mb-1">First Name</span>
@@ -195,14 +196,14 @@ const Verification = () => {
                   {data?.first_name || "N/A"}
                 </span>
               </div>
-              
+
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500 mb-1">Middle Name</span>
                 <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
                   {data?.middle_name || "N/A"}
                 </span>
               </div>
-              
+
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500 mb-1">Last Name</span>
                 <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
@@ -222,7 +223,7 @@ const Verification = () => {
                   <p className="font-medium">{data?.birthdate} ({data?.age} years old)</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <FontAwesomeIcon icon={faVenusMars} className="text-gray-400 mt-1 mr-3" />
                 <div>
@@ -230,7 +231,7 @@ const Verification = () => {
                   <p className="font-medium">{data?.gender}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <FontAwesomeIcon icon={faRing} className="text-gray-400 mt-1 mr-3" />
                 <div>
@@ -238,9 +239,9 @@ const Verification = () => {
                   <p className="font-medium">{data?.marital_status}</p>
                 </div>
               </div>
-              
-            
-              
+
+
+
               <div className="flex items-start sm:col-span-2">
                 <FontAwesomeIcon icon={faLocationDot} className="text-gray-400 mt-1 mr-3" />
                 <div>
@@ -254,8 +255,8 @@ const Verification = () => {
 
           {/* Action buttons */}
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-            {data?.status.trim() === "pending" || data?.status.trim() === "Rejected" ? (
-              <div className="flex  flex-col sm:flex-row gap-3 justify-center sm:justify-end">
+            {data?.status.trim().toLowerCase() === "pending" ? (
+              <div className="flex flex-col sm:flex-row gap-3 justify-center sm:justify-end">
                 <motion.button
                   className="bg-white cursor-pointer border border-red-500 text-red-500 font-medium px-6 py-2 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.02 }}
@@ -264,7 +265,7 @@ const Verification = () => {
                 >
                   Reject
                 </motion.button>
-                
+
                 <motion.button
                   className="bg-blue-500 cursor-pointer text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.02 }}
@@ -275,6 +276,13 @@ const Verification = () => {
                   Approve
                 </motion.button>
               </div>
+            ) : data?.status.trim() === "Rejected" ? (
+              <div className="flex justify-end">
+                <div className="flex items-center text-red-600 font-medium bg-red-50 px-4 py-2 rounded-lg">
+                  <FontAwesomeIcon icon={faTimes} className="mr-2" />
+                  User Verification Rejected
+                </div>
+              </div>
             ) : (
               <div className="flex justify-end">
                 <div className="flex items-center text-green-600 font-medium">
@@ -283,6 +291,7 @@ const Verification = () => {
                 </div>
               </div>
             )}
+
           </div>
         </motion.div>
       </div>
@@ -298,13 +307,13 @@ const Verification = () => {
       />
 
       {isReject && selectedId !== null && (
-        <EmailModal 
-          loading={loading2} 
+        <EmailModal
+          loading={loading2}
           isOpen={isReject}
-          onClose={() => setIsReject(false)} 
-          onConfirm={handleReject} 
-          heading="Reject User Verification?" 
-          buttonText="Reject User Verification" 
+          onClose={() => setIsReject(false)}
+          onConfirm={handleReject}
+          heading="Reject User Verification?"
+          buttonText="Reject User Verification"
         />
       )}
     </motion.div>

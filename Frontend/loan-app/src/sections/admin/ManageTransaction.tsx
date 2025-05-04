@@ -473,13 +473,7 @@ const ManageTransaction = () => {
                         >
                           <FontAwesomeIcon icon={faEye} />
                         </button>
-                        <button 
-                          onClick={() => handleSelectId(item.id)} 
-                          className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded-full transition-colors" 
-                          title="Delete payment"
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
+                       
                       </div>
                     </td>
                   </motion.tr>

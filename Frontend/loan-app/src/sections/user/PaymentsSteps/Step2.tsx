@@ -153,7 +153,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   // change tommorow 
 
-  const totalWithPenalty = (roundedPaymentPerMonth * 0.10) * (noOfPenaltyDelay);
+  const totalWithPenalty = Math.round((roundedPaymentPerMonth * 0.10) * noOfPenaltyDelay);
   console.log(totalWithPenalty);
 
   useEffect(() => {
