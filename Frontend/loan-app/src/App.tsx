@@ -46,6 +46,7 @@ import User from './sections/admin/User';
 import Support from './sections/user/Support';
 import NotificationPage from './components/Notification';
 import NotificationDetail from './sections/user/NotificationDetail';
+import Help from './sections/user/Help';
 function App() {
 
   return (
@@ -149,6 +150,7 @@ const Main: React.FC = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         
         <Route path="/terms" element={<Terms />} />
+        <Route path="/help" element={<Help />} />
 
         <Route path="/privacy" element={<PrivacyPolicy />} />
         

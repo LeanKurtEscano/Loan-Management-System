@@ -108,34 +108,28 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         if (dueDateString === "N/A" || dueDateString === "Invalid Frequency") {
             return { isPastDue: false, monthsOverdue: 0 };
         }
-
-        const today = new Date("2025-08-04");
-        today.setHours(0, 0, 0, 0); // Reset time for today 2025-08-02
-
+    
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+    
         const dueDate = new Date(dueDateString);
-        dueDate.setHours(0, 0, 0, 0); // Reset time for due date
-
+        dueDate.setHours(0, 0, 0, 0);
+    
         if (today < dueDate) {
-            return { isPastDue: false, monthsOverdue: 0 }; // Not overdue
-        }
-
-        // Calculate months overdue (MONTHLY ONLY)
-        const monthsOverdue =
-            (today.getFullYear() - dueDate.getFullYear()) * 12 +
-            (today.getMonth() - dueDate.getMonth());
-
-        // If today is before the due date of this month, no overdue months
-        if (today.getDate() < dueDate.getDate()) {
             return { isPastDue: false, monthsOverdue: 0 };
         }
-        console.log(monthsOverdue);
-
-        // Otherwise, calculate overdue months
+    
+        let monthsOverdue =
+            (today.getFullYear() - dueDate.getFullYear()) * 12 +
+            (today.getMonth() - dueDate.getMonth());
+    
+        if (today.getDate() > dueDate.getDate()) {
+            monthsOverdue += 1;
+        }
+    
         return { isPastDue: true, monthsOverdue };
     };
-
-
-
+    
     const totalPayment = data?.total_payment || "0";
     const balance = data?.balance || "0";
     const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;

@@ -13,6 +13,49 @@ from .email.emails import send_otp_to_email
 from .serializers import CustomUserSerializer,VerificationRequestsSerializer,NotificationSerializer
 import cloudinary.uploader
 from loan.models import LoanApplication
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.utils.html import strip_tags
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def submit_support_request(request):
+    try:
+        # Extract data from the request
+        name = request.data.get('name')
+        email = request.data.get('email')
+        subject_heading = request.data.get('subject')
+        message = request.data.get('message')
+        category = request.data.get('category', 'General')
+
+        # Email subject
+        subject = f"[Support Request] {subject_heading} - {category}"
+
+        # Render HTML email content
+        html_content = render_to_string("email/support_request.html", {
+            "name": name,
+            "email": email,
+            "subject": subject_heading,
+            "message": message,
+            "category": category,
+        })
+        plain_message = strip_tags(html_content)
+
+        # Send email, with the user's email as the sender
+        email_msg = EmailMultiAlternatives(
+            subject,
+            plain_message,
+            email,  # User's email as the sender
+            ["noreply.lu.tuloang@gmail.com"],  # Recipient email (admin/support team)
+        )
+        email_msg.attach_alternative(html_content, "text/html")
+        email_msg.send()
+
+        return Response({"success": "Support request submitted successfully."}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Support request error: {e}")
+        return Response({"error": "Failed to submit support request.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])

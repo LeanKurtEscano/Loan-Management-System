@@ -20,7 +20,7 @@ const Footer = () => {
                             </h2>
                             <ul className="font-medium">
                                 <li className="mb-4">
-                                    <a href="https://flowbite.com/" className="hover:underline">
+                                    <a href="/help" className="hover:underline">
                                         Help
                                     </a>
                                 </li>

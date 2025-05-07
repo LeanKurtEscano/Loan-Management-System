@@ -21,5 +21,6 @@ urlpatterns = [
     path('notifications/mark-all-read/',views.mark_all_read, name="mark-all-read"),
     path('notifications/<int:id>/mark-read/',views.mark_read, name="mark-read"),
     path('notifications/<int:id>/',views.delete_notification, name="delete-notif"),
-    path('notifications/details/<int:id>/',views.notification_details, name="delete-notif"),
+    path('notifications/details/<int:id>/',views.notification_details, name="details-notif"),
+    path('support/',views.submit_support_request, name="support"),
 ]

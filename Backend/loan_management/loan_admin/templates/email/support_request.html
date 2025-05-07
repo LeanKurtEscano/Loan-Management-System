@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Support Request</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f8fb;
+      color: #333;
+      padding: 40px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 1px solid #e0e6ed;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.08);
+      overflow: hidden;
+    }
+    .header {
+      background-color: #0056b3;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .content {
+      padding: 25px;
+    }
+    .section {
+      margin-bottom: 18px;
+    }
+    .label {
+      font-weight: 600;
+      color: #0056b3;
+    }
+    .value {
+      margin-top: 4px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .footer {
+      background-color: #f0f4f9;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>New Support Request Received</h2>
+    </div>
+    <div class="content">
+      <div class="section">
+        <div class="label">Full Name</div>
+        <div class="value">{{ name }}</div>
+      </div>
+      <div class="section">
+        <div class="label">Email Address</div>
+        <div class="value">{{ email }}</div>
+      </div>
+      <div class="section">
+        <div class="label">Category</div>
+        <div class="value">{{ category }}</div>
+      </div>
+      <div class="section">
+        <div class="label">Subject</div>
+        <div class="value">{{ subject }}</div>
+      </div>
+      <div class="section">
+        <div class="label">Message</div>
+        <div class="value">{{ message }}</div>
+      </div>
+    </div>
+    <div class="footer">
+      This is an automated message from the Laguna University Support System.
+    </div>
+  </div>
+</body>
+</html>
