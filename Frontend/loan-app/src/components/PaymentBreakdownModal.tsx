@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { formatCurrency } from "../utils/formatCurrency";
 
 interface PaymentBreakdownModalProps {
   penaltyFee: number;
@@ -104,21 +105,25 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
           </button>
         </div>
         
-        <div className="bg-blue-50 rounded-lg p-4 mb-4">
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">Total Payments:</span>
-            <span className="font-bold text-blue-800">₱{totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Monthly Amount:</span>
-            <span className="font-bold text-blue-800">₱{monthlyPayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-          </div>
+        <div className="bg-blue-50 flex flex-col rounded-lg p-6 mb-4">
+  <div className="flex justify-between items-center mb-2">
+    <span className="text-gray-600 text-right">Total Payments:</span>
+    <span className="font-bold text-blue-800 ml-3">₱{totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+  </div>
+  <div className="flex justify-between items-center mb-2">
+    <span className="text-gray-600 text-right">Monthly Amount:</span>
+    <span className="font-bold text-blue-800 ml-3">₱{monthlyPayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+  </div>
+  <div className="flex justify-between items-center">
+    <span className="text-gray-600 text-right">Penalty Fee:</span>
+    <span className="font-bold text-red-600 ml-3">₱{penaltyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+  </div>
 
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">Penalty Fee:</span>
-            <span className="text-red-600">₱{penaltyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-          </div>
-        </div>
+  <div className="flex justify-between items-center">
+    <span className="text-gray-600 text-right">Total Amount + Penalty Fee</span>
+    <span className="font-bold text-red-600 ml-3">{formatCurrency(totalAmount + penaltyFee)}</span>
+  </div>
+</div>
         
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
