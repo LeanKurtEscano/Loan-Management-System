@@ -14,6 +14,7 @@ const Step6 = ({
     const { loanSubmission, setLoanSubmission } = useMyContext();
     const nav = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [termsAccepted, setTermsAccepted] = useState(false);
     const queryClient = useQueryClient();
 
     const { data, isLoading, isError } = useQuery(
@@ -28,6 +29,8 @@ const Step6 = ({
     }, [data, setLoanSubmission]);
 
     const handleSubmit = async () => {
+        if (!termsAccepted) return;
+        
         setLoading(true);
         try {
             const response = await sendLoanSubmission(loanSubmission);
@@ -86,7 +89,12 @@ const Step6 = ({
                 </div>
 
                 <label className="flex items-start gap-3 text-sm text-gray-700 mb-8">
-                    <input type="checkbox" className="mt-1 cursor-pointer" />
+                    <input 
+                        type="checkbox" 
+                        className="mt-1 cursor-pointer" 
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                    />
                     <span>
                         I certify that I am at least 21 years old and that I agree to the{" "}
                         <a
@@ -113,14 +121,17 @@ const Step6 = ({
                 <div className="flex justify-between mt-6 gap-4">
                     <button
                         onClick={prevStep}
-                        className="bg-gray-400 text-white w-1/2 cursor-pointer text-lg font-semibold py-3 px-6 rounded-md hover:bg-gray-500 transition"
+                        className="w-1/2 text-gray-700 border border-gray-300 font-medium py-3 px-6 rounded-md hover:bg-gray-50 transition flex items-center justify-center"
                     >
-                        Go Back
+                        ← Go Back
                     </button>
 
                     <button
                         onClick={handleSubmit}
-                        className="bg-blue-500 text-white w-1/2 cursor-pointer text-lg font-semibold py-3 px-6 rounded-md hover:bg-blue-600 transition flex justify-center items-center"
+                        disabled={!termsAccepted}
+                        className={`${
+                            termsAccepted ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-300 cursor-not-allowed'
+                        } text-white w-1/2 font-medium py-3 px-6 rounded-md transition flex items-center justify-center`}
                     >
                         {loading ? (
                             <svg aria-hidden="true" className="w-6 h-6 text-slate-200 animate-spin dark:text-slate-100 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -119,7 +119,7 @@ const Step3 = ({
                 : "bg-white cursor-pointer"
               }`}
           >
-            <option value="">Select Payment Frequency</option>
+            <option value=""  disabled hidden>Select Payment Frequency</option>
             <option value="monthly" disabled={isMonthlyDisabled()}>Monthly</option>
           
           </select>

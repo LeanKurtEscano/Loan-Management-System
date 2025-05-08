@@ -36,7 +36,7 @@ const Step3 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "purpose")}
             className="w-full p-4 cursor-pointer border rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
-            <option value="">Select Purpose</option>
+            <option value=""  disabled hidden>Select Purpose</option>
             <option value="Business Purposes">Business Purposes</option>
             <option value="Personal Expense">Personal Expense</option>
             <option value="Pay Bills">Pay Bills</option>

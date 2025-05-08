@@ -119,7 +119,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "educationLevel")}
             className="w-full p-4 border cursor-pointer rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
-            <option value="">Select Education Level</option>
+            <option value="  disabled hidden">Select Education Level</option>
             <option value="None">None</option>
             <option value="Primary">Primary / Elementary</option>
             <option value="Secondary">Secondary / High School</option>
@@ -136,7 +136,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "employmentStatus")}
             className="w-full cursor-pointer p-4 border rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
-            <option value="">Select Employment Status</option>
+            <option value=""  disabled hidden>Select Employment Status</option>
             <option value="Employed">Employed</option>
             <option value="Self-Employed">Self-Employed / Business Owner</option>
           </select>
@@ -169,7 +169,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "incomeVariation")}
             className="w-full p-4 cursor-pointer border rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
-            <option value="">Select Income Change</option>
+            <option value="" disabled hidden>Select Income Change</option>
             <option value="No Change">No change (Fixed or consistent salary)</option>
             <option value="Little Change">Little change</option>
             <option value="Medium Change">Medium change</option>
@@ -184,7 +184,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "primaryIncomeSource")}
             className="w-full p-4 border cursor-pointer rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
-            <option value="">Select Source</option>
+            <option value=""  disabled hidden>Select Source</option>
             <option value="Business Profit">Business Profit</option>
             <option value="Salary">Salary</option>
             <option value="Pension">Pension</option>
@@ -229,7 +229,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             className={`w-full p-4 border cursor-pointer rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
             disabled={isNoneSelected}
           >
-            <option value="">Select Frequency</option>
+            <option value=""  disabled hidden>Select Frequency</option>
             <option value="Once a year">Once a year</option>
             <option value="Twice a year">Twice a year</option>
             <option value="Every couple of months">Every couple of months</option>
@@ -249,7 +249,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             className={`w-full p-4 border cursor-pointer rounded-lg text-lg ${isNoneSelected ? "bg-gray-200 text-gray-500" : "bg-gray-50 text-gray-700"}`}
             disabled={isNoneSelected}
           >
-            <option value="">Select</option>
+            <option value=""  disabled hidden>Select</option>
             <option value="Yes">Yes</option>
             <option value="No">No</option>
           </select>
