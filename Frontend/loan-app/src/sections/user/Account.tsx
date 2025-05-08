@@ -211,7 +211,7 @@ const Account: React.FC = () => {
                 {renderVerificationStatus()}
 
                 {showForm && (
-                    <div className="fixed inset-0 h-auto flex items-center justify-center bg-gray-500/50 bg-opacity-40">
+                    <div className="fixed inset-0 h-auto flex items-center justify-center bg-gray-500/50 bg-opacity-40 z-50">
                         <VerifyForm onClose={closeForm} />
                     </div>
                 )}
