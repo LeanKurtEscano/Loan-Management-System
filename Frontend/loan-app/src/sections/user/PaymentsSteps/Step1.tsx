@@ -109,7 +109,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             return { isPastDue: false, monthsOverdue: 0 };
         }
     
-        const today = new Date('2025-06-09');
+        const today = new Date('2025-06-10');
         today.setHours(0, 0, 0, 0);
     
         const dueDate = new Date(dueDateString);

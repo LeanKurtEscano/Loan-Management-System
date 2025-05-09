@@ -35,7 +35,7 @@ const VerifyPayment = () => {
     const [isPenaltyModalOpen, setIsPenaltyModalOpen] = useState(false);
     const [penaltyAmount, setPenaltyAmount] = useState<number | null>(null);
     const [loadingPenalty, setLoadingPenalty] = useState(false);
-
+    const [penaltyError, setPenaltyError] = useState("");
     const handleApprove = async () => {
         setLoading(true);
         try {
@@ -62,7 +62,32 @@ const VerifyPayment = () => {
     });
 
 
-    console.log(data);
+    const handlePenaltyInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // Allow empty input and prevent "0" from persisting
+    if (value === "") {
+        setPenaltyAmount(null); // Set to null or "" based on your state handling
+        setPenaltyError("");
+        return;
+    }
+
+    const numericValue = Number(value);
+
+    // Validate the input
+    if (isNaN(numericValue)) return; // Prevent setting NaN
+
+    if (numericValue < 0) {
+        setPenaltyError("Penalty amount cannot be negative");
+    } else if (data?.loan?.penalty && numericValue > data.loan.penalty) {
+        setPenaltyError(`Penalty amount cannot exceed ${formatCurrency(data.loan.penalty)}`);
+    } else {
+        setPenaltyError("");
+    }
+
+    setPenaltyAmount(numericValue);
+};
+
     const rejectMutation = useMutation({
         mutationFn: async (id) => {
             setLoading2(true);
@@ -154,6 +179,9 @@ const VerifyPayment = () => {
             </div>
         );
     }
+
+
+   
 
     return (
         <AnimatePresence>
@@ -286,11 +314,21 @@ const VerifyPayment = () => {
                                         </div>
 
                                         {data?.loan?.penalty > 0 && (
-                                            <div className="col-span-2">
+                                            <div className="">
                                                 <label className="block text-sm text-gray-500">Total Disbursement Penalty</label>
                                                 <div className="text-red-600 font-medium flex items-center gap-2">
                                                     <FontAwesomeIcon icon={faExclamationTriangle} />
                                                     {formatCurrency(data?.loan?.penalty)}
+                                                </div>
+                                            </div>
+                                        )}
+
+
+                                         {data?.penalty_fee > 0 && (
+                                            <div className="">
+                                                <label className="block text-sm text-gray-500">Penalty Fee Paid: </label>
+                                                <div className="text-red-600 font-medium flex items-center gap-2">
+                                                    {formatCurrency(data?.penalty_fee)}
                                                 </div>
                                             </div>
                                         )}
@@ -388,9 +426,9 @@ const VerifyPayment = () => {
                         animate={{ scale: isPenaltyModalOpen ? 1 : 0.9, opacity: isPenaltyModalOpen ? 1 : 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     >
-                        <div className="flex items-center mb-4 text-amber-500">
+                        <div className="flex  items-center mb-4 text-amber-500">
                             <FontAwesomeIcon icon={faMoneyBillWave} className="text-2xl mr-3" />
-                            <h3 className="text-xl font-bold">Deduct Penalty</h3>
+                            <h3 className="text-xl  font-bold">Deduct Penalty</h3>
                         </div>
 
                         <p className="mb-5 text-gray-600">
@@ -409,14 +447,19 @@ const VerifyPayment = () => {
                                     type="number"
                                     id="penaltyAmount"
                                     value={penaltyAmount}
-                                    onChange={(e) => setPenaltyAmount(Number(e.target.value))}
+                                    onChange={handlePenaltyInputChange}
                                     className="pl-7 shadow appearance-none border rounded-lg w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                                     placeholder="0.00"
                                     min="0"
                                     step="0.01"
                                 />
+   
                             </div>
+                                                                       { penaltyError && (
+        <p className="mt-2 text-sm text-red-500">{penaltyError}</p>
+    )}
                         </div>
+         
 
                         <div className="flex justify-end gap-3">
                             <button
