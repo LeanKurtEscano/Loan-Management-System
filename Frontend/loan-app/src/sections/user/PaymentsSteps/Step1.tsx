@@ -109,16 +109,21 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
             return { isPastDue: false, monthsOverdue: 0 };
         }
     
-        const today = new Date();
+        const today = new Date('2025-06-09');
         today.setHours(0, 0, 0, 0);
     
         const dueDate = new Date(dueDateString);
         dueDate.setHours(0, 0, 0, 0);
+
+        if (today.getTime() === dueDate.getTime()) {
+        return { isPastDue: false, monthsOverdue: 0 };
+    }
     
         if (today < dueDate) {
             return { isPastDue: false, monthsOverdue: 0 };
         }
-    
+
+      
         let monthsOverdue =
             (today.getFullYear() - dueDate.getFullYear()) * 12 +
             (today.getMonth() - dueDate.getMonth());
@@ -153,6 +158,8 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         calculatePastDueAndDelay(rawDueDate),
         [rawDueDate]
     );
+
+    console.log(isPastDue)
 
 
 

@@ -16,11 +16,11 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
 }) => {
   const today = new Date();
   const repay = new Date(repayDate);
-  
+
   const monthsDiff =
     (repay.getFullYear() - today.getFullYear()) * 12 +
     (repay.getMonth() - today.getMonth());
-  
+
   const totalAmount = monthlyPayment * monthsDiff;
 
   // Get all years from today until repayment date (including both)
@@ -28,11 +28,11 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
     const years = [];
     const startYear = today.getFullYear();
     const endYear = repay.getFullYear();
-    
+
     for (let year = startYear; year <= endYear; year++) {
       years.push(year);
     }
-    
+
     return years;
   };
 
@@ -48,23 +48,23 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
   const generateMonthlyBreakdown = () => {
     const breakdown: { month: string; date: string; isFirst: boolean; year: number }[] = [];
     const current = new Date(today);
-    
+
     for (let i = 0; i < monthsDiff; i++) {
       const monthName = current.toLocaleString("default", { month: "long", year: "numeric" });
       const dateStr = current.toLocaleDateString("default", { day: "numeric", month: "long", year: "numeric" });
       const year = current.getFullYear();
-      breakdown.push({ 
-        month: monthName, 
+      breakdown.push({
+        month: monthName,
         date: dateStr,
         isFirst: i === 0,
         year
       });
       current.setMonth(current.getMonth() + 1);
     }
-    
+
     return breakdown;
   };
-  
+
   const breakdownList = generateMonthlyBreakdown();
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedYear(parseInt(e.target.value));
   };
-  
+
   // Handle click outside to close
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -86,7 +86,7 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
   };
 
   return (
-    <div 
+    <div
       className="fixed min-h-screen inset-0 bg-gray-500/50 bg-opacity-40 bg-opacity-60 flex justify-center items-center z-50 p-4"
       onClick={handleBackdropClick}
     >
@@ -104,31 +104,31 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
             </svg>
           </button>
         </div>
-        
-        <div className="bg-blue-50 flex flex-col rounded-lg p-6 mb-4">
-  <div className="flex justify-between items-center mb-2">
-    <span className="text-gray-600 text-right">Total Payments:</span>
-    <span className="font-bold text-blue-800 ml-3">₱{totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-  </div>
-  <div className="flex justify-between items-center mb-2">
-    <span className="text-gray-600 text-right">Monthly Amount:</span>
-    <span className="font-bold text-blue-800 ml-3">₱{monthlyPayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-  </div>
-  <div className="flex justify-between items-center">
-    <span className="text-gray-600 text-right">Penalty Fee:</span>
-    <span className="font-bold text-red-600 ml-3">₱{penaltyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-  </div>
 
-  <div className="flex justify-between items-center">
-    <span className="text-gray-600 text-right">Total Amount + Penalty Fee</span>
-    <span className="font-bold text-red-600 ml-3">{formatCurrency(totalAmount + penaltyFee)}</span>
-  </div>
-</div>
-        
+        <div className="bg-blue-50 flex flex-col rounded-lg p-6 mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-600 text-right">Total Payments:</span>
+            <span className="font-bold text-blue-800 ml-3">₱{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-600 text-right">Monthly Amount:</span>
+            <span className="font-bold text-blue-800 ml-3">₱{monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 text-right">Penalty Fee:</span>
+            <span className="font-bold text-red-600 ml-3">₱{penaltyFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 text-right">Total Amount + Penalty Fee</span>
+            <span className="font-bold text-red-600 ml-3">{formatCurrency(totalAmount + penaltyFee)}</span>
+          </div>
+        </div>
+
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold text-gray-700">Monthly Breakdown</h3>
-            
+
             {/* Year dropdown filter */}
             <div className="relative">
               <select
@@ -153,12 +153,12 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
               </div>
             </div>
           </div>
-          
+
           <div className="max-h-40 overflow-y-auto pr-2 scrollbar-thin">
             {filteredBreakdown.length > 0 ? (
               filteredBreakdown.map((item, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="flex justify-between py-3 border-b border-gray-200"
                 >
                   <div className="flex flex-col">
@@ -166,7 +166,7 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
                     <span className="text-xs text-gray-500">{item.date}</span>
                   </div>
                   <span className="font-semibold text-gray-800">
-                    ₱{monthlyPayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    ₱{monthlyPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               ))
@@ -177,7 +177,7 @@ const PaymentBreakdownModal: React.FC<PaymentBreakdownModalProps> = ({
             )}
           </div>
         </div>
-        
+
         <div className="flex space-x-3 mt-6">
           <button
             onClick={onClose}
