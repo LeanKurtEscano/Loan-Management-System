@@ -1,7 +1,7 @@
 
 import { adminApi, adminAuth } from "../axiosConfig";
-
-
+import { OtpDetails } from "../../constants/interfaces/authInterface";
+import { ResetPasswordInterface } from "../../constants/interfaces/authInterface";
 
 
 
@@ -21,8 +21,54 @@ export const loginAdmin = async (data: LoginData) => {
   };
 
 
-    export const sendEmailAdmin = async() => {
+
+  export const verifyAdminOtpReset  = async(otpData: OtpDetails) => {
+    try {
+      const response = await adminAuth.post("/otp-password/", {
+        data: otpData,
+      });
+      return response;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  }
+  
+
+
+    export const adminEmailResendReset = async() => {
+      const userEmail = sessionStorage.getItem("admin_email");
+      const verification = "reset_password_admin"
+      try {
+          const response = await adminAuth.post("/resend/", {
+              purpose : verification,
+              email : userEmail }
+          );
+          return response;
+        } catch (error) {
+          console.error("Login error:", error);
+          throw error;
+        }
+    }
+
+  export const ResetAdminPassword = async(data: ResetPasswordInterface) => {
+    
+    try {
+      const response = await adminAuth.post("/password/", {
+        data: data,
+      });
+      return response;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  }
+  
+  
+
+    export const sendEmailAdmin = async(email: string) => {
       const response = await adminAuth.post(`/email/`, {
+        email:email
       }, {
           headers: {
               "Content-Type": "application/json"

@@ -14,6 +14,12 @@ const AdminLogin: React.FC = () => {
   const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
 
+
+
+  const emailVerify = () => {
+    navigate('/admin-email-verification');
+  }
+
   useEffect(() => {
     if (isAdminAuthenticated) {
       navigate('/dashboard/analytics');
@@ -109,7 +115,7 @@ const AdminLogin: React.FC = () => {
               </label>
               <button 
                 type="button" 
-                onClick={() => sendEmailAdmin()}
+                onClick={emailVerify}
                 className="text-sm text-blue-600 hover:text-blue-800 font-medium"
               >
                 Forgot Password?

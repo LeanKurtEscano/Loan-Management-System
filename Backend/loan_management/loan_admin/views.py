@@ -232,31 +232,6 @@ def refresh_admin_token_view(request):
     
 
 @api_view(["POST"])
-def reset_password_admin_email(request):   
-    try:     
-        my_email = os.getenv("EMAIL")
-        purpose = "reset_password"
-        cache_key = f"{my_email}_{purpose}"
-        
-        if cache.get(cache_key):
-            return Response({"error": "OTP already sent for reset password. Please wait for it to expire."}, status=400)
-        message = "Your OTP for reset password"
-        
-        subject = f"Your Verification Code for Password Reset.(Admin)"
-        otp_generated = send_otp_to_email(my_email, message,subject)
-        OTP_EXPIRATION_TIME = 120
-        cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
-        return Response({"success": "OTP sent for reset password"}, status=status.HTTP_200_OK)
-    
-    
-    except Exception as e:
-        print(f"{e}")
-        return Response({"error": "Something went wrong"}, status=500)
-    
-
-
-
-@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def reject_user_verification(request):
     try:
@@ -319,3 +294,124 @@ def reject_user_verification(request):
     
 
 
+
+@api_view(["POST"])
+def admin_email(request):
+    try:
+        email = request.data.get('email')
+        print(email)
+        
+        # Check if the email exists and is associated with an admin user
+        admin_user_exists = CustomUser.objects.filter(email=email, is_admin=True).exists()
+        
+        if not admin_user_exists:
+            return Response({"error": "Admin Email is not registered or not an admin user"}, status=404)
+        
+        purpose = "reset_password_admin"       
+        message = "Your OTP for Reset Password"
+        subject = "Your Verification Code for Password Reset."
+        cache_key = f"{email}_{purpose}"
+        
+        # Generate and send the OTP
+        otp_generated = send_otp_to_email(email, message, subject)
+        OTP_EXPIRATION_TIME = 120 
+        cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
+        
+        return Response({"message": "OTP sent successfully."}, status=200)
+    
+    except Exception as e:
+        return Response({"error": "Something went wrong"}, status=500)
+    
+    
+    
+
+
+
+@api_view(["POST"])
+def verify_password_reset_admin_otp(request):
+    try:
+        
+        data = request.data.get("data")
+        email = data.get("email")
+        otp_code = data.get("otpCode")
+        purpose = "reset_password_admin"
+        cache_key = f"{email}_{purpose}"
+        
+      
+        cached_otp = cache.get(cache_key)
+        
+        if cached_otp is None:
+            return Response({"error": "OTP has expired. Please request a new one."}, status=status.HTTP_404_NOT_FOUND)
+        
+       
+        if str(cached_otp) == str(otp_code):
+            return Response({"success": "Email is verified."}, status=status.HTTP_200_OK)
+        
+        return Response({"error": "Incorrect OTP code. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": "An error occurred. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(["POST"])
+def reset_admin_password(request):
+    try:
+        data = request.data.get("data")
+        email = data.get('email')
+        password = data.get('password')
+        confirm_password = data.get('confirm')
+        
+        if password != confirm_password:
+            return Response({"error", "Password does not match"}, status=400)
+        
+        else:     
+            user = CustomUser.objects.get(email = email,is_admin = True)
+            user.set_password(password)
+            user.save()
+            return Response({"success": "Password has been reset successfully."}, status=200)
+
+    except Exception as e:
+        return Response({"error": "Something Went Wrong"}, status=500)
+
+
+@api_view(["POST"])
+def resend_otp(request):
+    try:
+        
+        email = request.data.get("email")
+        purpose = request.data.get("purpose") 
+        user = CustomUser.objects.filter(email=email,is_admin = True).first()
+    
+     
+        messages = {
+            "verification": "Your OTP for account verification.",
+            "reset_password": "Your OTP for password reset."
+        }
+        
+        subject_dynamic = {
+            "verification": "Login",
+            "reset_password_admin": "Reset Password"
+        }
+
+        message = messages.get(purpose, "Your OTP for verification.")  
+        
+        dynamic = subject_dynamic.get(purpose)
+       
+
+        
+        cache_key = f"{email}_{purpose}"
+        message = "Your OTP for verification"
+        subject = f"Your  Verification Code for {dynamic}"
+        otp_generated = send_otp_to_email(email, message,subject)
+        OTP_EXPIRATION_TIME = 120  
+        cache.set(cache_key, otp_generated, OTP_EXPIRATION_TIME)
+
+        
+        return Response({"success":"Resend successfully"}, status= status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"{e}")
+    

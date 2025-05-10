@@ -252,12 +252,8 @@ const OtpReset: React.FC = () => {
         </div>
       </div>
 
-      {/* Notification */}
-      {toggleNotif && (
-        <div className={`absolute right-5 top-20 ${toggleNotif ? 'notification-enter' : 'notification-exit'}`}>
-          <Notification setToggle={setToggleNotif} message={message} heading={heading} />
-        </div>
-      )}
+   
+     
     </section>
   );
 };

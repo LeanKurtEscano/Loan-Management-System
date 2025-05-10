@@ -20,7 +20,7 @@ import AdminProtectedRoutes from './Routes/AdminProtectedRoutes';
 import Dashboard from './sections/admin/Dashboard';
 import UserVerification from './sections/admin/UserVerification';
 import Verification from './sections/admin/Verification';
-import { logOutAdmin } from './services/admin/adminAuth';
+import { logOutAdmin, ResetAdminPassword } from './services/admin/adminAuth';
 import { useNavigate } from 'react-router-dom';
 import UserProtectedRoutes from './Routes/UserProtectedRoutes';
 import { getUserDetails } from './services/user/userData';
@@ -47,6 +47,9 @@ import Support from './sections/user/Support';
 import NotificationPage from './components/Notification';
 import NotificationDetail from './sections/user/NotificationDetail';
 import Help from './sections/user/Help';
+import AdminEmail from './sections/admin/AdminEmail';
+import AdminResetOTP from './sections/admin/AdminResetOTP';
+import AdminResetPassword from './sections/admin/AdminResetPassword';
 function App() {
 
   return (
@@ -137,6 +140,9 @@ const Main: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/support" element={<Support />} />
 
+        <Route path="/admin-email-verification" element={<AdminEmail />} />
+        <Route path="/admin-otp-reset-verify" element={<AdminResetOTP />} />
+
         <Route path="/email-verification" element={<EmailForm />} />
         <Route path="/notifications" element={<NotificationPage/>} />
         <Route path="/notifications/:id" element={<NotificationDetail/>} />
@@ -148,6 +154,8 @@ const Main: React.FC = () => {
 
     
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        <Route path="/reset-admin-password" element={<AdminResetPassword />} />
         
         <Route path="/terms" element={<Terms />} />
         <Route path="/help" element={<Help />} />
