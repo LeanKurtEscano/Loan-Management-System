@@ -68,7 +68,7 @@ def verify_user(request):
         user.first_name = verification.first_name
         user.middle_name = verification.middle_name
         user.last_name = verification.last_name
-        user.contact_number = verification.contact_number
+       
         user.save()  
 
         # Email

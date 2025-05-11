@@ -147,7 +147,7 @@ const User = () => {
                 transition={{ type: "spring", duration: 0.8 }}
                 className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-white flex items-center justify-center text-xl sm:text-2xl font-bold text-indigo-600"
               >
-                {user?.first_name?.charAt(0)}{user?.last_name?.charAt(0)}
+                {user.username.substring(0, 2).toUpperCase()}
               </motion.div>
               <div className="text-center sm:text-left">
                 <motion.h1 

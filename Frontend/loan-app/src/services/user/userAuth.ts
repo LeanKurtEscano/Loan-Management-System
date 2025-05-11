@@ -34,7 +34,7 @@ export const loginAuth = async(data: LoginData) => {
   }
 
 
-  export const userEmailResendRegister = async() => {
+export const userEmailResendRegister = async() => {
     const userEmail = sessionStorage.getItem("email");
     console.log(userEmail);
     const verification = "register"

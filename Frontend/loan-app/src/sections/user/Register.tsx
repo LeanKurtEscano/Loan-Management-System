@@ -113,6 +113,10 @@ const Register: React.FC = () => {
         if (status === 403) {
           setErrors((prev) => ({ ...prev, email: data.error }));
         }
+
+        if (status === 400) {
+          setErrors((prev) => ({ ...prev, username: data.error }));
+        }
       }
     }
   };

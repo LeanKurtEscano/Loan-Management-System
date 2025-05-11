@@ -330,11 +330,14 @@ def user_register(request):
         
         data = request.data.get("data")
         email = data.get("email")
+        username = data.get("username")
         print(email)
         purpose = "register"
         
         if CustomUser.objects.filter(email = email).exists():
             return Response({"error": "Email is already registered"}, status= status.HTTP_403_FORBIDDEN)
+        if CustomUser.objects.filter(username = username).exists():
+            return Response({"error": "Username is already used"}, status= status.HTTP_400_BAD_REQUEST)
         
         cache_key = f"{email}_{purpose}"
         message = "Your OTP for verification"
@@ -386,7 +389,7 @@ def get_verify_details(request):
         
         user =request.user.id
        
-        request_data = VerificationRequests.objects.get(user=user)
+        request_data = VerificationRequests.objects.get(user=user,status = "Approved")
   
         serializer = VerificationRequestsSerializer(request_data)
         return Response(serializer.data, status=status.HTTP_200_OK)
