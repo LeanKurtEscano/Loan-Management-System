@@ -10,8 +10,8 @@ const OtpVerification: React.FC = () => {
   const [invalid, setInvalid] = useState('');
 
   const [timer, setTimer] = useState(120);
-  const [isResendDisabled, setIsResendDisabled] = useState(false);
-  const {isAuthenticated,setIsAuthenticated} = useMyContext();
+  const [isResendDisabled, setIsResendDisabled] = useState(true); // Set to true by default
+  const {isAuthenticated, setIsAuthenticated} = useMyContext();
   // @ts-ignore
   const [expired, setExpired] = useState(false);
   const [toggleNotif, setToggleNotif] = useState(false);
@@ -28,6 +28,7 @@ const OtpVerification: React.FC = () => {
       navigate('/');
     }
   }, [isAuthenticated, redirectPath, navigate]);
+
   useEffect(() => {
     if (toggleNotif) {
       const timeout = setTimeout(() => {
@@ -37,6 +38,50 @@ const OtpVerification: React.FC = () => {
       return () => clearTimeout(timeout);
     }
   }, [toggleNotif]);
+
+  // Start the timer as soon as component mounts
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            setIsResendDisabled(false);
+            if (interval) clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, []);
+
+  // New useEffect to handle timer after resend
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    if (isResendDisabled && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            setIsResendDisabled(false);
+            if (interval) clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isResendDisabled, timer]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const { value } = e.target;
@@ -64,14 +109,12 @@ const OtpVerification: React.FC = () => {
       email: userEmail,
       otpCode: otpCode,
       password: userPassword,
-
     }
 
     const purpose = "verification";
 
     try {
-
-      const response = await verifyHandler(data,purpose);
+      const response = await verifyHandler(data, purpose);
 
       if (response.status === 200) {
         localStorage.setItem("access_token", response.data.access_token);
@@ -84,14 +127,10 @@ const OtpVerification: React.FC = () => {
         const loanStatus = response.data.loan_status.trim();
         if (["Approved", "Pending"].includes(loanStatus)) {
           setRedirectPath('/user/my-loan');
-    
         } else {
           setRedirectPath('/');  
         }
-      
       }
-      
-
     } catch (error: any) {
       const { status, data } = error.response;
   
@@ -106,12 +145,8 @@ const OtpVerification: React.FC = () => {
       } else {
           alert("Lexscribe is under maintenance. Please try again later.");
       }
-  }
-  
-
+    }
   };
-
-
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && otpValues[index] === '') {
@@ -127,13 +162,12 @@ const OtpVerification: React.FC = () => {
     setInvalid('');
 
     try {
-
       const response = await userEmailResend();
 
       if (response.status === 200) {
-        setToggleNotif(true)
+        setToggleNotif(true);
         setIsResendDisabled(true);
-  
+        setTimer(120); // Reset timer to 120 seconds
       }
     } catch (error: any) {
       if (!error.response) {
@@ -160,34 +194,7 @@ const OtpVerification: React.FC = () => {
           alert("Lexscribe is under maintenance. Please try again later.");
       }
     }
-    
-
-
-
-  }
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
-
-    if (isResendDisabled && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => {
-          if (prev <= 1) {
-            setIsResendDisabled(false);
-            if (interval) clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isResendDisabled, timer]);
-  
-
-
+  };
 
   return (
     <section className="flex items-center min-h-screen justify-center bg-white">
@@ -203,14 +210,12 @@ const OtpVerification: React.FC = () => {
             </div>
           </div>
 
-
-
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col space-y-2">
 
               <div className="flex flex-row justify-between mx-auto w-full max-w-sm space-x-4">
                 {[...Array(6)].map((_, index) => (
-                  <div key={index} className=" h-14 flex justify-center">
+                  <div key={index} className="h-14 flex justify-center">
                     <input
                       ref={(el) => { inputRefs.current[index] = el; }}
                       className="w-full h-full text-center text-xl font-semibold border-2 border-gray-300 rounded-lg shadow-sm bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
@@ -224,17 +229,13 @@ const OtpVerification: React.FC = () => {
                 ))}
               </div>
 
-
-
               {invalid && (
-                <div className=" pl-8 ">
+                <div className="pl-8">
                   <p className="text-md text-red-600">{invalid}</p>
                 </div>
               )}
 
-
               <div className="flex flex-col mt-4 space-y-5">
-
                 <div>
                   <button
                     type="submit"
@@ -244,20 +245,21 @@ const OtpVerification: React.FC = () => {
                   </button>
                 </div>
 
-
+                {/* Always show the timer */}
                 <div className="flex items-end justify-end pr-4">
-                  {isResendDisabled && (
-                    <p className="text-blue-500 font-bold">OTP expires in: {timer} seconds</p>
-                  )}
+                  <p className="text-blue-500 font-bold">
+                    {timer > 0 &&
+                      `OTP expires in: ${timer} seconds` 
+                      }
+                  </p>
                 </div>
-
 
                 <div className="flex flex-row items-center justify-center text-sm font-medium space-x-1 text-gray-500">
                   <p>Didn't receive the code?</p>
-                  <div onClick={handleResendOTP}>
+                  <div onClick={isResendDisabled ? undefined : handleResendOTP}>
                     <button
                       disabled={isResendDisabled}
-                      className={`text-blue-500 hover:underline cursor-pointer ${isResendDisabled ? 'text-gray-400' : 'text-blue-500'}`}
+                      className={`text-blue-500 hover:underline cursor-pointer ${isResendDisabled ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500'}`}
                     >
                       Resend
                     </button>
@@ -270,8 +272,7 @@ const OtpVerification: React.FC = () => {
         </div>
       </div>
 
-      {/* Notification */}
-    
+     
     </section>
   );
 };
