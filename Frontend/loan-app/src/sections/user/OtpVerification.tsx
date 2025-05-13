@@ -10,12 +10,13 @@ const OtpVerification: React.FC = () => {
   const [invalid, setInvalid] = useState('');
 
   const [timer, setTimer] = useState(120);
-  const [isResendDisabled, setIsResendDisabled] = useState(true); // Set to true by default
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
   const {isAuthenticated, setIsAuthenticated} = useMyContext();
   // @ts-ignore
   const [expired, setExpired] = useState(false);
   const [toggleNotif, setToggleNotif] = useState(false);
   const inputRefs = useRef<Array<HTMLInputElement | null>>(Array(6).fill(null));
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heading = "OTP Sent!"
   const message = "A new OTP has been sent "
   const navigate = useNavigate();
@@ -39,49 +40,41 @@ const OtpVerification: React.FC = () => {
     }
   }, [toggleNotif]);
 
-  // Start the timer as soon as component mounts
+  // Single timer effect that handles both initial timer and resend timer
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
+    // Clear any existing timer interval
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
 
+    // Set up a new timer interval if needed
     if (timer > 0) {
-      interval = setInterval(() => {
+      timerIntervalRef.current = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
             setIsResendDisabled(false);
-            if (interval) clearInterval(interval);
+            if (timerIntervalRef.current) {
+              clearInterval(timerIntervalRef.current);
+              timerIntervalRef.current = null;
+            }
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
+    } else {
+      setIsResendDisabled(false);
     }
 
+    // Clean up on unmount or when dependencies change
     return () => {
-      if (interval) clearInterval(interval);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
     };
-  }, []);
-
-  // New useEffect to handle timer after resend
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
-
-    if (isResendDisabled && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => {
-          if (prev <= 1) {
-            setIsResendDisabled(false);
-            if (interval) clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isResendDisabled, timer]);
+  }, [timer]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const { value } = e.target;
@@ -248,9 +241,9 @@ const OtpVerification: React.FC = () => {
                 {/* Always show the timer */}
                 <div className="flex items-end justify-end pr-4">
                   <p className="text-blue-500 font-bold">
-                    {timer > 0 &&
-                      `OTP expires in: ${timer} seconds` 
-                      }
+                    {timer > 0 && 
+                      `OTP expires in: ${timer} seconds`
+                    }
                   </p>
                 </div>
 

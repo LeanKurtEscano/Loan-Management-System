@@ -35,6 +35,8 @@ const Account: React.FC = () => {
         }
     );
 
+    console.log(userVerifyDetails?.suffix);
+
    
 
     const [showForm, setShowForm] = useState(false);
@@ -115,7 +117,8 @@ const Account: React.FC = () => {
                             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 text-center sm:text-left mt-2">
                                 <div>
                                     <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Full Name</p>
-                                    <p className="text-gray-800 text-base font-semibold">{`${userVerifyDetails?.first_name} ${userVerifyDetails?.middle_name} ${userVerifyDetails?.last_name}`}</p>
+                                    <p className="text-gray-800 text-base font-semibold">{`${userVerifyDetails?.first_name} ${userVerifyDetails?.middle_name} ${userVerifyDetails?.last_name}`} {userVerifyDetails?.suffix ? ` ${userVerifyDetails.suffix.charAt(0).toUpperCase() + userVerifyDetails.suffix.slice(1)}` : ""}</p>
+
                                 </div>
                                 <div>
                                     <p className="text-gray-600 font-medium uppercase tracking-wide text-sm">Age</p>

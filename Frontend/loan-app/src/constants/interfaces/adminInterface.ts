@@ -5,6 +5,7 @@ export interface ApplicationData {
     last_name: string;
     birthdate: string;
     age: number;
+   
     contact_number: string;
     address: string;
     gender: string;

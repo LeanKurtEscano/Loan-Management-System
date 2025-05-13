@@ -39,6 +39,7 @@ export interface VerifiedUserDetails {
     id: number;
     first_name: string;
     middle_name?: string; 
+    suffix?: string; 
     last_name: string;
     age: number;
     birthdate: string; 
@@ -63,5 +64,6 @@ export interface VerifyData {
     gender: string;
     civilStatus: string;
     postalCode: string;
-      // Allow null
+    suffix?: string;
+     
 }

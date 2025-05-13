@@ -31,8 +31,11 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
     contactNumber: "",
     gender: "",
     civilStatus: "",
-    postalCode: ""
+    postalCode: "",
+    suffix: ""
   });
+
+  console.log(formData);
 
   // Function to check if form is valid and complete
   const isFormValid = () => {
@@ -80,8 +83,15 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
+    // Ensure suffix is properly handled before submitting
+    const dataToSubmit = {
+      ...formData,
+      // Ensure suffix is empty string if it's the N/A option
+      suffix: formData.suffix === "" ? "" : formData.suffix
+    };
+
     try {
-      const response = await sendVerifyData(formData);
+      const response = await sendVerifyData(dataToSubmit);
 
       if (response?.status === 201) {
         queryClient.invalidateQueries(["userDetails"]);
@@ -158,7 +168,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-   className="relative p-6 rounded-lg h-[550px] overflow-y-auto bg-white shadow-lg max-w-2xl w-full z-50"
+      className="relative p-6 rounded-lg h-[550px] overflow-y-auto bg-white shadow-lg max-w-2xl w-full z-50"
     >
       <button
         onClick={onClose}
@@ -176,7 +186,8 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
       </p>
 
       <form className="space-y-4 mt-6" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Name Section - First Name and Last Name */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
             <label htmlFor="firstName" className="block text-gray-700 font-medium">First Name</label>
             <input
@@ -189,20 +200,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
-            {errors.firstName && <p className="absolute text-red-500 text-xs mt-1">{errors.firstName}</p>}
-          </div>
-
-          <div className="relative">
-            <label htmlFor="middleName" className="block text-gray-700 font-medium">Middle Name (Optional)</label>
-            <input
-              value={formData.middleName}
-              onChange={handleChange}
-              id="middleName"
-              name="middleName"
-              type="text"
-              placeholder="Middle Name"
-              className="border p-3 rounded w-full"
-            />
+            {validationError.fnameError && <p className="text-red-500 text-xs mt-1">{validationError.fnameError}</p>}
           </div>
 
           <div className="relative">
@@ -217,31 +215,49 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               className="border p-3 rounded w-full"
               required
             />
-            {errors.lastName && <p className="absolute text-red-500 text-xs mt-1">{errors.lastName}</p>}
+            {validationError.lnameError && <p className="text-red-500 text-xs mt-1">{validationError.lnameError}</p>}
           </div>
         </div>
-        
-        {validationError.fnameError && <p className="text-red-500 text-xs mb-0 mt-1">{validationError.fnameError}</p>}
-        {validationError.mnameError && <p className="text-red-500 text-xs mb-0 mt-1">{validationError.mnameError}</p>}
-        {validationError.lnameError && <p className="text-red-500 text-xs mt-1">{validationError.lnameError}</p>}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Middle Name and Suffix */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <label htmlFor="age" className="block text-gray-700 font-medium">Age</label>
+            <label htmlFor="middleName" className="block text-gray-700 font-medium">Middle Name (Optional)</label>
             <input
-              value={formData.age}
+              value={formData.middleName}
               onChange={handleChange}
-              id="age"
-              name="age"
-              type="number"
-              placeholder="Enter Age"
+              id="middleName"
+              name="middleName"
+              type="text"
+              placeholder="Middle Name"
               className="border p-3 rounded w-full"
-              required
-              disabled
             />
-            {errors.age && <p className="absolute text-red-500 text-xs mt-1">{errors.age}</p>}
+            {validationError.mnameError && <p className="text-red-500 text-xs mt-1">{validationError.mnameError}</p>}
           </div>
 
+          <div className="relative">
+            <label htmlFor="suffix" className="block text-gray-700 font-medium">Suffix (Optional)</label>
+            <select
+              value={formData.suffix}
+              onChange={handleChange}
+              id="suffix"
+              name="suffix"
+              className="border p-3 rounded w-full"
+            >
+              <option value="">N/A</option>
+              <option value="Jr.">Jr. (Junior)</option>
+              <option value="Sr.">Sr. (Senior)</option>
+              <option value="I">I (First)</option>
+              <option value="II">II (Second)</option>
+              <option value="III">III (Third)</option>
+              <option value="IV">IV (Fourth)</option>
+              <option value="V">V (Fifth)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Birthdate and Age */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
             <label htmlFor="birthdate" className="block text-gray-700 font-medium">Birthdate</label>
             <input
@@ -255,10 +271,27 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
               min={new Date(new Date().setFullYear(new Date().getFullYear() - 90)).toISOString().split("T")[0]}
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 21)).toISOString().split("T")[0]}
             />
-            {errors.birthdate && <p className="absolute text-red-500 text-xs mt-1">{errors.birthdate}</p>}
+            {errors.birthdate && <p className="text-red-500 text-xs mt-1">{errors.birthdate}</p>}
+          </div>
+
+          <div className="relative">
+            <label htmlFor="age" className="block text-gray-700 font-medium">Age</label>
+            <input
+              value={formData.age}
+              onChange={handleChange}
+              id="age"
+              name="age"
+              type="number"
+              placeholder="Enter Age"
+              className="border p-3 rounded w-full"
+              required
+              disabled
+            />
+            {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
           </div>
         </div>
 
+        {/* Gender and Civil Status */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
             <label htmlFor="gender" className="block text-gray-700 font-medium">Gender</label>
@@ -295,6 +328,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
           </div>
         </div>
 
+        {/* Address and Postal Code */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
             <label htmlFor="address" className="block text-gray-700 font-medium">Address</label>
@@ -311,7 +345,7 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
             {validationError.addressError && <p className="text-red-500 text-xs mt-1">{validationError.addressError}</p>}
           </div>
 
-          <div className="relative flex flex-col">
+          <div className="relative">
             <label htmlFor="postalCode" className="block text-gray-700 font-medium">Postal Code</label>
             <input
               value={formData.postalCode}
@@ -327,37 +361,41 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
           </div>
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-gray-700 mt-2">
-          <input 
-            type="checkbox" 
-            className="mt-1 cursor-pointer" 
-            checked={termsAgreed}
-            onChange={handleTermsChange}
-            required
-          />
-          <span>
-            I certify that I am at least 21 years old and that I agree to the{" "}
-            <a
-              href="/terms"
-              className="text-blue-600 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Terms and Policies
-            </a>{" "}
-            and{" "}
-            <a
-              href="/privacy"
-              className="text-blue-600 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Privacy Policy
-            </a>
-            . This service is for the Philippines only.
-          </span>
-        </label>
+        {/* Terms and Conditions */}
+        <div className="mt-4">
+          <label className="flex items-start gap-2 text-sm text-gray-700">
+            <input 
+              type="checkbox" 
+              className="mt-1 cursor-pointer" 
+              checked={termsAgreed}
+              onChange={handleTermsChange}
+              required
+            />
+            <span>
+              I certify that I am at least 21 years old and that I agree to the{" "}
+              <a
+                href="/terms"
+                className="text-blue-600 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms and Policies
+              </a>{" "}
+              and{" "}
+              <a
+                href="/privacy"
+                className="text-blue-600 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+              . This service is for the Philippines only.
+            </span>
+          </label>
+        </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={!isFormValid()}
@@ -374,4 +412,4 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
   );
 }
 
-export default VerifyForm
+export default VerifyForm;

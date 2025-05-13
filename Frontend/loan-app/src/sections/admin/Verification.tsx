@@ -49,6 +49,9 @@ const Verification = () => {
   });
 
 
+  console.log(data)
+
+
   const rejectMutation = useMutation({
     mutationFn: async (id: number) => {
       setLoading2(true);
@@ -173,7 +176,7 @@ const Verification = () => {
                 </div>
                 <div className="ml-4 text-white">
                   <h1 className="text-xl sm:text-2xl font-bold">
-                    {data?.first_name} {data?.middle_name} {data?.last_name}
+                    {data?.first_name} {data?.middle_name} {data?.last_name} {data?.suffix && data.suffix.charAt(0).toUpperCase() + data.suffix.slice(1)}
                   </h1>
 
                 </div>
@@ -189,26 +192,27 @@ const Verification = () => {
               Personal Information
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-blue-50 p-4 rounded-lg">
-              <div className="flex flex-col">
-                <span className="text-sm text-gray-500 mb-1">First Name</span>
-                <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
-                  {data?.first_name || "N/A"}
-                </span>
-              </div>
-
-              <div className="flex flex-col">
-                <span className="text-sm text-gray-500 mb-1">Middle Name</span>
-                <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
-                  {data?.middle_name || "N/A"}
-                </span>
-              </div>
-
-              <div className="flex flex-col">
-                <span className="text-sm text-gray-500 mb-1">Last Name</span>
-                <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100">
-                  {data?.last_name || "N/A"}
-                </span>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-4">
+                  <span className="text-sm text-gray-500 mb-1 block">Full Name</span>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100 flex-grow">
+                      <span className="text-gray-500 mr-1 text-xs">First:</span> {data?.first_name || "N/A"}
+                    </span>
+                    <span className="font-medium text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100 flex-grow">
+                      <span className="text-gray-500 mr-1 text-xs">Middle:</span> {data?.middle_name || "N/A"}
+                    </span>
+                    <span className="font-medium 1 text-blue-700 bg-white p-2 rounded shadow-sm border border-blue-100 flex-grow">
+                      <span className="text-gray-500 mr-1 text-xs">Last:</span> {data?.last_name || "N/A"}
+                    </span>
+                    {data?.suffix && (
+                      <span className="font-medium text-blue-700 pr-10 bg-white p-2 rounded shadow-sm border border-blue-100">
+                        <span className="text-gray-500 mr-1  text-xs">Suffix:</span> {data.suffix.charAt(0).toUpperCase() + data.suffix.slice(1)}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

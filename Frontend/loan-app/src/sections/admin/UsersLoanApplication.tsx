@@ -112,7 +112,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${colorClass} border`}>
       <FontAwesomeIcon icon={icon} className="mr-1" />
-      {status}
+      {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
 };
