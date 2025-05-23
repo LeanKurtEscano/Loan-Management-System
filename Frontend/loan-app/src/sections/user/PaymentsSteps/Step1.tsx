@@ -15,7 +15,8 @@ interface Step1Props {
 
 const Step1: React.FC<Step1Props> = ({ nextStep }) => {
 
-    const { penalty, setPenalty, noOfPenaltyDelay, setNoOfPenaltyDelay } = useMyContext();
+    const {  setPenalty,  setNoOfPenaltyDelay } = useMyContext();
+
     const { data, isLoading, isError } = useQuery(
         ['userLoanSubmission1'],
         getLoanSubmission
@@ -33,7 +34,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         getPayments
     );
 
-    console.log(data);
+ 
 
     const getPaymentPerPeriod = (
         totalPayment: number,
@@ -159,6 +160,9 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
 
     console.log(isPastDue)
 
+    // Check if payment is pending or processing
+    const isPaymentPending = data?.payment_status === "Pending";
+
 
 
     useEffect(() => {
@@ -240,19 +244,41 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                             You have a penalty to pay! Please clear your penalty.
                         </span>
                     )}
-                    {!isPastDue && (
+                    {!isPastDue && !isPaymentPending && (
                         " Please ensure timely payment to avoid any penalties. Thank you."
                     )}
                 </p>
 
+                {/* Payment Processing Message */}
+                {isPaymentPending && (
+                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-yellow-800 text-sm text-center font-medium">
+                            <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse"></span>
+                            Your payment is currently being processed. Please wait for approval before making another payment.
+                        </p>
+                    </div>
+                )}
+
                 <div className="flex flex-col gap-4 mt-6">
                     <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`w-full cursor-pointer ${isPastDue ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-500 hover:bg-blue-600'} text-white py-3 rounded-lg shadow-lg transition font-semibold text-lg`}
-                        onClick={nextStep}
+                        whileHover={!isPaymentPending ? { scale: 1.05 } : {}}
+                        whileTap={!isPaymentPending ? { scale: 0.95 } : {}}
+                        className={`w-full cursor-pointer transition font-semibold text-lg py-3 rounded-lg shadow-lg ${
+                            isPaymentPending 
+                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60' 
+                                : isPastDue 
+                                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        }`}
+                        onClick={isPaymentPending ? undefined : nextStep}
+                        disabled={isPaymentPending}
                     >
-                        {isPastDue ? 'Make Overdue Payment Now' : 'Make a Payment'}
+                        {isPaymentPending 
+                            ? 'Payment Processing...' 
+                            : isPastDue 
+                                ? 'Make Overdue Payment Now' 
+                                : 'Make a Payment'
+                        }
                     </motion.button>
                     <motion.button
                         onClick={goToTransactions}

@@ -99,6 +99,8 @@ def handle_loan_payments(request):
         upload_result = cloudinary.uploader.upload(receipt)
         receipt_url = upload_result.get("secure_url")
         loan_sub = LoanSubmission.objects.get(id = int(disbursement_id))
+        loan_sub.payment_status = "Pending"
+        loan_sub.save()
         
         is_penalty = False
         if loan_sub.no_penalty_delay and loan_sub.no_penalty_delay > 0:
@@ -110,7 +112,34 @@ def handle_loan_payments(request):
             amount= Decimal(period_payment["amount"]),
             period=unit,
             receipt=receipt_url,
-            is_penalty = is_penalty
+            is_penalty = is_penalty,
+            
+        )
+        
+        
+        
+        notification_message = f"Your loan payment of ₱{float(period_payment['amount']):,.2f} is being processed. We will notify you once it is verified."
+
+        notification = Notification.objects.create(
+            user=loan_sub.user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+        user_id = loan_sub.user.id
+        
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user_id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
         )
         
 
@@ -158,6 +187,8 @@ def approve_loan_payment(request):
         loan_sub = loan_payment.loan 
 
         loan_payment.status = "Approved"
+        loan_sub.payment_status = None
+        loan_sub.save()
         loan_payment.save()
         
         if loan_sub.no_penalty_delay and loan_sub.no_penalty_delay > 0:
@@ -312,6 +343,9 @@ def reject_loan_payment(request):
         desc = request.data.get("description")
         
         loan_payment = LoanPayments.objects.get(id = int(id))
+        loan_sub = loan_payment.loan
+        loan_sub.payment_status = None
+        loan_sub.save()
         loan_payment.status = "Rejected"
         loan_payment.save()
         user = loan_payment.user

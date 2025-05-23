@@ -19,6 +19,7 @@ import EmailModal from "../../components/EmailModal";
 import { cleanImageUrl } from "../../utils/imageClean";
 import ImageModal from "../../components/ImageModal";
 import Modal from "../../components/Modal";
+import { formatDateWithWords } from "../../utils/formatDate";
 
 const ApproveSubmission = () => {
   const { id } = useParams();
@@ -241,7 +242,7 @@ const ApproveSubmission = () => {
                     <div>
                       <label className="text-sm text-gray-600">Repayment Date</label>
                       <div className="font-semibold text-gray-800">
-                        {data?.repay_date || "Not specified"}
+                        {formatDateWithWords(data?.repay_date )|| "Not specified"}
                       </div>
                     </div>
                   </div>

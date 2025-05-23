@@ -54,7 +54,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
     const deduction = loanSubmission.cashout === "gcash" ? 10 : loanSubmission.cashout === "maya" ? 15 : 0;
     const storedTotalPayment = Number(JSON.parse(localStorage.getItem("totalPayment") || "0"));
     
-    const updatedTotalPayment = storedTotalPayment - deduction;
+    const updatedTotalPayment = storedTotalPayment + deduction;
     setLoanSubmission((prev: LoanSubmission) => ({
       ...prev,
       loanAmount: (prev.loanAmount ?? 0) + deduction,
