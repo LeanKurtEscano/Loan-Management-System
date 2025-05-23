@@ -32,6 +32,7 @@ interface User {
   first_name: string;
   middle_name?: string;
   last_name: string;
+  suffix?:string;
 }
 
 interface LoanApplication {
@@ -152,7 +153,8 @@ const UsersLoanApplication: React.FC = () => {
     queryKey: ["loanApplicationsAdmin"],
     queryFn: () => fetchLoanData("applications") as Promise<LoanApplication[]>,
   });
-
+  
+  console.log(loanApplications)
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await loanApi.post('/remove/', {
@@ -227,7 +229,7 @@ const UsersLoanApplication: React.FC = () => {
   const filteredApplications = useMemo(() => {
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.user.first_name} ${loan.user.middle_name || ''} ${loan.user.last_name}`.toLowerCase();
+      const fullName = `${loan.user.first_name} ${loan.user.middle_name || ''} ${loan.user.last_name} ${loan.user?.suffix || loan.user.suffix || ''}`.toLowerCase();
       const matchesSearch = fullName.includes(searchTerm.toLowerCase());
 
       // Status filter
@@ -582,9 +584,11 @@ const UsersLoanApplication: React.FC = () => {
                     className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
+                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[250px] overflow-hidden text-ellipsis truncate">
                         {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
                         {loan.user.last_name}
+
+                         {loan.user.suffix ? " " + loan.user.suffix : ""}
                       </div>
                     </td>
 

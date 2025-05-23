@@ -71,9 +71,13 @@ def verify_account(request):
         gender = request.data.get("gender")
         civil_status = request.data.get("civilStatus")
         postal_code= request.data.get("postalCode")
+        suffix = request.data.get("suffix", "") or ""
+        ip_address = request.META.get('REMOTE_ADDR')
+        print(suffix)
       
         
         user = CustomUser.objects.get(id = request.user.id)
+        user.suffix  = suffix
         user.is_verified = "pending"
         user.save()
         if not first_name or not last_name or not birthdate  or not address:
@@ -93,8 +97,9 @@ def verify_account(request):
             gender = gender,
             postal_code = postal_code,
             marital_status = civil_status,
-          
-            status="pending"
+            ip_address = ip_address,
+            suffix = suffix,
+            status="pending",
         )
 
         return Response({"success": "Data received and stored"}, status=status.HTTP_201_CREATED)

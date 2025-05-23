@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getLoanApplication } from '../../../services/user/userData';
 import { LoanSubmission } from '../../../constants/interfaces/loanInterface';
+import { formatDate, formatDateWithWords, formatDateWords } from '../../../utils/formatDate';
 
 const Step6 = ({
     prevStep,
@@ -68,7 +69,7 @@ const Step6 = ({
                     <div className="space-y-4">
                         <div className="flex justify-between">
                             <span className="font-semibold text-gray-700">Repay Date:</span>
-                            <span className="text-gray-600">{loanSubmission.repayDate || 'Not selected'}</span>
+                            <span className="text-gray-600">{formatDateWords  (data.end_date)|| 'Not selected'}</span>
                         </div>
                         
                         <div className="flex justify-between">

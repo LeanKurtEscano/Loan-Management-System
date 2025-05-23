@@ -191,7 +191,7 @@ const ApproveSubmission = () => {
                   <div>
                     <label className="text-sm text-gray-600">Full Name</label>
                     <div className="font-semibold text-gray-800">
-                      {`${data?.user.first_name || ""} ${data?.user.middle_name || ""} ${data?.user.last_name || ""}`.trim() || "Not provided"}
+                      {`${data?.user.first_name || ""} ${data?.user.middle_name || ""} ${data?.user.last_name || ""}  ${data.user?.suffix || data?.user?.suffix || ''}`.trim() || "Not provided"}
                     </div>
                   </div>
                   

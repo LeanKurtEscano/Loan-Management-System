@@ -20,6 +20,7 @@ export interface LoanApplicationDetails {
 export interface AdminApprove {
   loanAmount: number | null;
   interest: number | null;
+  duration: number | null;
 }
 
 export interface LoanSubmission {

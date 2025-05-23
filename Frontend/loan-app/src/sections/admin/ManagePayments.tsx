@@ -245,7 +245,7 @@ const ManagePayments: React.FC = () => {
 
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.user?.first_name || loan.first_name || ''} ${loan.user?.middle_name || loan.middle_name || ''} ${loan.user?.last_name || loan.last_name || ''}`.toLowerCase().trim();
+      const fullName = `${loan.user?.first_name || loan.first_name || ''} ${loan.user?.middle_name || loan.middle_name || ''} ${loan.user?.last_name || loan.last_name || ''} ${loan.user?.suffix || loan.suffix || ''}`.toLowerCase().trim();
       const matchesSearch = searchTerm === '' || fullName.includes(searchTerm.toLowerCase());
       // Status filter
       const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
@@ -625,9 +625,10 @@ const ManagePayments: React.FC = () => {
                     className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
+                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[250px] overflow-hidden text-ellipsis truncate">
                         {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
                         {loan.user.last_name}
+                        {loan.user.suffix ? " " + loan.user.suffix : ""}
                       </div>
                     </td>
 

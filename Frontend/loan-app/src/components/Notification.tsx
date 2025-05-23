@@ -49,9 +49,21 @@ const NotificationPage = () => {
 
 
   const handleDelete = async(notificationId:number) => {
-    deleteMutation.mutateAsync(notificationId);
-
+  // Find the notification before deleting it to check if it was unread
+  const notification = data.find(n => n.id === notificationId);
+  const wasUnread = notification && !notification.is_read;
+  
+  try {
+    await deleteMutation.mutateAsync(notificationId);
+    
+    // If the deleted notification was unread, decrement the unread count
+    if (wasUnread) {
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+  } catch (error) {
+    console.error("Error deleting notification:", error);
   }
+}
   
   // Close dropdown when clicking outside
   useEffect(() => {

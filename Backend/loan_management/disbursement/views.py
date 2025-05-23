@@ -18,7 +18,7 @@ from .utils import extract_duration
 from datetime import datetime, timedelta
 from django.db.models import Sum
 from user.models import CustomUser,Notification
-
+import re
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import calendar
@@ -91,12 +91,18 @@ def handle_loan_payments(request):
         print("Received periodPayment:", period_payment)
         print("Received receipt:", receipt)
       
-
+         
+         
+         
         
         
         upload_result = cloudinary.uploader.upload(receipt)
         receipt_url = upload_result.get("secure_url")
         loan_sub = LoanSubmission.objects.get(id = int(disbursement_id))
+        
+        is_penalty = False
+        if loan_sub.no_penalty_delay and loan_sub.no_penalty_delay > 0:
+          is_penalty = True
 
         loan_payment = LoanPayments.objects.create(
             user=request.user,
@@ -104,6 +110,7 @@ def handle_loan_payments(request):
             amount= Decimal(period_payment["amount"]),
             period=unit,
             receipt=receipt_url,
+            is_penalty = is_penalty
         )
         
 
@@ -152,6 +159,12 @@ def approve_loan_payment(request):
 
         loan_payment.status = "Approved"
         loan_payment.save()
+        
+        if loan_sub.no_penalty_delay and loan_sub.no_penalty_delay > 0:
+           months_deduct = int(re.search(r'\d+', loan_payment.period).group())
+           no_penalty_delay_value = int(loan_sub.no_penalty_delay)
+   
+           loan_sub.no_penalty_delay = max(0, no_penalty_delay_value - months_deduct)
          
         if penalty_decimal > Decimal("0.00"):
             loan_sub.penalty -= penalty_decimal
@@ -160,11 +173,14 @@ def approve_loan_payment(request):
 
         user = loan_payment.user
         notification_message = f"Your loan payment of ₱{loan_payment.amount} has been approved."
-
+        
+        
+        loan_penalty_count = LoanPayments.objects.filter(loan=loan_sub, is_penalty=True).count()
+        
         if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
             loan_sub.is_celebrate = True
             user.is_borrower = False  
-            loan_penalty_count = int(loan_sub.no_penalty_delay or 0)
+          
             
             
             if loan_penalty_count > 0:
@@ -178,8 +194,8 @@ def approve_loan_payment(request):
             subject = "Your Loan is Fully Paid!"
             html_content = render_to_string("email/loanfullypaid.html", {
                 'username': user.username,
-                'amount': loan_payment.loan.total_payment,
-                'interest_rate': loan_sub.loan_app.interest,
+                'loan_amount': loan_payment.loan.total_payment,
+                'interest': loan_sub.loan_app.interest,
                 'start_date': loan_sub.start_date,
                 'end_date': loan_sub.repay_date,
             })

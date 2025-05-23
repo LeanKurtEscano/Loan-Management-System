@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -10,7 +10,9 @@ import {
   faPhoneAlt, 
   faStar, 
   faUsers, 
-  faChartLine 
+  faChartLine,
+  faQuestionCircle,
+  faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import home2 from "../../assets/home2.jpg";
 import home3 from "../../assets/home3.jpg";
@@ -33,6 +35,22 @@ const fadeIn = {
     opacity: 1,
     transition: { duration: 0.8, ease: "easeOut", delay },
   }),
+};
+
+const popupAnimation = {
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { duration: 0.4, ease: "easeOut" }
+  },
+  exit: { 
+    opacity: 0, 
+    y: 20, 
+    scale: 0.9,
+    transition: { duration: 0.3, ease: "easeIn" }
+  }
 };
 
 const faqs = [
@@ -79,12 +97,22 @@ const testimonials = [
   }
 ];
 
-
-
 const Home = () => {
   const nav = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const { isAuthenticated, isVerified } = useMyContext();
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
+  
+
+  console.log(isVerified)
+  // Show help popup after a delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowHelpPopup(true);
+    }, 3000); // Show after 3 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(prevIndex => (prevIndex === index ? null : index));
@@ -98,8 +126,20 @@ const Home = () => {
     nav('/user/account');
   }
 
+    const goToSupport = () => {
+    nav('/support');
+  }
+
+
+
+
+
   const goToLoan = () => {
     nav('/user/apply-loan');
+  }
+
+  const goToHelp = () => {
+    nav('/help');
   }
 
   return (
@@ -144,7 +184,7 @@ const Home = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={isAuthenticated && isVerified ? goToLoan : isAuthenticated ? goToAccount : goToLogin}
-                  className="bg-blue-600 text-white font-medium px-8 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg"
+                  className="bg-blue-600 cursor-pointer text-white font-medium px-8 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg"
                 >
                   Get Started
                 </motion.button>
@@ -152,7 +192,8 @@ const Home = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="border border-blue-600 text-blue-600 font-medium px-8 py-3 rounded-lg hover:bg-blue-50 transition"
+                  onClick={goToHelp}
+                  className="border border-blue-600 cursor-pointer text-blue-600 font-medium px-8 py-3 rounded-lg hover:bg-blue-50 transition"
                 >
                   Learn More
                 </motion.button>
@@ -455,6 +496,7 @@ const Home = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={goToSupport}
                   className="border border-white cursor-pointer text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
                 >
                   <FontAwesomeIcon icon={faPhoneAlt} className="mr-2" />
@@ -465,6 +507,50 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {/* Help Popup */}
+      <AnimatePresence>
+        {showHelpPopup && (
+          <motion.div 
+            className="fixed bottom-6 right-6 z-50"
+            variants={popupAnimation}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div className="bg-white rounded-lg shadow-xl border border-blue-100 w-64 sm:w-72 overflow-hidden">
+              {/* Header with close button */}
+              <div className="bg-blue-600 text-white  p-3 flex justify-between items-center">
+                <div className="flex items-center">
+                  <FontAwesomeIcon icon={faQuestionCircle} className="mr-2" />
+                  <span className="font-semibold">Need Help?</span>
+                </div>
+                <button 
+                  onClick={() => setShowHelpPopup(false)}
+                  className="text-white cursor-pointer hover:text-gray-200 transition"
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </div>
+              
+              {/* Popup content */}
+              <div className="p-4">
+                <p className="text-gray-700 mb-4">
+                  Confused on how to apply for a loan? Our help center provides detailed guidance.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={goToHelp}
+                  className="w-full cursor-pointer bg-blue-600 text-white p-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                >
+                  Get Help Now
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

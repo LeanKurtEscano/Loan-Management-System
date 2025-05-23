@@ -203,7 +203,7 @@ const ManageUsers: React.FC = () => {
 
         return users.filter(user => {
          
-            const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.toLowerCase();
+            const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name} ${user?.suffix || user.suffix || ''}`.toLowerCase();
             const matchesSearch = searchTerm ?
                 fullName.includes(searchTerm.toLowerCase()) ||
                 (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -567,10 +567,11 @@ const ManageUsers: React.FC = () => {
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate flex items-center">
+                                            <div className="text-sm whitespace-nowrap font-medium pr-44 text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate flex items-center">
                                                 <span>
                                                     {user.first_name} {user.middle_name ? user.middle_name + " " : ""}
-                                                    {user.last_name}
+                                                    {user.last_name} 
+                                                    {user.suffix ? " " + user.suffix : ""}
                                                 </span>
                                               
                                             </div>

@@ -337,41 +337,57 @@ export const validatePostalCode = (postalCode: string): string => {
 
     return "";
 };
-
-
-
 export const validateAmountSpent = (amount: string): string => {
     // Check if empty
     if (!amount.trim()) {
         return "Amount is required.";
     }
     
-    // Check if it contains invalid characters (commas in wrong places, multiple dots, etc.)
-    const validNumberRegex = /^[0-9]+(\.[0-9]{1,2})?$/;
+    const specialCases = ['n/a', 'none', 'no'];
     
-    if (!validNumberRegex.test(amount)) {
-        return "Must be a valid number (e.g., 1000 or 1000.50).";
+    // Handle special text cases (case-insensitive)
+    if (specialCases.includes(amount.trim().toLowerCase())) {
+        return "";
     }
     
-    const num = parseFloat(amount);
-    
-    // Check if parsed value is a number
-    if (isNaN(num)) {
-        return "Must be a valid number.";
+    // Check if input is a valid number format (including negative values)
+    // Updated regex to reject leading zeros except for decimal values less than 1
+    const validNumberRegex = /^-?([1-9][0-9]*|0)(\.[0-9]{1,2})?$/;
+    if (validNumberRegex.test(amount)) {
+        const num = parseFloat(amount);
+        
+        // Check if parsed value is a number
+        if (isNaN(num)) {
+            return "Must be a valid number.";
+        }
+        
+        // Value constraints
+        if (num <= 0) {
+            return "Amount must be greater than 0.";
+        }
+        
+        if (num > 10000000) {
+            return "Amount must not exceed 10,000,000.";
+        }
+        
+        return "";
     }
     
-    // Value constraints
-    if (num <= 0) {
-        return "Amount must be greater than 0.";
+    // If we get here, check what type of invalid input we have
+    
+    // Check if it's a number format with leading zeros (except for decimal less than 1)
+    if (/^-?0[0-9]+(\.[0-9]{1,2})?$/.test(amount)) {
+        return "Numbers cannot have leading zeros.";
     }
     
-    if (num > 10000000) {
-        return "Amount must not exceed 10,000,000.";
+    // Check if it looks like a number but fails our validation
+    if (/^-?[0-9]+(\.[0-9]{1,2})?$/.test(amount)) {
+        return "Invalid number format.";
     }
     
-    return "";
-};
-
+    // For all other cases (random text, non-allowed words, etc.)
+    return "Invalid input. Only 'N/A', 'none', 'no' or a valid number are allowed.";
+}
 
 
 export const validateLoanAmount = (amount: number): string => {

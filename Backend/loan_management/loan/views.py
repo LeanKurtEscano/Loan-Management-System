@@ -24,7 +24,7 @@ from datetime import datetime
 from decimal import Decimal
 from .serializers import AccountDetailSerializer
 from user.models import CustomUser,Notification
-
+from dateutil.relativedelta import relativedelta
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -198,7 +198,6 @@ def create_loan_submission(request):
 
       
         loan_id = data.get("loanId")
-        repay_date = data.get("repayDate", "")
         loan_amount = data.get("loanAmount", 0)
         cashout = data.get("cashout", "")
         total_payment = data.get("totalPayment", 0)
@@ -213,7 +212,7 @@ def create_loan_submission(request):
             user=user,
             loan_app=loan_app,
             id_selfie=upload_selfie,
-            repay_date=repay_date,
+            repay_date=loan_app.end_date,
             loan_amount=Decimal(loan_amount),
             cashout=cashout,
             total_payment=Decimal(total_payment),
@@ -296,12 +295,15 @@ def verify_loan_application(request):
         id = request.data.get("id")
         loan_amount = request.data.get("loanAmount")
         interest = request.data.get("interest")
+        duration = request.data.get("duration")
 
         application = get_object_or_404(LoanApplication, id=int(id))
 
         application.loan_amount = Decimal(loan_amount)
         application.interest = int(interest)
         application.status = "Approved"
+        application.end_date = datetime.now() + relativedelta(months=int(duration))
+        application.duration = f"{int(duration)} months"
         application.save()
 
         user = application.user

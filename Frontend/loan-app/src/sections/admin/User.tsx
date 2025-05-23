@@ -14,6 +14,8 @@ const User = () => {
     queryFn: () => fetchUserData("user", id ?? ""),
   });
 
+  console.log(user)
+
   const handleRowClick = (applicationId) => {
     navigate(`/dashboard/verify/application/${applicationId}`);
   };
@@ -156,7 +158,7 @@ const User = () => {
                   transition={{ delay: 0.2 }}
                   className="text-xl sm:text-2xl font-bold text-white"
                 >
-                  {user?.first_name} {user?.middle_name} {user?.last_name}
+                  {user?.first_name} {user?.middle_name} {user?.last_name}  {user.verification_request.suffix ? " " + user.verification_request.suffix : ""}
                 </motion.h1>
                 <motion.p 
                   initial={{ opacity: 0, y: 10 }}

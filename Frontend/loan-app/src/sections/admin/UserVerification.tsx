@@ -146,7 +146,7 @@ const UserVerification: React.FC = () => {
 
   const { data: loanApplications, isLoading, isError, error } = useQuery<ApplicationData[]>(['verifyData'], getUserDetails);
 
-
+  console.log(loanApplications);
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await adminApi.post('/remove/', {
@@ -230,7 +230,7 @@ const UserVerification: React.FC = () => {
 
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`.toLowerCase();
+      const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}  ${loan.suffix}`.toLowerCase();
       const matchesSearch = fullName.includes(searchTerm.toLowerCase());
 
       // Status filter
@@ -600,9 +600,12 @@ const UserVerification: React.FC = () => {
                     className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
+                      <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[250px] overflow-hidden text-ellipsis truncate">
                         {loan.first_name} {loan.middle_name ? loan.middle_name + " " : ""}
                         {loan.last_name}
+
+                         {loan.suffix ? " " + loan.suffix : ""}
+                       
                       </div>
                     </td>
 

@@ -360,7 +360,7 @@ const VerifyPayment = () => {
                                             Reject
                                         </motion.button>
 
-                                        {data?.loan?.penalty && (
+                                        {data?.loan?.penalty > 0 && (
                                             <motion.button
                                                 className="bg-amber-500 cursor-pointer text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all hover:bg-amber-600 active:scale-95 flex items-center gap-2"
                                                 whileHover={{ scale: 1.05 }}

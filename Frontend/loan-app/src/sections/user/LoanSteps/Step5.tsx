@@ -57,7 +57,7 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
     const updatedTotalPayment = storedTotalPayment - deduction;
     setLoanSubmission((prev: LoanSubmission) => ({
       ...prev,
-      loanAmount: (prev.loanAmount ?? 0) - deduction,
+      loanAmount: (prev.loanAmount ?? 0) + deduction,
       totalPayment: updatedTotalPayment
     }));
   
@@ -69,9 +69,9 @@ const Step5 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => v
     if (!loanSubmission.loanAmount) return 0;
     
     if (loanSubmission.cashout === "gcash") {
-      return loanSubmission.loanAmount - 10;
+      return loanSubmission.loanAmount + 10;
     } else if (loanSubmission.cashout === "maya") {
-      return loanSubmission.loanAmount - 15;
+      return loanSubmission.loanAmount + 15;
     }
     return loanSubmission.loanAmount;
   };

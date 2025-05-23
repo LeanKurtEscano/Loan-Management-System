@@ -75,7 +75,8 @@ const VerifyApplication = () => {
     const details: ApplicationApproveData = {
       id: data.id,
       loanAmount: approveLoan.loanAmount,
-      interest: approveLoan.interest
+      interest: approveLoan.interest,
+      duration: approveLoan.duration
     };
 
     try {

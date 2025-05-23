@@ -34,17 +34,30 @@ const Step3 = ({
   const serviceFee = data?.interest ? (loanSubmission.loanAmount * data.interest) / 100 : 0;
   const totalPayment = Number(loanSubmission.loanAmount) + Number(serviceFee);
 
+  // Format date helper function
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Not set";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   // Monthly Payment based on repayDate
   const getMonthlyPayment = () => {
-    if (!loanSubmission.repayDate) return 0;
+    if (!data.end_date) return 0;
     const today = new Date();
-    const repayDate = new Date(loanSubmission.repayDate);
+    const repayDate = new Date(data.end_date);
 
     const differenceInMonths = (repayDate.getFullYear() - today.getFullYear()) * 12 + (repayDate.getMonth() - today.getMonth());
 
     const months = Math.max(differenceInMonths, 1); // At least 1 month
     return totalPayment / months;
   };
+
+  console.log(data);
 
   const monthlyPayment = getMonthlyPayment();
   const penaltyFee = monthlyPayment * 0.1; // 10% of monthly payment
@@ -55,12 +68,7 @@ const Step3 = ({
   }, [totalPayment, setLoanSubmission]);
 
   const handleContinue = () => {
-    const error = validateRepayDate(loanSubmission.repayDate);
-    if (error) {
-      setDateError(error);
-      return;
-    }
-
+    
     nextStep();
   };
 
@@ -77,31 +85,45 @@ const Step3 = ({
     return differenceInDays < 30;
   };
 
-  const isBreakdownDisabled = !loanSubmission.repayDate || !!dateError || !loanSubmission.paymentFrequency;
+  const isBreakdownDisabled =  !loanSubmission.paymentFrequency;
 
   return (
     <div className="flex items-center pt-24 justify-center min-h-screen bg-gray-50">
       <div className="bg-white p-8 border border-gray-300 rounded-xl shadow-xl w-full max-w-lg text-center">
-        <h3 className="text-2xl font-semibold mb-2 text-gray-800">Choose When to Repay</h3>
-        <p className="text-base mb-6 text-gray-600">Please select the date by which you plan to repay the loan.</p>
+       <h3 className="text-2xl font-semibold mb-2 text-gray-800">Loan Approval Details</h3>
+        <p className="text-base mb-6 text-gray-600">Review your approved loan terms and proceed if you're okay with these details.</p>
 
-        <div className="mb-4">
-          <label htmlFor="repayDate" className="block text-left text-sm font-medium text-gray-700 mb-1 ml-1">
-            Repayment Date
-          </label>
-          <input
-            id="repayDate"
-            name="repayDate"
-            type="date"
-            value={loanSubmission.repayDate}
-            onChange={handleChange}
-            className={`border ${dateError ? 'border-red-500' : 'border-gray-300'} p-3 rounded-lg w-full text-gray-700 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
-            min={getMinDate()}
-          />
-          {dateError && (
-            <p className="text-left text-red-500 text-sm mt-1 ml-1">{dateError}</p>
-          )}
-        </div>
+        {/* Admin Decision Details */}
+        {data && (
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-6 shadow-sm">
+            <h4 className="text-blue-800 font-medium mb-3 text-lg flex items-center justify-center">
+              <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              Admin Decision Details
+            </h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-blue-600 font-medium">Status:</span>
+                <span className="font-semibold text-green-600">{data.status}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-blue-600 font-medium">Approved Amount:</span>
+                <span className="font-semibold text-gray-800">{formatCurrency(data.loan_amount)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-blue-600 font-medium">Duration:</span>
+                <span className="font-semibold text-gray-800">{data.duration} months</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-blue-600 font-medium">End Date:</span>
+                <span className="font-semibold text-gray-800">{formatDate(data.end_date)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-blue-600 font-medium">Interest Rate:</span>
+                <span className="font-semibold text-gray-800">{data.interest}%</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mb-6">
           <label htmlFor="paymentFrequency" className="block text-left text-sm font-medium text-gray-700 mb-1 ml-1">
@@ -110,18 +132,12 @@ const Step3 = ({
           <select
             id="paymentFrequency"
             name="paymentFrequency"
-            disabled={!loanSubmission.repayDate || !!dateError}
             value={loanSubmission.paymentFrequency || ""}
             onChange={handleChange}
-            className={`border ${!loanSubmission.repayDate || dateError ? 'border-gray-200' : 'border-gray-300'} p-3 rounded-lg w-full text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
-              ${!loanSubmission.repayDate || dateError
-                ? "bg-gray-100 cursor-not-allowed text-gray-400"
-                : "bg-white cursor-pointer"
-              }`}
+            className={`border  border-gray-300 p-3 rounded-lg w-full text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
           >
             <option value=""  disabled hidden>Select Payment Frequency</option>
             <option value="monthly" disabled={isMonthlyDisabled()}>Monthly</option>
-          
           </select>
           {loanSubmission.repayDate && isMonthlyDisabled() && loanSubmission.paymentFrequency === "monthly" && (
             <p className="text-left text-amber-500 text-sm mt-1 ml-1">Monthly payments require at least 30 days until repayment</p>
@@ -138,13 +154,37 @@ const Step3 = ({
             <p className="text-sm text-gray-600">Service Fee (Interest):</p>
             <p className="font-semibold text-gray-800">{formatCurrency(serviceFee)}</p>
           </div>
+          {loanSubmission.paymentFrequency === "monthly" && (
+            <div className="flex justify-between mb-2">
+              <p className="text-sm text-gray-600">Late Payment Penalty:</p>
+              <p className="font-semibold text-orange-600">{formatCurrency(penaltyFee)}</p>
+            </div>
+          )}
           <div className="h-px bg-gray-200 my-3"></div>
           <div className="flex justify-between mb-3">
             <p className="text-base font-bold text-gray-800">Total Payment:</p>
             <p className="text-base font-bold text-blue-600">{formatCurrency(totalPayment)}</p>
           </div>
-
+          {loanSubmission.paymentFrequency === "monthly" && (
+            <div className="flex justify-between mb-2">
+              <p className="text-sm text-gray-600">Monthly Payment:</p>
+              <p className="font-semibold text-green-600">{formatCurrency(monthlyPayment)}</p>
+            </div>
+          )}
         </div>
+
+        {/* Penalty Information Box */}
+        {loanSubmission.paymentFrequency === "monthly" && (
+          <div className="p-4 bg-orange-50 rounded-lg border border-orange-200 mt-4 shadow-sm">
+            <h5 className="text-orange-800 font-medium mb-2 text-sm flex items-center">
+              <span className="inline-block w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              Important: Late Payment Penalty
+            </h5>
+            <p className="text-xs text-orange-700">
+              A penalty fee of {formatCurrency(penaltyFee)} (10% of monthly payment) will be charged for each late payment.
+            </p>
+          </div>
+        )}
         
         <button
           onClick={() => setShowModal(true)}
@@ -168,9 +208,9 @@ const Step3 = ({
 
           <button
             onClick={handleContinue}
-            disabled={!loanSubmission.repayDate || !!dateError || !loanSubmission.paymentFrequency}
+            disabled={ !loanSubmission.paymentFrequency}
             className={`flex-1 ${
-              !loanSubmission.repayDate || !!dateError || !loanSubmission.paymentFrequency
+              !loanSubmission.paymentFrequency
                 ? "bg-blue-300 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
               } text-white font-medium cursor-pointer rounded-lg py-3 transition-all duration-200 shadow-sm`}
@@ -183,7 +223,7 @@ const Step3 = ({
           <PaymentBreakdownModal
           penaltyFee = {penaltyFee}
             monthlyPayment={monthlyPayment} 
-            repayDate={loanSubmission.repayDate}
+            repayDate={data.end_date}
             onClose={() => setShowModal(false)}
           />
         )}

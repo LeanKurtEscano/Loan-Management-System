@@ -1,6 +1,18 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 const Footer = () => {
+    const nav = useNavigate();
+    const goToHelp = () => {
+      nav('/support');
+  }
+
+  const goToTerms = () => {
+      nav('/terms');
+  }
+
+  const goToPrivacy = () => {
+      nav('/privacy');
+  }
     return (
         <footer className="shadow-lg bg-white">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
@@ -53,13 +65,13 @@ const Footer = () => {
                                 Legal
                             </h2>
                             <ul className="text-black font-medium">
-                                <li className="mb-4">
+                                <li onClick={goToPrivacy}className="mb-4">
                                     <a href="privacy" className="hover:underline">
                                         Privacy Policy
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="terms" className="hover:underline">
+                                <li onClick={goToTerms}>
+                                    <a  className="hover:underline">
                                         Terms &amp; Conditions
                                     </a>
                                 </li>

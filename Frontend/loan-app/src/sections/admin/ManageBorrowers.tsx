@@ -251,7 +251,7 @@ const ManageBorrowers: React.FC = () => {
 
         return loanApplications.filter(loan => {
             // Fix: Accessing user properties correctly for the name search
-            const fullName = `${loan.user?.first_name || loan.first_name || ''} ${loan.user?.middle_name || loan.middle_name || ''} ${loan.user?.last_name || loan.last_name || ''}`.toLowerCase().trim();
+            const fullName = `${loan.user?.first_name || loan.first_name || ''} ${loan.user?.middle_name || loan.middle_name || ''} ${loan.user?.last_name || loan.last_name || ''} ${loan.user?.suffix || loan.suffix || ''}`.toLowerCase().trim() ;
             const matchesSearch = searchTerm === '' || fullName.includes(searchTerm.toLowerCase());
             
             const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
@@ -617,9 +617,10 @@ const ManageBorrowers: React.FC = () => {
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center">
-                                                <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[150px] overflow-hidden text-ellipsis truncate">
+                                                <div className="text-sm whitespace-nowrap font-medium text-gray-900 max-w-[250px] overflow-hidden text-ellipsis truncate">
                                                     {loan.user.first_name} {loan.user.middle_name ? loan.user.middle_name + " " : ""}
                                                     {loan.user.last_name}
+                                                    {loan.user.suffix ? " " + loan.user.suffix : ""}
                                                 </div>
                                                 {/* Add penalty badge if loan has penalty */}
                                                 {hasPenalty(loan) && <PenaltyBadge />}

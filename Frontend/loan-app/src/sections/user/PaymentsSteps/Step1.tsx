@@ -7,7 +7,7 @@ import { formatDateWithWords } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { getPayments } from "../../../services/user/disbursement";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react"; // Make sure this is imported
+import { useEffect } from "react"; 
 import { useMemo } from "react";
 interface Step1Props {
     nextStep: () => void;
@@ -82,7 +82,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
 
         start.setMonth(start.getMonth() + totalMonths + 1);
 
-        return start.toISOString().split("T")[0]; // Return raw date for comparison
+        return start.toISOString().split("T")[0]; 
     };
 
     const getNextPaymentDate = (startDate: string, frequency: string) => {
@@ -100,16 +100,16 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
                 return "Invalid Frequency";
         }
 
-        return nextDate.toISOString().split("T")[0]; // Return raw date for comparison
+        return nextDate.toISOString().split("T")[0]; 
     };
 
-    {/* for testing    const forcePastDue = true;     if (forcePastDue) return true */ }
+   {/* '2025-07-17' '2025-06-16' */}
     const calculatePastDueAndDelay = (dueDateString: string) => {
         if (dueDateString === "N/A" || dueDateString === "Invalid Frequency") {
             return { isPastDue: false, monthsOverdue: 0 };
         }
     
-        const today = new Date('2025-06-10');
+        const today = new Date();
         today.setHours(0, 0, 0, 0);
     
         const dueDate = new Date(dueDateString);
@@ -139,21 +139,19 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     const balance = data?.balance || "0";
     const progressPercentage = totalPayment > 0 ? ((totalPayment - balance) / totalPayment) * 100 : 0;
 
-    // Get raw due date for comparison
+ 
     const rawDueDate = Array.isArray(dataDate) && dataDate.length > 0
         ? getDueDateFromPeriod(data?.start_date, dataDate.map((payment: { period: string }) => payment.period))
         : getNextPaymentDate(data?.start_date, data?.frequency);
 
-    // Check if payment is past due
+ 
 
 
-    // Format date for display
     const formattedDueDate = rawDueDate !== "N/A" && rawDueDate !== "Invalid Frequency"
         ? formatDateWithWords(rawDueDate)
         : rawDueDate;
 
 
-    // Memoize the calculation to avoid recomputing on every render
     const { isPastDue, monthsOverdue } = useMemo(() =>
         calculatePastDueAndDelay(rawDueDate),
         [rawDueDate]
@@ -166,10 +164,10 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
     useEffect(() => {
         if (isPastDue) {
             setPenalty(true);
-            setNoOfPenaltyDelay(monthsOverdue); // Update penalty count
+            setNoOfPenaltyDelay(monthsOverdue); 
         } else {
             setPenalty(false);
-            setNoOfPenaltyDelay(0); // Reset if not overdue
+            setNoOfPenaltyDelay(0); 
         }
     }, [isPastDue, monthsOverdue, setPenalty, setNoOfPenaltyDelay]);
     useEffect(() => {

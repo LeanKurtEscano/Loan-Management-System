@@ -119,7 +119,7 @@ const Step2 = ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => v
             onChange={(e) => handleInputChange(e, "educationLevel")}
             className="w-full p-4 border cursor-pointer rounded-lg text-gray-700 bg-gray-50 text-lg"
           >
-            <option value="  disabled hidden">Select Education Level</option>
+            <option value=""  disabled hidden>Select Education Level</option>
             <option value="None">None</option>
             <option value="Primary">Primary / Elementary</option>
             <option value="Secondary">Secondary / High School</option>

@@ -1,45 +1,41 @@
- const deleteMutation = useMutation({
-        mutationFn: async (id: number) => {
-            const response = await loanApi.post('/remove/submission/', {
-                id: selectedId
-            });
 
-        },
 
-        onSuccess: () => {
-            queryClient.invalidateQueries(["loanSubmissions"]);
 
+
+
+     const adjustPaymentOptions = (balance: number, penaltyDelay: number | null) => {
+    const maxDiscrepancy = 0.09;  // Maximum allowable discrepancy
+    let remainingBalance = balance;
+
+    return paymentOptions.map((option, index) => {
+      const discrepancy = Math.abs(option.amount - remainingBalance);
+      
+      // First determine if option should be disabled based on penalty delay
+      let disabledDueToPenalty = false;
+      
+      if (penaltyDelay !== null) {
+        // If penalty delay is 2, disable options with duration < 2
+        // If penalty delay is 3, disable options with duration < 3
+        // If penalty delay is > 3, only enable "Pay in full" option
+        if (penaltyDelay > 3) {
+          // Only enable "Pay in full" option (index 3)
+          disabledDueToPenalty = index !== 3;
+        } else {
+          // Disable options with duration less than penaltyDelay
+          disabledDueToPenalty = option.duration < penaltyDelay;
         }
-    })
+      }
 
-    const endpoint = "submissions"
+      // Then check if amount exceeds balance
+      const disabledDueToBalance = option.amount > remainingBalance;
+      
+      // If amount is very close to balance, adjust it
+      const adjustedAmount = discrepancy <= maxDiscrepancy ? remainingBalance : option.amount;
 
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const { data, isLoading, isError, error } = useQuery({
-        queryKey: ["loanSubmissions"],
-        queryFn: () => fetchLoanData(endpoint),
-      });
-
-      console.log(data);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-
-    const handleSelect = (id: number) => {
-        navigate(`/dashboard/submission/approve/${id}`);
-        console.log("Selected User ID:", id);
-    };
-
-
-    const handleSelectId = (id: number) => {
-        setIsModalOpen(true);
-        setSelectedId(id);
-    }
-
-    const handleDelete = async () => {
-        console.log(selectedId);
-        await deleteMutation.mutateAsync(selectedId ?? 0);
-        setIsModalOpen(false);
-
-
-    };
+      return {
+        ...option,
+        amount: adjustedAmount,
+        disabled: disabledDueToPenalty || disabledDueToBalance
+      };
+    });
+  };

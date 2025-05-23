@@ -5,7 +5,7 @@ export interface ApplicationData {
     last_name: string;
     birthdate: string;
     age: number;
-   
+    suffix?: string;
     contact_number: string;
     address: string;
     gender: string;
@@ -21,6 +21,7 @@ export interface ApplicationApproveData {
     id: number;
     loanAmount: number;
     interest:number;
+    duration:number;
 }
 
 export interface ApplicationId {

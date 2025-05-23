@@ -97,6 +97,8 @@ const VerifyForm = ({ onClose }: { onClose: () => void }) => {
         queryClient.invalidateQueries(["userDetails"]);
         queryClient.invalidateQueries(["userAccountDetails"]);
         onClose();
+
+        localStorage.removeItem("formData")
       }
     } catch (error) {
       alert("something went wrong");

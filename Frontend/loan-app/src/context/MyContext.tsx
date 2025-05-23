@@ -2,11 +2,12 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { UserDetails } from '../constants/interfaces/authInterface';
 import { LoanApplicationDetails,AdminApprove, LoanSubmission } from '../constants/interfaces/loanInterface';
 import { SubmitDisbursement } from '../constants/interfaces/disbursement';
+import useVerificationStatus from '../hooks/useVerificationStatus';
 const MyContext = createContext<any>(null);
 export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isVerified, setIsVerified] = useState<boolean>(false);
+  
   const [toggleLog, setToggleLog] = useState(false);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
@@ -15,9 +16,10 @@ export const MyProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [approveLoan , setApproveLoan] = useState<AdminApprove>({
     loanAmount:null,
     interest:null,
+    duration:null,
   })
 
-  
+  const { isVerified } = useVerificationStatus();
 
   const [emailDetails, setEmailDetails] = useState({
     subject:"",
@@ -76,7 +78,7 @@ const [noOfPenaltyDelay, setNoOfPenaltyDelay] = useState(0);
 
 
   return (
-    <MyContext.Provider value={{noOfPenaltyDelay,setNoOfPenaltyDelay,penalty,unreadCount,setUnreadCount, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails, setIsVerified,toggleLog, setToggleLog, disbursement, setDisbursement}}>
+    <MyContext.Provider value={{noOfPenaltyDelay,setNoOfPenaltyDelay,penalty,unreadCount,setUnreadCount, setPenalty,loanSubmission, setLoanSubmission, toggle,emailDetails,setEmailDetails,approveLoan,setApproveLoan, setToggle,isAuthenticated,loanApplication,setLoanApplication, setIsAuthenticated,setIsAdminAuthenticated,isAdminAuthenticated,isVerified, userDetails,toggleLog, setToggleLog, disbursement, setDisbursement}}>
       {children}
     </MyContext.Provider>
   );

@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
     password = models.CharField(max_length=255)  
     image_url = cloudinary.models.CloudinaryField('image', blank=True, null=True)
     is_good_payer = models.BooleanField(default=False)
+    suffix = models.CharField(max_length=20, blank=True, null=True )
    # type_id = models.ForeignKey(IdType, on_delete=models.CASCADE, null=True, blank=True)
 
 class VerificationRequests(models.Model):
@@ -35,7 +36,8 @@ class VerificationRequests(models.Model):
     postal_code = models.CharField(max_length=20, blank=True, null=True )
     status = models.CharField(max_length=20, default="pending")  
     created_at = models.DateTimeField(auto_now_add=True)
-
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    suffix = models.CharField(max_length=20, blank=True, null=True )
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.status}"
     

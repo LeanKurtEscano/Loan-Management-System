@@ -8,7 +8,7 @@ from user.models import VerificationRequests
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'middle_name', 'last_name']
+        fields = ['first_name', 'middle_name', 'last_name' , 'suffix']
 
 class LoanTypesSerializer(serializers.ModelSerializer):
     class Meta:

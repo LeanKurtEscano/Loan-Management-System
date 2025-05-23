@@ -51,7 +51,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
 
   const getRemainingMonths = (balance: number, monthlyPayment: number) => {
     if (monthlyPayment === 0) return 0;
-    return Math.ceil(balance / monthlyPayment); // Use Math.ceil to round up to the next full month
+    return Math.ceil(balance / monthlyPayment); 
   };
 
   const remainingMonths = getRemainingMonths(balance, paymentPerMonth);
@@ -83,7 +83,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   ];
 
   const adjustPaymentOptions = (balance: number) => {
-    const maxDiscrepancy = 0.09;  // Maximum allowable discrepancy
+    const maxDiscrepancy = 0.09;
     let remainingBalance = balance;
 
     return paymentOptions.map((option) => {
@@ -121,10 +121,36 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
     }
   }, [data, setDisbursement]);
 
-
-
-  // Adjust options based on the balance
   const adjustedPaymentOptions = adjustPaymentOptions(balance);
+  
+  // Function to determine if an option should be disabled based on no_penalty_delay
+  const isOptionDisabledDueToPenalty = (optionIndex: number) => {
+    const noPenaltyDelay = data?.no_penalty_delay || noOfPenaltyDelay || 0;
+    
+    // If no_penalty_delay is null or 0, all options are available
+    if (!noPenaltyDelay || noPenaltyDelay === 0) {
+      return false;
+    }
+    
+    // If no_penalty_delay is greater than 3, only full payment (index 3) is available
+    if (noPenaltyDelay > 3) {
+      return optionIndex !== 3;
+    }
+    
+    // If no_penalty_delay is 2, options 2 and 3 are available (2 months and full payment)
+    if (noPenaltyDelay === 2) {
+      return optionIndex < 1;
+    }
+    
+    // If no_penalty_delay is 3, only option 2 and 3 are available (3 months and full payment)
+    if (noPenaltyDelay === 3) {
+      return optionIndex < 2;
+    }
+    
+    // If no_penalty_delay is 1, options 1, 2, and 3 are available (all options)
+    return false;
+  };
+
   const handleProceed = () => {
     if (selectedOption === null) return;
     nextStep();
@@ -151,7 +177,6 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
     }
   };
 
-  // change tommorow 
 
   const totalWithPenalty = Math.round((roundedPaymentPerMonth * 0.10) * noOfPenaltyDelay);
   console.log(totalWithPenalty);
@@ -197,19 +222,21 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
           transition={{ duration: 0.5, ease: "easeOut", staggerChildren: 0.2 }}
         >
           {adjustedPaymentOptions.map((option, index) => {
-            // Disable index 3 if its amount equals index 0, 1, or 2's amount
-            const isDisabled = index === 3 &&
+           
+            const isDisabled = (option.disabled || 
+              (index === 3 &&
               (adjustedPaymentOptions[0]?.amount === option.amount ||
                 adjustedPaymentOptions[1]?.amount === option.amount ||
-                adjustedPaymentOptions[2]?.amount === option.amount);
+                adjustedPaymentOptions[2]?.amount === option.amount)) || 
+              isOptionDisabledDueToPenalty(index));
 
             return (
               <div key={index}>
                 <motion.div
                   className={`flex justify-between items-center px-4 py-3 border rounded-lg cursor-pointer transition-all duration-300 ease-in-out
             ${disbursement.periodPayment?.label === option.label ? "border-blue-500 bg-blue-100" : "border-gray-300"}
-            ${option.disabled || isDisabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}`}
-                  onClick={() => !option.disabled && !isDisabled && handleSelectOption(index)}
+            ${isDisabled ? "opacity-50 text-gray-400 cursor-not-allowed" : "hover:shadow-md"}`}
+                  onClick={() => !isDisabled && handleSelectOption(index)}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
@@ -217,11 +244,10 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
                   <span>{option.label}</span>
                   <span className="font-bold">
                     {formatCurrency(option.amount)}
-
                   </span>
                 </motion.div>
 
-                {/* Show message below the first option */}
+             
                 {index === 0 && (
                   <p className="flex text-lg justify-center items-center text-gray-500 mt-2"> Pay in advance</p>
                 )}
@@ -230,7 +256,7 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
                   <p className="flex text-lg justify-center items-center text-gray-500 mt-2"> Or</p>
                 )}
 
-                {/* Add a separator for all items except the last one */}
+          
                 {index !== adjustedPaymentOptions.length - 1 && (
                   <hr className="my-3 border-gray-300" />
                 )}
@@ -251,12 +277,24 @@ const Step2: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
             <div className="mt-6 p-4 border border-red-500 rounded-lg bg-red-100">
               <span className="font-semibold text-red-600">Total Penalty:</span>
               <span className="font-bold ml-2 text-red-600">
-                {formatCurrency(data?.penalty || 0)} ({data?.no_penalty_delay} {data?.no_penalty_delay === 1 ? "month" : "months"} delayed)
+              {formatCurrency(data?.penalty || 0)} 
+{data?.no_penalty_delay > 0 && ` (${data.no_penalty_delay} ${data.no_penalty_delay === 1 ? "month" : "months"} delayed)`}
               </span>
             </div>
 
           )
         }
+
+        {/* Display payment restriction message based on penalty delay */}
+        {(data?.no_penalty_delay > 0 || noOfPenaltyDelay > 0) && (
+          <div className="mt-4 p-3 border border-orange-300 rounded-lg bg-orange-50">
+            <span className="font-semibold text-orange-700">
+              {(data?.no_penalty_delay > 3 || noOfPenaltyDelay > 3) 
+                ? "Due to multiple months of delayed payments, only full payment is available."
+                : `Due to ${data?.no_penalty_delay || noOfPenaltyDelay} ${(data?.no_penalty_delay === 1 || noOfPenaltyDelay === 1) ? "month" : "months"} of delayed payments, some payment options are restricted.`}
+            </span>
+          </div>
+        )}
 
 
         <div className="flex justify-between mt-6">

@@ -90,12 +90,12 @@
         <p>Your loan has been successfully paid off. Here are the details of your payment:</p>
         <ul>
             <li><strong>Loan Amount:</strong> ₱{{ loan_amount }}</li>
-            <li><strong>Interest Rate:</strong> {{ interest_rate }}%</li>
-            <li><strong>Payment Date:</strong> {{ payment_date }}</li>
+            <li><strong>Interest Rate:</strong> {{ interest }}%</li>
+        
             <li><strong>Start Date:</strong> {{ start_date }}</li>
             <li><strong>End Date:</strong> {{ end_date }}</li>
         </ul>
-        <a href="{{ account_link }}" class="button">Go to Your Account</a>
+        <a href="http://localhost:5173/user/my-loan" class="button">Go to Your Account</a>
         <p class="footer">Thank you for choosing us for your financial journey!</p>
     </div>
 </body>
