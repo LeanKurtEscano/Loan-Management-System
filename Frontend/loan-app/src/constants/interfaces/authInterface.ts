@@ -29,6 +29,7 @@ export interface UserDetails {
     middle_name?: string;
     last_name?: string;
     email: string;
+    admin?: boolean;
     contact_number?: string;
     address?: string;
     is_verified: string;

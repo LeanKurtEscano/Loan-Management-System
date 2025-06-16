@@ -23,7 +23,8 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from user.models import CustomUser,Notification
-
+from .models import AdminNotification
+from .serializers import AdminNotificationSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 @api_view(["POST"])
@@ -414,4 +415,152 @@ def resend_otp(request):
     
     except Exception as e:
         print(f"{e}")
+
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_admin_details(request):
     
+    try:
+       admin  = CustomUser.objects.filter(is_admin=True).first()
+      
+       if not admin:
+            return Response({"error": "No admin found"}, status=status.HTTP_404_NOT_FOUND)
+       
+       serializer = CustomUserSerializer(admin)
+       print(serializer.data)
+       return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        
+        
+    except Exception as e:
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_notifications(request):
+    try:
+        user = request.user.id
+        
+      
+        request_data = AdminNotification.objects.filter(user=user).order_by('-created_at')
+  
+        serializer = AdminNotificationSerializer(request_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_notification(request,id):
+    try:
+        user = request.user.id
+        
+      
+        request_data = AdminNotification.objects.get(user = user, id = id)
+        request_data.delete()
+  
+    
+        return Response({"success": "notification deleted"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def notification_details(request, id):
+    try:
+        user = request.user.id
+        request_data = AdminNotification.objects.get(user=user, id=int(id))
+        serializer = AdminNotificationSerializer(request_data)
+        
+        # Add email to the serialized data
+        data_with_email = serializer.data.copy()
+        data_with_email["email"] = request_data.user.email
+
+        return Response({"data": data_with_email}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_all_read(request):
+    try:
+        user = request.user
+      
+        notifications = AdminNotification.objects.filter(user=user)
+
+        notifications.update(is_read=True)
+
+    
+       
+        return Response({"success" :"Mark all as read"}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_read(request, id):
+    try:
+        user = request.user
+        notification = AdminNotification.objects.filter(user=user, id=int(id)).first()
+
+        if not notification:
+            return Response(
+                {"error": "Notification not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if notification.is_read:
+            return Response(
+                {"message": "Notification already marked as read."},
+                status=status.HTTP_200_OK
+            )
+
+        notification.is_read = True
+        notification.save()
+
+        return Response(
+            {"success": "Notification marked as read."},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": f"Unexpected error: {e}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

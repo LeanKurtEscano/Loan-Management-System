@@ -173,10 +173,7 @@ const TransactionDetail = () => {
             <p className="text-gray-600">Account Name</p>
             <p className="font-medium">{data?.user.username}</p>
           </div>
-          <div>
-            <p className="text-gray-600">Account Number</p>
-            <p className="font-medium">{data?.user.contact_number}</p>
-          </div>
+         
           <div>
             <p className="text-gray-600">Paid Amount</p>
             <p className="font-medium">{formatCurrency(data?.amount)}</p>

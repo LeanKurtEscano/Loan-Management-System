@@ -13,6 +13,11 @@ urlpatterns = [
     path('reject/', views.reject_user_verification, name="reject"),
     path('email/', views.admin_email, name="admin-email"),
     path('resend/',views.resend_otp, name="resend-otp"),
-    
+    path('admin-details/',views.get_admin_details, name="admin_details"),
+    path('notifications/',views.get_notifications, name="get_notifications"),
+    path('notifications/mark-all-read/',views.mark_all_read, name="mark-all-read"),
+    path('notifications/<int:id>/mark-read/',views.mark_read, name="mark-read"),
+    path('notifications/<int:id>/',views.delete_notification, name="delete-notif"),
+    path('notifications/details/<int:id>/',views.notification_details, name="details-notif"),
 
 ]

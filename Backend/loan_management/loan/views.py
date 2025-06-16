@@ -27,7 +27,7 @@ from user.models import CustomUser,Notification
 from dateutil.relativedelta import relativedelta
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
+from loan_admin.models import AdminNotification
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -168,10 +168,37 @@ def create_loan_application(request):
             purpose=purpose,
             explanation=explanation
         )
+        notification_message = f"New loan application submitted by {request.user.username}."
+        print(notification_message)
+        
+        admin = CustomUser.objects.filter(is_admin=True).first()
+        
+        
+        notification = AdminNotification.objects.create(
+            user=admin,
+            message=notification_message,
+            is_read=False,
+        )
+
+        # Send real-time WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{admin.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+        
         loan_application.status = "Pending"
         loan_application.is_active = True
         loan_application.save()
-
+        
         return Response({"message": "Loan Application submitted successfully."}, status=status.HTTP_201_CREATED)
 
     except Exception as e:

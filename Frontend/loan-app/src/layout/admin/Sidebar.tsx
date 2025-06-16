@@ -7,11 +7,15 @@ import { useNavigate } from 'react-router-dom';
 import { useMyContext } from '../../context/MyContext';
 import Modal from '../../components/Modal';
 import { logOutAdmin } from '../../services/admin/adminAuth';
+import useAdminDetails from '../../hooks/useAdminDetails';
+import AdminNotificationBell from '../../components/admin/AdminNotificationBell';
 
 const Sidebar: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
     const { setIsAuthenticated, toggleLog, setToggleLog, toggle, setToggle, setIsAdminAuthenticated } = useMyContext();
-
+    
+    const { adminDetails } = useAdminDetails();
+    
     // @ts-ignore
     const [toggleDboard, setToggleDboard] = useState(false);
     // @ts-ignore
@@ -90,6 +94,11 @@ const Sidebar: React.FC = () => {
                         <div className={`absolute left-12 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
                             <p className="font-medium text-xs text-blue-800 whitespace-nowrap">Hello Admin!</p>
                             <p className="text-xs text-gray-600 whitespace-nowrap">Loan Management System</p>
+                        </div>
+                        {/* AdminNotificationBell positioned in the top right of the profile section */}
+                        {/* AdminNotificationBell positioned on the right side */}
+                        <div className={`ml-auto pr-2 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                            <AdminNotificationBell id={adminDetails?.id}  />
                         </div>
                     </div>
                 </div>

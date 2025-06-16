@@ -14,6 +14,21 @@ export const getUserDetails = async() => {
 
 }
 
+
+export const getAdminDetails = async() => {
+    try {
+
+        const response = await adminApi.get(`/admin-details/`);
+
+        return response.data.data
+
+    } catch(error) {
+        console.log("Something Went Wrong");
+    }
+
+}
+
+
 export const getDetail = async(id:string, endpoint:  string) => {
     try {
 
@@ -52,6 +67,8 @@ export const searching = async(searchParam: string, endpoint: string) => {
 
     }
 }
+
+
 
 
 

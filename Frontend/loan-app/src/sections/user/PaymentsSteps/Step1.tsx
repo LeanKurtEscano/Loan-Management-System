@@ -104,13 +104,13 @@ const Step1: React.FC<Step1Props> = ({ nextStep }) => {
         return nextDate.toISOString().split("T")[0]; 
     };
 
-   {/* '2025-07-17' '2025-06-16' */}
+   {/* '2025-07-17' '2025-06-16' '2025-08-28' */}
     const calculatePastDueAndDelay = (dueDateString: string) => {
         if (dueDateString === "N/A" || dueDateString === "Invalid Frequency") {
             return { isPastDue: false, monthsOverdue: 0 };
         }
     
-        const today = new Date();
+        const today = new Date('2025-08-28');
         today.setHours(0, 0, 0, 0);
     
         const dueDate = new Date(dueDateString);

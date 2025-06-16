@@ -50,6 +50,8 @@ import Help from './sections/user/Help';
 import AdminEmail from './sections/admin/AdminEmail';
 import AdminResetOTP from './sections/admin/AdminResetOTP';
 import AdminResetPassword from './sections/admin/AdminResetPassword';
+import AdminNotificationPage from './components/admin/AdminNotificationPage';
+import AdminNotificationDetails from './components/admin/AdminNotificationDetails';
 function App() {
 
   return (
@@ -116,7 +118,8 @@ const Main: React.FC = () => {
           <Route path="payment/approve/:id" element={<VerifyPayment />} />
           <Route path="analytics" element={<Analytics />} />
 
-
+          <Route path="admin/notifications" element={<AdminNotificationPage />} />
+          <Route path="admin-notifications/:id" element={<AdminNotificationDetails/>} />
         </Route>
 
         <Route

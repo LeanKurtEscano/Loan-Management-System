@@ -6,7 +6,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CustomUser
-        fields = ["id", "username", "first_name", "middle_name", "last_name","email","contact_number","address","is_verified","is_borrower","is_good_payer",'suffix']
+        fields = ["id", "username", "first_name", "middle_name", "last_name","is_admin","email","contact_number","address","is_verified","is_borrower","is_good_payer",'suffix']
 
 
 class VerificationRequestsSerializer(serializers.ModelSerializer):

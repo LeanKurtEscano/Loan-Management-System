@@ -386,7 +386,9 @@ def get_user_details(request):
         
     except Exception as e:
         return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_verify_details(request):
