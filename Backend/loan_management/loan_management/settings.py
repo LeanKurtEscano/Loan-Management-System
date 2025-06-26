@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'notifications',
     "channels",
     'cloudinary_storage',
-    'disbursement'
+    'disbursement',
+    'car_rental',  
 ]
 
 ASGI_APPLICATION = "loan_management.asgi.application"

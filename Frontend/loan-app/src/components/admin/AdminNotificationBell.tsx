@@ -69,19 +69,19 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
       try {
         const data = JSON.parse(event.data);
         
-        // Handle connection established message
+       
         if (data.type === 'connection_established') {
          
           return;
         }
         
-        // Handle heartbeat response
+      
         if (data.type === 'heartbeat_response') {
          
           return;
         }
         
-        // Handle notification message
+ 
         if (data.notification) {
           const newNotification: Notification = data.notification;
           const notificationId = newNotification.id;
@@ -116,17 +116,17 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
      
       setConnectionStatus('disconnected');
       
-      // Stop heartbeat
+      
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
         heartbeatIntervalRef.current = null;
       }
       
-      // Attempt to reconnect after a delay
+      
       reconnectTimeoutRef.current = setTimeout(() => {
         
         connectWebSocket();
-      }, 3000); // Reconnect after 3 seconds
+      }, 3000); 
     };
     
     socket.onerror = (error) => {
@@ -146,7 +146,7 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({ type: 'heartbeat' }));
       }
-    }, 30000); // Send heartbeat every 30 seconds
+    }, 30000); // 30 seconds
   };
 
   useEffect(() => {
@@ -154,8 +154,7 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
     processedNotificationsRef.current = new Set();
     
     fetchNotifications();
-    
-    // Close notifications panel when clicking outside
+
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.notification-container')) {
@@ -165,24 +164,24 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
     
     document.addEventListener('mousedown', handleClickOutside);
     
-    // Initialize WebSocket connection
+   
     connectWebSocket();
     
-    // Clean up function
+    // Clean up
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       
-      // Clear any pending reconnect timeouts
+    
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
       
-      // Clear heartbeat interval
+   
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
       }
       
-      // Close WebSocket connection
+      
       if (socketRef.current) {
         socketRef.current.close();
       }

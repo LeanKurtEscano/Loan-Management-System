@@ -248,6 +248,31 @@ def create_loan_submission(request):
          
         )
         
+        
+        notification_message = f"New loan submission request from {user.username}."
+        
+        
+        admin = CustomUser.objects.filter(is_admin=True).first()
+        
+        notification = AdminNotification.objects.create(
+            user = admin,
+            message = notification_message,
+            is_read = False
+        )
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            
+            f'notifications_{admin.id}', {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+        
         loan_submission.is_active = True
         loan_submission.save()
 

@@ -17,7 +17,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
   const {unreadCount, setUnreadCount} = useMyContext();
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const nav = useNavigate();
-  // Use refs to store WebSocket and timers
+ 
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
