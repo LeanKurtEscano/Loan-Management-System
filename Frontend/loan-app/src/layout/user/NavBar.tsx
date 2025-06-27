@@ -23,6 +23,7 @@ const menuItems = [
     { name: "Transactions", path: "/user/my-transactions" },
     { name: "My Loan", path: "/user/my-loan" },
     { name: "Apply for Loan", path: "/user/apply-loan" },
+    { name: "Apply for Car Loan", path: "/user/apply-car-loan" },
 ];
 import NotificationBell from "../../components/NotificationBell";
 const NavBar: React.FC = () => {

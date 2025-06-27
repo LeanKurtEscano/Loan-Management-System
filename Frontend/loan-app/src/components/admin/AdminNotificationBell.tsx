@@ -11,7 +11,8 @@ interface NotificationBellProps {
   id: number | undefined;
 }
 import { useNavigate } from 'react-router-dom';
-const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
+const AdminNotificationBell: React.FC<NotificationBellProps> = () => {
+  const id = 28
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const {unreadCount, setUnreadCount} = useMyContext();
@@ -52,9 +53,9 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.close();
     }
-    
+    const admin_id = 28
     setConnectionStatus('connecting');
-    const socket = new WebSocket(`ws://localhost:8000/ws/admin-notifications/${id}/`);
+    const socket = new WebSocket(`ws://localhost:8000/ws/admin-notifications/${admin_id}/`);
     socketRef.current = socket;
     
     socket.onopen = () => {
@@ -69,19 +70,19 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = ({ id }) => {
       try {
         const data = JSON.parse(event.data);
         
-       
+        // Handle connection established message
         if (data.type === 'connection_established') {
          
           return;
         }
         
-      
+        // Handle heartbeat response
         if (data.type === 'heartbeat_response') {
          
           return;
         }
         
- 
+        // Handle notification message
         if (data.notification) {
           const newNotification: Notification = data.notification;
           const notificationId = newNotification.id;

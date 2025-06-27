@@ -19,7 +19,8 @@ export const getAdminDetails = async() => {
     try {
 
         const response = await adminApi.get(`/admin-details/`);
-
+        console.log(response.status)
+        console.log("Admin Details", response.data.data);
         return response.data.data
 
     } catch(error) {

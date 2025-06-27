@@ -52,6 +52,8 @@ import AdminResetOTP from './sections/admin/AdminResetOTP';
 import AdminResetPassword from './sections/admin/AdminResetPassword';
 import AdminNotificationPage from './components/admin/AdminNotificationPage';
 import AdminNotificationDetails from './components/admin/AdminNotificationDetails';
+import CarList from './sections/rental/CarListing';
+import AutoGarageHomepage from './sections/rental/AutoGarageHomePage';
 function App() {
 
   return (
@@ -135,6 +137,8 @@ const Main: React.FC = () => {
           <Route path="account" element={<Account />} />
           
           <Route path="apply-loan" element={<LoanApplication />} />
+          <Route path="apply-car-loan" element={<AutoGarageHomepage />} />
+          <Route path="car-list" element={<CarList />} />
         </Route>
 
 

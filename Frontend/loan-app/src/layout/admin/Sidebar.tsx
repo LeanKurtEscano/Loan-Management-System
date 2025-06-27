@@ -9,12 +9,19 @@ import Modal from '../../components/Modal';
 import { logOutAdmin } from '../../services/admin/adminAuth';
 import useAdminDetails from '../../hooks/useAdminDetails';
 import AdminNotificationBell from '../../components/admin/AdminNotificationBell';
+import { useQuery } from '@tanstack/react-query';
 
+import { UserDetails } from '../../constants/interfaces/authInterface';
+
+import { getAdminDetails } from '../../services/admin/adminData';
 const Sidebar: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
     const { setIsAuthenticated, toggleLog, setToggleLog, toggle, setToggle, setIsAdminAuthenticated } = useMyContext();
     
-    const { adminDetails } = useAdminDetails();
+   
+       const { data, isLoading, isError, error } = useQuery<UserDetails>(['adminDetails'], getAdminDetails,{
+       });
+   
     
     // @ts-ignore
     const [toggleDboard, setToggleDboard] = useState(false);
@@ -98,7 +105,7 @@ const Sidebar: React.FC = () => {
                         {/* AdminNotificationBell positioned in the top right of the profile section */}
                         {/* AdminNotificationBell positioned on the right side */}
                         <div className={`ml-auto pr-2 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
-                            <AdminNotificationBell id={adminDetails?.id}  />
+                            <AdminNotificationBell id={data?.id}  />
                         </div>
                     </div>
                 </div>

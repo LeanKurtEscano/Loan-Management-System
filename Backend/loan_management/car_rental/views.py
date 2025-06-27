@@ -11,7 +11,7 @@ import requests
 def list_cars(request):
     try:
        
-        response = requests.get('https://api.example.com/available-cars')  
+        response = requests.get('https://api.example.com/available-cars') 
 
  
         if response.status_code == 200:

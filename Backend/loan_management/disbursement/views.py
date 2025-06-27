@@ -22,7 +22,7 @@ import re
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import calendar
-
+from loan_admin.models import AdminNotification
 
 from decimal import Decimal
 
@@ -75,27 +75,11 @@ def handle_loan_payments(request):
             "amount": request.data.get("periodPayment[amount]", ""),
             "duration": request.data.get("periodPayment[duration]", ""),
         }
-        
       
-        
-        unit = extract_duration(period_payment["label"])
-        print(unit)
-        
-        print(period_payment["amount"])
+        unit = extract_duration(period_payment["label"]) 
 
-        receipt = request.FILES.get("receipt", None)
-        
-        disbursement_id = request.data.get("disbursementId")
-        print(disbursement_id)
-        print("Received email:", email)
-        print("Received periodPayment:", period_payment)
-        print("Received receipt:", receipt)
-      
-         
-         
-         
-        
-        
+        receipt = request.FILES.get("receipt", None)     
+        disbursement_id = request.data.get("disbursementId")      
         upload_result = cloudinary.uploader.upload(receipt)
         receipt_url = upload_result.get("secure_url")
         loan_sub = LoanSubmission.objects.get(id = int(disbursement_id))
@@ -115,9 +99,7 @@ def handle_loan_payments(request):
             is_penalty = is_penalty,
             
         )
-        
-        
-        
+         
         notification_message = f"Your loan payment of ₱{float(period_payment['amount']):,.2f} is being processed. We will notify you once it is verified."
 
         notification = Notification.objects.create(
@@ -142,6 +124,36 @@ def handle_loan_payments(request):
             }
         )
         
+        admin_notification_message = (
+    f"New loan payment of ₱{period_payment['amount']} made by {request.user.username}. "
+    "Please review the transaction."
+)
+        
+        admin = CustomUser.objects.filter(is_admin=True).first()
+        
+        
+        admin_notification = AdminNotification.objects.create(
+            user=admin,
+            message=admin_notification_message,
+            is_read=False,
+        )
+        
+        admin_id = admin.id
+
+        # Send real-time WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'admin_{admin_id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': admin_notification.id,
+                    'message': admin_notification.message,
+                    'is_read': admin_notification.is_read,
+                    'created_at': str(admin_notification.created_at),
+                }
+            }
+        )
 
         return Response({
             "success": "Loan Payment has been received",

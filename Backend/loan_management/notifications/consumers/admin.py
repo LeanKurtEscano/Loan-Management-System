@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class AdminNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.admin_id = self.scope['url_route']['kwargs']['admin_id']
-        self.group_name = f"notifications_{self.admin_id}"
+        self.group_name = f"admin_{self.admin_id}"
         
         # Join the notification group
         await self.channel_layer.group_add(
