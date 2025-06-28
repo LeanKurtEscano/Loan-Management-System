@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Car, Filter, Search, Calendar, DollarSign, Percent, Eye, Heart, ArrowLeft } from 'lucide-react';
-
+import { getCars } from '../../services/rental/Cars';
+import { useQuery } from '@tanstack/react-query';
 // Mock data based on your API structure
-const mockCarsData = [
+
+{/*const mockCarsData = [
   {
     id: 1,
     car_id: 101,
@@ -87,13 +89,17 @@ const mockCarsData = [
     description: "Adventure-ready with excellent ground clearance",
     image_url: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500&h=300&fit=crop"
   }
-];
+]; */}
+
 
 const CarListing: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMake, setSelectedMake] = useState('');
   const [priceRange, setPriceRange] = useState('');
-  const [cars] = useState(mockCarsData);
+  const { data: cars = [], isLoading, error } = useQuery({
+    queryKey: ['cars'],
+    queryFn: getCars,
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-PH', {

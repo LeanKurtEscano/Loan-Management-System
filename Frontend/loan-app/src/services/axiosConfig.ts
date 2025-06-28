@@ -155,3 +155,26 @@ export const adminRefresh = axios.create({
     },
     (error) => Promise.reject(error)
   );
+
+
+
+
+  export const rentalApi = axios.create({
+     baseURL: "http://localhost:8000/rental",
+     headers: {
+       "Content-Type": "application/json",
+     
+     },
+      
+   });
+
+  rentalApi.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
