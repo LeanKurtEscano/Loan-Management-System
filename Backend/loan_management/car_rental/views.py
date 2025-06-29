@@ -118,4 +118,39 @@ def list_cars(request):
     
    
     
-    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_loan_details(request, id):
+    try:
+        """
+        response = requests.get(f'https://api.example.com/car-loan-details/{id}') Will change with 
+        
+        if response.status_code == 200:
+            data = response.json()
+            return Response({"car_loan_details": data}, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "error": f"External API returned {response.status_code}: {response.text}"
+            }, status=status.HTTP_502_BAD_GATEWAY)
+        """
+        
+        # Mock data for car loan details
+        mock_car_loan_details = {
+            "id": id,
+            "car_id": 101,
+            "make": "Toyota",
+            "model": "Camry",
+            "year": 2022,
+            "color": "Silver",
+            "license_plate": "ABC123",
+            "loan_sale_price": 1250000,
+            "commission_rate": 0.05,
+            "date_offered": "2024-01-15T10:30:00",
+            "description": "Well-maintained sedan with low mileage, perfect for family use",
+            "image_url": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop"
+        }
+        
+        return Response({"car_loan_details": mock_car_loan_details}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(f"Error fetching car loan details: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
