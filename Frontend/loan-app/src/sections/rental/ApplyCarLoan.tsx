@@ -5,8 +5,11 @@ import { formatDateWithWords } from '../../utils/formatDate';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useQuery } from '@tanstack/react-query';
 import { rentalApi } from '../../services/axiosConfig';
+import { getExistingCarApplication } from '../../services/rental/Cars';
+import { useParams } from 'react-router-dom';
 const ApplyCarLoan = () => {
-  const carId = "1";
+  const carId = useParams();
+  console.log(carId)
   const [carDetails, setCarDetails] = useState<CarLoanDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -29,9 +32,9 @@ const ApplyCarLoan = () => {
     loanAmount: '',
     loanTerm: '',
     downPayment: '',
-    hasOtherLoans: 'no',
-    agreeToTerms: false
+    hasOtherLoans: '',
   });
+ 
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,7 +47,7 @@ const ApplyCarLoan = () => {
 
       // Mock data from your API endpoint
       const mockCarLoanDetails = {
-        id: carId || "1",
+        id:  "1",
         car_id: 101,
         make: "Toyota",
         model: "Camry",
@@ -83,7 +86,7 @@ const ApplyCarLoan = () => {
 
     try {
       const response = await rentalApi.post('/apply/', formData);
-      if (response.status === 200) {
+      if (response.status === 201) {
         console.log("success")
 
       }
@@ -618,8 +621,7 @@ const ApplyCarLoan = () => {
                 </div>
               </div>
 
-              {/* Financial Information */}
-              {/* Financial Information */}
+           
               <div className="bg-purple-50 rounded-xl p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                   <CreditCard className="w-6 h-6 mr-3 text-blue-600" />
@@ -777,6 +779,7 @@ const ApplyCarLoan = () => {
               <div className="flex justify-center pt-6">
                 <button
                   type="submit"
+                  onClick={handleSubmit}
                   disabled={isSubmitting || !formData.agreeToTerms}
                   className="w-full max-w-md bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-8 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none flex items-center justify-center shadow-lg"
                 >

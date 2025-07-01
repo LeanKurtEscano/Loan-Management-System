@@ -2,6 +2,8 @@ from django.db import models
 
 # Create your models here.
 class CarLoanApplication(models.Model):
+    
+    car_id = models.IntegerField(unique=True,  blank=True, null=True)  # Unique identifier for the car
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100)
@@ -20,6 +22,8 @@ class CarLoanApplication(models.Model):
     other_income = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     loan_amount = models.DecimalField(max_digits=10, decimal_places=2)
     loan_term = models.CharField(max_length=50)
-    status = models.CharField(max_length=20, default='Pending')  # e.g., Pending, Approved, Rejected
-    existing_loans = models.BooleanField()
+    status = models.CharField(max_length=20, default='Pending', blank=True, null=True)  # e.g., Pending, Approved, Rejected
+    existing_loans = models.BooleanField( blank=True, null=True)
+    is_active = models.BooleanField(default=True, blank=True, null=True) 
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     

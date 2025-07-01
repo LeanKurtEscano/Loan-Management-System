@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 import requests
 from . models import CarLoanApplication
+from decimal import Decimal
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_cars(request):
@@ -163,7 +164,10 @@ def car_loan_details(request, id):
 def apply_car_loan(request):
     try:
         data = request.data
-
+        monthly_income = Decimal(data.get('monthlyIncome', 0))
+        other_income = Decimal(data.get('otherIncome', 0) or 0)
+        loanAmount = Decimal(data.get('loanAmount', 0))
+      
         # Create a new CarLoanApplication instance
         application = CarLoanApplication.objects.create(
             first_name=data.get('firstName'),
@@ -180,18 +184,37 @@ def apply_car_loan(request):
             job_title=data.get('jobTitle'),
             employment_type=data.get('employmentType'),
             years_employed=data.get('yearsEmployed'),
-            monthly_income=data.get('monthlyIncome'),
-            other_income=data.get('otherIncome') or 0,
-            loan_amount=data.get('loanAmount'),
+            monthly_income=monthly_income,
+            other_income=other_income,
+            loan_amount=loanAmount,
             loan_term=data.get('loanTerm'),
             existing_loans=True if data.get('hasOtherLoans') == 'yes' else False,
         )
+        
+   
 
         return Response({
             "message": "Car loan application submitted successfully",
-            "application_id": application.id
+         
         }, status=status.HTTP_201_CREATED)
 
     except Exception as e:
         print(f"Error submitting car loan application: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    
+api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_existing_car_application(request,id):
+    try:
+        application = CarLoanApplication.objects.get(id=id, is_active=True)
+        return Response({
+          "success": "existing car loan application fetched successfully"}, status=status.HTTP_200_OK)
+    
+    except CarLoanApplication.DoesNotExist:
+        return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error fetching car loan application: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
