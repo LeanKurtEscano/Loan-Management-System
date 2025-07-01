@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Car, Calendar, User, Phone, Mail, MapPin, CreditCard, DollarSign, Clock, Shield, Info, HelpCircle, CheckCircle, AlertCircle, FileText, Building, Star, Award, Users } from 'lucide-react';
 import { CarLoanDetails } from '../../constants/interfaces/carLoan';
-
+import { formatDateWithWords } from '../../utils/formatDate';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { useQuery } from '@tanstack/react-query';
+import { rentalApi } from '../../services/axiosConfig';
 const ApplyCarLoan = () => {
   const carId = "1";
   const [carDetails, setCarDetails] = useState<CarLoanDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     firstName: '',
+    middleName: '',
     lastName: '',
+    dateOfBirth: '',
+     gender: '',
+    maritalStatus: '',
     email: '',
     phone: '',
     address: '',
     city: '',
-    zipCode: '',
-    dateOfBirth: '',
-    gender: '',
-    maritalStatus: '',
     employer: '',
     jobTitle: '',
     employmentType: '',
@@ -24,11 +27,8 @@ const ApplyCarLoan = () => {
     monthlyIncome: '',
     otherIncome: '',
     loanAmount: '',
-    loanTerm: '12',
-    loanPurpose: '',
+    loanTerm: '',
     downPayment: '',
-    creditScore: '',
-    bankingHistory: '',
     hasOtherLoans: 'no',
     agreeToTerms: false
   });
@@ -80,41 +80,27 @@ const ApplyCarLoan = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    alert('Loan application submitted successfully!');
-    setIsSubmitting(false);
+    try {
+      const response = await rentalApi.post('/apply/', formData);
+      if (response.status === 200) {
+        console.log("success")
+
+      }
+    } catch (error) { 
+      alert("something went wrong, please try again later");
+ 
+    } finally {
+          setIsSubmitting(false);
+
+    }
+
+
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-PH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
-  const calculateMonthlyPayment = () => {
-    if (!carDetails || !formData.loanAmount || !formData.loanTerm || !formData.downPayment) return 0;
 
-    const principal = parseFloat(formData.loanAmount) - parseFloat(formData.downPayment);
-    const monthlyRate = 0.08 / 12; // 8% annual interest rate
-    const numPayments = parseInt(formData.loanTerm);
-
-    const monthlyPayment = (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
-      (Math.pow(1 + monthlyRate, numPayments) - 1);
-
-    return monthlyPayment;
-  };
 
   if (loading) {
     return (
@@ -195,7 +181,7 @@ const ApplyCarLoan = () => {
                   </div>
                   <div className="flex items-center text-gray-700">
                     <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{formatDate(carDetails.date_offered)}</span>
+                    <span className="text-sm">{formatDateWithWords(carDetails.date_offered)}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
@@ -203,18 +189,7 @@ const ApplyCarLoan = () => {
                   </div>
                 </div>
 
-                {/* Loan Calculator Preview */}
-                {formData.downPayment && formData.loanTerm && (
-                  <div className="bg-blue-50 rounded-lg p-4 animate-fade-in">
-                    <h3 className="font-semibold text-blue-900 mb-2">Estimated Monthly Payment</h3>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {formatCurrency(calculateMonthlyPayment())}
-                    </p>
-                    <p className="text-sm text-blue-700">
-                      Based on {formData.loanTerm} months term
-                    </p>
-                  </div>
-                )}
+               
               </div>
             </div>
 
@@ -390,6 +365,21 @@ const ApplyCarLoan = () => {
                     />
                   </div>
 
+                    <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Middle Name*
+                    </label>
+                    <input
+                      type="text"
+                      name="middleName"
+                      value={formData.middleName}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
+                      placeholder="Enter your middle name"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       Last Name *
@@ -470,88 +460,12 @@ const ApplyCarLoan = () => {
                   Contact Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                      placeholder="First name"
-                    />
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                      placeholder="Last name"
-                    />
-                  </div>
+                
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Date of Birth *
-                    </label>
-                    <input
-                      type="date"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Gender *
-                    </label>
-                    <select
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                      <option value="prefer-not-to-say">Prefer not to say</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Marital Status *
-                    </label>
-                    <select
-                      name="maritalStatus"
-                      value={formData.maritalStatus}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                    >
-                      <option value="">Select Status</option>
-                      <option value="single">Single</option>
-                      <option value="married">Married</option>
-                      <option value="divorced">Divorced</option>
-                      <option value="widowed">Widowed</option>
-                      <option value="separated">Separated</option>
-                    </select>
-                  </div>
+                 
+                 
+                
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -773,7 +687,7 @@ const ApplyCarLoan = () => {
                       required
                       className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
                     >
-                      <option value="">Select Term</option>
+                      <option value="" disabled>Select Term</option>
                       <option value="12">12 months</option>
                       <option value="24">24 months</option>
                       <option value="36">36 months</option>
@@ -783,27 +697,7 @@ const ApplyCarLoan = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Loan Purpose *
-                    </label>
-                    <select
-                      name="loanPurpose"
-                      value={formData.loanPurpose}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                    >
-                      <option value="">Choose Purpose</option>
-                      <option value="car">Car Purchase</option>
-                      <option value="home">Home Purchase</option>
-                      <option value="business">Business</option>
-                      <option value="education">Education</option>
-                      <option value="debt-consolidation">Debt Consolidation</option>
-                      <option value="personal">Personal</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
+                 
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">

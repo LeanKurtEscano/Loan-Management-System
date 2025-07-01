@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 # Create your views here.
 from rest_framework import status
 import requests
-
+from . models import CarLoanApplication
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_cars(request):
@@ -153,4 +153,45 @@ def car_loan_details(request, id):
         return Response({"car_loan_details": mock_car_loan_details}, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"Error fetching car loan details: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def apply_car_loan(request):
+    try:
+        data = request.data
+
+        # Create a new CarLoanApplication instance
+        application = CarLoanApplication.objects.create(
+            first_name=data.get('firstName'),
+            middle_name=data.get('middleName'),
+            last_name=data.get('lastName'),
+            birthdate=data.get('dateOfBirth'),
+            gender=data.get('gender'),
+            marital_status=data.get('maritalStatus'),
+            email_address=data.get('email'),
+            phone_number=data.get('phone'),
+            complete_address=data.get('address'),
+            city=data.get('city'),
+            company_name=data.get('employer'),
+            job_title=data.get('jobTitle'),
+            employment_type=data.get('employmentType'),
+            years_employed=data.get('yearsEmployed'),
+            monthly_income=data.get('monthlyIncome'),
+            other_income=data.get('otherIncome') or 0,
+            loan_amount=data.get('loanAmount'),
+            loan_term=data.get('loanTerm'),
+            existing_loans=True if data.get('hasOtherLoans') == 'yes' else False,
+        )
+
+        return Response({
+            "message": "Car loan application submitted successfully",
+            "application_id": application.id
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        print(f"Error submitting car loan application: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
