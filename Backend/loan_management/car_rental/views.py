@@ -167,7 +167,7 @@ def apply_car_loan(request):
         monthly_income = Decimal(data.get('monthlyIncome', 0))
         other_income = Decimal(data.get('otherIncome', 0) or 0)
         loanAmount = Decimal(data.get('loanAmount', 0))
-      
+        down_payment = Decimal(data.get('downPayment', 0) or 0)
         # Create a new CarLoanApplication instance
         application = CarLoanApplication.objects.create(
             first_name=data.get('firstName'),
@@ -189,6 +189,8 @@ def apply_car_loan(request):
             loan_amount=loanAmount,
             loan_term=data.get('loanTerm'),
             existing_loans=True if data.get('hasOtherLoans') == 'yes' else False,
+            car_id = data.get('carId', None),  # Assuming carId is passed in the request
+            down_payment=down_payment,
         )
         
    
@@ -204,17 +206,35 @@ def apply_car_loan(request):
     
     
     
-api_view(['GET'])
+
+
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_existing_car_application(request,id):
+def existing_car_application(request, id):
     try:
-        application = CarLoanApplication.objects.get(id=id, is_active=True)
+        
+      
+        application = CarLoanApplication.objects.get(car_id=id, is_active=True)
+
+        if application.status == 'Approved':
+            return Response({
+                "message": "Existing car loan is approved",
+                "status": "approved"
+            }, status=status.HTTP_200_OK)
+
         return Response({
-          "success": "existing car loan application fetched successfully"}, status=status.HTTP_200_OK)
-    
+            "message": "Existing car loan application is pending",
+            "status": "pending"
+        }, status=status.HTTP_200_OK)
+
     except CarLoanApplication.DoesNotExist:
-        return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            "message": "Application not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+
     except Exception as e:
         print(f"Error fetching car loan application: {e}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+        return Response({
+            "message": "Internal server error",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

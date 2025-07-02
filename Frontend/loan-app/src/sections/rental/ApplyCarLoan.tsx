@@ -9,7 +9,7 @@ import { getExistingCarApplication } from '../../services/rental/Cars';
 import { useParams } from 'react-router-dom';
 const ApplyCarLoan = () => {
   const carId = useParams();
-  console.log(carId)
+  console.log(carId.id)
   const [carDetails, setCarDetails] = useState<CarLoanDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -33,6 +33,7 @@ const ApplyCarLoan = () => {
     loanTerm: '',
     downPayment: '',
     hasOtherLoans: '',
+    carId: Number(carId.id),
   });
  
 
