@@ -2,7 +2,7 @@ import React from 'react'
 import { useState } from 'react';
 import { Car, Calendar, User, Phone, Mail, MapPin, CreditCard, DollarSign, Clock, Shield, Info, HelpCircle, CheckCircle, AlertCircle, FileText, Building, Star, Award, Users } from 'lucide-react';
 import { rentalApi } from '../../services/axiosConfig';
-
+import { useQueryClient } from '@tanstack/react-query';
 interface CarId { 
  id: string;
  loanSalePrice?: number;
@@ -33,6 +33,7 @@ const LoanApplicationForm:React.FC<CarId> = ({id, loanSalePrice}) => {
         hasOtherLoans: '',
         carId: Number(id),
       });
+      const queryClient = useQueryClient();
     
       const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -48,7 +49,9 @@ const LoanApplicationForm:React.FC<CarId> = ({id, loanSalePrice}) => {
         try {
           const response = await rentalApi.post('/apply/', formData);
           if (response.status === 201) {
-            console.log("success")
+            console.log("success");
+            queryClient.invalidateQueries(['carLoanApplication', id]);
+            
     
           }
         } catch (error) {

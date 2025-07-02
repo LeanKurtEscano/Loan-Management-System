@@ -195,9 +195,9 @@ def apply_car_loan(request):
             loan_amount=loanAmount,
             loan_term=data.get('loanTerm'),
             existing_loans=True if data.get('hasOtherLoans') == 'yes' else False,
-            car_id = data.get('carId', None),  # Assuming carId is passed in the request
+            car_id = data.get('carId', None),  
             down_payment=down_payment,
-            user_id = user.id,  # Link the application to the authenticated user
+            user_id = user.id,  
             
         )
         

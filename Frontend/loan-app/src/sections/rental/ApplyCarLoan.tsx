@@ -49,12 +49,12 @@ const ApplyCarLoan = () => {
     fetchCarDetails();
   }, [carId]);
 
-  // Determine application status based on the message from backend
+
   const getApplicationStatus = () => {
-    // Check if we have application data
+
     if (!applicationData) return null;
     
-    // Check the status field first (if available)
+   
     if (applicationData.status) {
       if (status === 'approved') return 'approved';
       if (status === 'pending') return 'pending';
@@ -75,23 +75,9 @@ const ApplyCarLoan = () => {
   const isApplicationApproved = applicationStatus === 'approved';
   const isApplicationNotFound = isError && error?.response?.status === 404;
   
-  // Show form only when application is not found (404 error)
+ 
   const showForm = isApplicationNotFound;
   
-  // Debug logging
-  console.log('Debug Info:', {
-    applicationData,
-    isError,
-    error,
-    applicationStatus,
-    isApplicationPending,
-    isApplicationApproved,
-    isApplicationNotFound,
-    showForm,
-    applicationLoading,
-    rawStatus: applicationData?.status,
-    rawMessage: applicationData?.message
-  });
 
   if (loading || applicationLoading) {
     return (
@@ -238,11 +224,10 @@ const ApplyCarLoan = () => {
               </div>
             </div>
 
-            {/* Only show Cards component if no application exists or application not found */}
+          
             {showForm && <Cards/>}
           </div>
 
-          {/* Conditional rendering based on application status */}
           {isApplicationPending && <PendingCard />}
           {isApplicationApproved && <ApprovedCard />}
           {showForm && (

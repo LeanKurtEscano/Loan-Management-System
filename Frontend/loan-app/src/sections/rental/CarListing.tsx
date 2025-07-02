@@ -19,7 +19,7 @@ const CarListing: React.FC = () => {
   const navigate = useNavigate();
 
   const applyForLoan = (carId: number) => {
-    // Navigate to the loan application page with the selected car ID
+
     navigate(`/user/car-list/${carId}`);
 
   }
