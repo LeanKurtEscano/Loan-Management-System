@@ -2,7 +2,7 @@ from django.db import models
 from user.models import CustomUser  # Assuming you have a CustomUser model for user management
 # Create your models here.
 class CarLoanApplication(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)  # Link to the user applying for the loan
     car_id = models.IntegerField(unique=True,  blank=True, null=True)  # Unique identifier for the car
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)

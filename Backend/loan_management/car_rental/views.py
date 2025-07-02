@@ -168,6 +168,7 @@ def apply_car_loan(request):
         other_income = Decimal(data.get('otherIncome', 0) or 0)
         loanAmount = Decimal(data.get('loanAmount', 0))
         down_payment = Decimal(data.get('downPayment', 0) or 0)
+        user = request.user
         # Create a new CarLoanApplication instance
         application = CarLoanApplication.objects.create(
             first_name=data.get('firstName'),
@@ -191,6 +192,8 @@ def apply_car_loan(request):
             existing_loans=True if data.get('hasOtherLoans') == 'yes' else False,
             car_id = data.get('carId', None),  # Assuming carId is passed in the request
             down_payment=down_payment,
+            user_id = user.id,  # Link the application to the authenticated user
+            
         )
         
    
@@ -214,8 +217,9 @@ def existing_car_application(request, id):
     try:
         
       
-        application = CarLoanApplication.objects.get(car_id=id, is_active=True)
-
+        application = CarLoanApplication.objects.get(user = request.user, car_id=int(id), is_active=True)
+        
+        print(application.id)
         if application.status == 'Approved':
             return Response({
                 "message": "Existing car loan is approved",

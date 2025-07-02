@@ -40,7 +40,7 @@ export const getExistingCarApplication = async (carId: number) => {
     if (response.status !== 200) {
       throw new Error("Failed to fetch cars");
     }
-    return response
+    return response.data
   } catch (error) {
     console.error("Error fetching cars:", error);
     throw error;
