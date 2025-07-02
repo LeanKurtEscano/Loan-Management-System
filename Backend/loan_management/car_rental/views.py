@@ -7,6 +7,11 @@ from rest_framework import status
 import requests
 from . models import CarLoanApplication
 from decimal import Decimal
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import calendar
+from loan_admin.models import AdminNotification
+from user.models import CustomUser
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_cars(request):
@@ -194,6 +199,37 @@ def apply_car_loan(request):
             down_payment=down_payment,
             user_id = user.id,  # Link the application to the authenticated user
             
+        )
+        
+        
+        admin_notification_message = (
+    f"New car loan application submitted by {application.first_name} {application.last_name}.\n"
+)
+        
+        admin = CustomUser.objects.filter(is_admin=True).first()
+        
+        
+        admin_notification = AdminNotification.objects.create(
+            user=admin,
+            message=admin_notification_message,
+            is_read=False,
+        )
+        
+        admin_id = admin.id
+
+        # Send real-time WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'admin_{admin_id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': admin_notification.id,
+                    'message': admin_notification.message,
+                    'is_read': admin_notification.is_read,
+                    'created_at': str(admin_notification.created_at),
+                }
+            }
         )
         
    
