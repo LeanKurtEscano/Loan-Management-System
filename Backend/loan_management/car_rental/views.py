@@ -175,6 +175,7 @@ def apply_car_loan(request):
         other_income = Decimal(data.get('otherIncome', 0) or 0)
         loanAmount = Decimal(data.get('loanAmount', 0))
         down_payment = Decimal(data.get('downPayment', 0) or 0)
+        car_id = data.get('carId', None)
         user = request.user
         # Create a new CarLoanApplication instance
         application = CarLoanApplication.objects.create(
@@ -202,6 +203,8 @@ def apply_car_loan(request):
             user_id = user.id,  
             
         )
+        
+       # response = requests.post(f"https://api.example.com/set-pending/{car_id}") - to be change with actual endpoint via flask local host
         
         
         admin_notification_message = (
@@ -300,10 +303,19 @@ def car_loan_applications(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def car_loan_application_details(request,id):
+    
+    
+    
+    response = requests.get(f'http://localhost:8000/rental/cars/{id}') 
+    data = response.json()
+    
+    
     try:
         
         applications = CarLoanApplication.objects.filter(id = id)
         serializer = CarLoanApplicationSerializer(applications)
+
+        
         
    
         

@@ -8,7 +8,7 @@ import { getExistingCarApplication } from '../../services/rental/Cars';
 import Cards from '../../components/rental/Cards';
 import { useParams } from 'react-router-dom';
 import LoanApplicationForm from '../../components/rental/LoanApplicationForm';
-
+import { getCarById } from '../../services/rental/Cars';
 const ApplyCarLoan = () => {
   const carId = useParams();
   console.log(carId.id)
@@ -19,6 +19,16 @@ const ApplyCarLoan = () => {
     queryKey: ['carLoanApplication', carId.id],
     queryFn: () => getExistingCarApplication(Number(carId.id))
   });
+
+
+    const { data, isLoading  } = useQuery({
+    queryKey: ['carDetails', carId.id],
+    queryFn: () => getCarById(Number(carId.id))
+  });
+
+  console.log(data);
+
+
 
   console.log(applicationData);
 
@@ -163,12 +173,12 @@ const ApplyCarLoan = () => {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 animate-slide-in-left">
               <div className="relative">
                 <img
-                  src={carDetails.image_url}
-                  alt={`${carDetails.make} ${carDetails.model}`}
+                  src={data.image_url}
+                  alt={`${data.make} ${data.model}`}
                   className="w-full h-64 sm:h-80 object-cover"
                 />
                 <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  {carDetails.year}
+                  {data.year}
                 </div>
                 {isApplicationApproved && (
                   <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center">
@@ -187,38 +197,38 @@ const ApplyCarLoan = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {carDetails.make} {carDetails.model}
+                    {data.make} {data.model}
                   </h2>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-blue-600">
-                      {formatCurrency(carDetails.loan_sale_price)}
+                      {formatCurrency(data.loan_sale_price)}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {(carDetails.commission_rate * 100).toFixed(1)}% commission
+                      {(data.commission_rate * 100).toFixed(1)}% commission
                     </p>
                   </div>
                 </div>
 
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  {carDetails.description}
+                  {data.description}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center text-gray-700">
                     <Car className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{carDetails.color}</span>
+                    <span className="text-sm">{data.color}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <Shield className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{carDetails.license_plate}</span>
+                    <span className="text-sm">{data.license_plate}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{formatDateWithWords(carDetails.date_offered)}</span>
+                    <span className="text-sm">{formatDateWithWords(data.date_offered)}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">ID: {carDetails.car_id}</span>
+                    <span className="text-sm">ID: {data.car_id}</span>
                   </div>
                 </div>
               </div>

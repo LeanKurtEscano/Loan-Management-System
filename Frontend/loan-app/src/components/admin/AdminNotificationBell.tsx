@@ -210,7 +210,7 @@ const AdminNotificationBell: React.FC<NotificationBellProps> = () => {
   return (
     <div className="relative notification-container">
       <button
-        className="p-2 text-gray-600 cursor-pointer hover:text-gray-800 hover:bg-gray-100 rounded-full relative transition duration-200"
+        className="p-2 text-gray-600 cursor-pointer hover:text-gray-800  rounded-full relative transition duration-200"
         onClick={handleBellClick}
         aria-label="Notifications"
       >

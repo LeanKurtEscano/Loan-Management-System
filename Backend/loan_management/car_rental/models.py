@@ -28,3 +28,21 @@ class CarLoanApplication(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     down_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
     
+    
+
+class CarLoanDisbursement(models.Model):
+    application = models.ForeignKey(CarLoanApplication, on_delete=models.CASCADE)
+    disbursement_start_date = models.DateTimeField(auto_now_add=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=200, default='Ongoing', blank=True, null=True) 
+    
+
+class CarLoanPayments(models.Model):
+    disbursement = models.ForeignKey(CarLoanDisbursement, on_delete=models.CASCADE)
+    payment_date= models.DateTimeField(auto_now_add=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=200, default='Pending', blank=True, null=True) 
+  
+  
+  
+    

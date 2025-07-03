@@ -46,8 +46,8 @@ const Sidebar: React.FC = () => {
         const selectedPath = menuItems[index]?.url;
         setActiveIndex(index);
 
-        // If it's NOT index 5, navigate as usual
-        if (index !== 5 && selectedPath) {
+        // Navigate if the path exists
+        if (selectedPath) {
             navigate(selectedPath);
             localStorage.setItem("currentPath", selectedPath);
             setActiveIndex(index);
@@ -80,64 +80,64 @@ const Sidebar: React.FC = () => {
     return (
         <aside
             className={`fixed top-0 left-0 h-full transition-all bg-white duration-700 z-50 bg-cardbg shadow-xl
-    ${toggle ? 'w-16' : 'w-64'}`}
+    ${toggle ? 'w-16' : 'w-56'}`}
         >
-            <div className='flex justify-center align-center absolute pl-3 pt-4'>
+            <div className='flex justify-center align-center absolute pl-3 pt-3'>
                 <button onClick={showSideBar} className='w-4 cursor-pointer'>
                     <FontAwesomeIcon icon={toggle ? faBars : faTimes} className='text-blue-500' />
                 </button>
             </div>
 
             {/* Improved Admin Profile Section with better transitions */}
-            <div className="pt-12 px-2 mb-2">
+            <div className="pt-10 px-2 mb-1">
                 <div 
                     className="cursor-pointer relative"
                     onClick={toUserProfile}
                 >
-                    <div className="bg-blue-50 rounded-lg border border-blue-100 shadow-sm p-2 flex items-center">
-                        <div className="bg-blue-500 rounded-full h-8 w-8 min-w-8 flex items-center justify-center text-white">
+                    <div className="bg-blue-50 pl-2.5 rounded-lg border border-blue-100 shadow-sm p-1.5 flex items-center">
+                        <div className="bg-blue-500 rounded-full h-7 w-7 min-w-7 flex items-center justify-center text-white">
                             <FontAwesomeIcon icon={faUser} className="text-xs" />
                         </div>
-                        <div className={`absolute left-12 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <div className={`absolute left-10 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
                             <p className="font-medium text-xs text-blue-800 whitespace-nowrap">Hello Admin!</p>
-                            <p className="text-xs text-gray-600 whitespace-nowrap">Loan Management System</p>
+                            <p className="text-xs  text-gray-600 whitespace-nowrap">Loan Management System</p>
                         </div>
                         {/* AdminNotificationBell positioned in the top right of the profile section */}
                         {/* AdminNotificationBell positioned on the right side */}
-                        <div className={`ml-auto pr-2 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <div className={`ml-auto pb-1.5  transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
                             <AdminNotificationBell id={data?.id}  />
                         </div>
                     </div>
                 </div>
             </div>
-            <nav className='h-auto flex flex-col justify-center p-4 items-center pb-20'>
+            <nav className='h-auto flex flex-col justify-center p-3 items-center pb-16'>
 
-                <div className='pl-3 w-full'>
-                    <p className={`text-gray-700 text-[14px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Insight</p>
+                <div className='pl-2 w-full'>
+                    <p className={`text-gray-700 text-[13px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Insight</p>
                 </div>
 
                 <div
                     onClick={() => handleMenuClick(10)}
-                    className={`flex flex-row items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
+                    className={`flex flex-row items-center w-full h-9 p-3 mb-2 transition-all duration-500 rounded-md
           ${activeIndex === 10 ? 'bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white group'}
-          ${toggle ? 'w-full h-11 pr-8' : ''}`}
+          ${toggle ? 'w-full h-9 pr-6' : ''}`}
                 >
                     <div className='mr-0'>
                         <Link to={'/dashboard/analytics'}>
                             <FontAwesomeIcon
                                 icon={faChartLine}
-                                className={`transition-colors duration-300
+                                className={`transition-colors duration-300 text-sm
                 ${activeIndex === 10 ? 'text-white' : 'text-blue-500 group-hover:text-white'}`}
                             />
                         </Link>
                     </div>
 
                     <div
-                        className={`flex justify-center items-center w-full pr-5 overflow-hidden  
+                        className={`flex justify-center items-center w-full pr-4 overflow-hidden  
             ${toggle ? 'max-w-0 opacity-0' : 'max-w-full opacity-100'}`}
                     >
                         <p
-                            className={`pl-2 duration-500 whitespace-nowrap transition-opacity  // Reduced padding-left
+                            className={`pl-2 duration-500 whitespace-nowrap transition-opacity text-sm
               ${activeIndex === 10 ? 'text-white' : ' group-hover:text-white'}`}
                         >
                             <Link to={'/dashboard/analytics'}>Dashboard</Link>
@@ -146,8 +146,8 @@ const Sidebar: React.FC = () => {
                 </div>
 
 
-                <div className='pl-3 w-full'>
-                    <p className={`text-gray-700 text-[14px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Operations</p>
+                <div className='pl-2 w-full'>
+                    <p className={`text-gray-700 text-[13px] mb-1 ${toggle ? 'opacity-0' : 'opacity-100'}`}> Operations</p>
                 </div>
 
 
@@ -155,37 +155,37 @@ const Sidebar: React.FC = () => {
                     menuItems.map((item, index) => (
                         <div
                             key={index}
-                            onClick={() => (index === 5 ? handleLogout(index) : handleMenuClick(index))}
-                            className={`flex flex-row cursor-pointer items-center w-full h-11 p-4 mb-3 transition-all duration-500 rounded-md
+                            onClick={() => (item.text === "Logout" ? handleLogout(index) : handleMenuClick(index))}
+                            className={`flex flex-row cursor-pointer items-center w-full h-9 p-3 mb-2 transition-all duration-500 rounded-md
             ${activeIndex === index ? 'bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white group'}
-            ${toggle ? 'w-full h-11 pr-8' : ''}`}
+            ${toggle ? 'w-full h-9 pr-6' : ''}`}
                         >
                             <div className='mr-0'>
-                                {index !== 5 ? (
+                                {item.text !== "Logout" ? (
                                     <Link to={item.url ?? "/"}>
                                         <FontAwesomeIcon
                                             icon={item.icon}
-                                            className={`transition-colors duration-300 
+                                            className={`transition-colors duration-300 text-sm
                   ${activeIndex === index ? '' : ' text-blue-500 group-hover:text-white'}`}
                                         />
                                     </Link>
                                 ) : (
                                     <FontAwesomeIcon
                                         icon={faSignOutAlt}
-                                        className="pl-1 text-blue-500 group-hover:text-white"
+                                        className="pl-1 text-blue-500 group-hover:text-white text-sm"
                                     />
                                 )}
                             </div>
 
                             <div
-                                className={`flex justify-center items-center w-full pr-5 overflow-hidden  
+                                className={`flex justify-center items-center w-full pr-4 overflow-hidden  
               ${toggle ? 'max-w-0 opacity-0' : 'max-w-full opacity-100'}`}
                             >
                                 <p
-                                    className={`pl-2 duration-500 whitespace-nowrap transition-opacity
+                                    className={`pl-2 duration-500 whitespace-nowrap transition-opacity text-sm
                 ${activeIndex === index ? 'text-white' : ' group-hover:text-white'}`}
                                 >
-                                    {index !== 5 ? (
+                                    {item.text !== "Logout" ? (
                                         <Link to={item.url ?? "/"}>{item.text}</Link>
                                     ) : (
                                         <span className="cursor-pointer">Logout</span>
