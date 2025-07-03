@@ -12,6 +12,8 @@ from asgiref.sync import async_to_sync
 import calendar
 from loan_admin.models import AdminNotification
 from user.models import CustomUser
+
+from .serializers import CarLoanApplicationSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_cars(request):
@@ -278,3 +280,36 @@ def existing_car_application(request, id):
             "message": "Internal server error",
             "error": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_loan_applications(request):
+    try:
+        
+        applications = CarLoanApplication.objects.all()
+        serializer = CarLoanApplicationSerializer(applications, many=True)
+        print(serializer.data)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"Error fetching car loan applications: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_loan_application_details(request,id):
+    try:
+        
+        applications = CarLoanApplication.objects.filter(id = id)
+        serializer = CarLoanApplicationSerializer(applications)
+        
+   
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"Error fetching car loan applications: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

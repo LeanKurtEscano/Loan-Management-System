@@ -8,5 +8,10 @@ urlpatterns = [
     path('cars/<int:id>/',views.car_loan_details, name='car'),
     path('apply/', views.apply_car_loan, name='apply_car_loan'),
     path('car-loan/<int:id>/', views.existing_car_application, name='existing_car_application'),
+    path('loan-apps/', views.car_loan_applications, name='car_applications'),
+    path('loan-apps/<int:id>/', views.existing_car_application, name='existing_car_application'),
+
+    
+
     
 ]
