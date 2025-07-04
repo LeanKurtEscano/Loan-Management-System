@@ -288,8 +288,8 @@ def existing_car_application(request, id):
 @permission_classes([IsAuthenticated])
 def car_loan_applications(request):
     try:
-        
-        applications = CarLoanApplication.objects.all()
+        # Fix: Convert QuerySet to list or use .values() if you only need specific fields
+        applications = list(CarLoanApplication.objects.all())
         serializer = CarLoanApplicationSerializer(applications, many=True)
         print(serializer.data)
         
@@ -299,20 +299,20 @@ def car_loan_applications(request):
         print(f"Error fetching car loan applications: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def car_loan_application_details(request,id):
     
     
     
-    response = requests.get(f'http://localhost:8000/rental/cars/{id}') 
-    data = response.json()
+   
+   # response = requests.get(f'http://localhost:8000/rental/cars/{id}') 
+    #data = response.json()
     
     
     try:
         
-        applications = CarLoanApplication.objects.filter(id = id)
+        applications = CarLoanApplication.objects.get(id = id)
         serializer = CarLoanApplicationSerializer(applications)
 
         

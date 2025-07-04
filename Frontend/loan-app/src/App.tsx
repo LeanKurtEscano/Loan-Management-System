@@ -55,6 +55,8 @@ import AdminNotificationDetails from './components/admin/AdminNotificationDetail
 import CarList from './sections/rental/CarListing';
 import AutoGarageHomepage from './sections/rental/AutoGarageHomePage';
 import ApplyCarLoan from './sections/rental/ApplyCarLoan';
+import RentalApplications from './sections/admin/RentalApplications';
+import VerifyCarApplication from './sections/admin/VerifyCarApplication';
 function App() {
 
   return (
@@ -120,6 +122,8 @@ const Main: React.FC = () => {
           <Route path="submission/user-transaction/:id" element={<ManageTransaction />} />
           <Route path="payment/approve/:id" element={<VerifyPayment />} />
           <Route path="analytics" element={<Analytics />} />
+           <Route path="rental-applications" element={<RentalApplications />} />
+          <Route path="car-application/:id/:carId" element={<VerifyCarApplication />} />
 
           <Route path="admin/notifications" element={<AdminNotificationPage />} />
           <Route path="admin-notifications/:id" element={<AdminNotificationDetails/>} />
