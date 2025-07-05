@@ -11,7 +11,8 @@ urlpatterns = [
     path('loan-apps/', views.car_loan_applications, name='car_applications'),
     path('loan-apps/<int:id>/', views.car_loan_application_details, name='car_loan_application_details'),
     path('loan-approval/', views.car_loan_approval, name='car-loan-approval'),
-    path('car-loans/<int:id>/reject/', views.car_loan_reject, name='car-loan-reject')
+    path('car-loans/<int:id>/reject/', views.car_loan_reject, name='car-loan-reject'),
+    path('disbursements/', views.car_loan_disbursements, name='car-loan-disbursements')
     
 
     

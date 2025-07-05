@@ -13,7 +13,7 @@ import calendar
 from loan_admin.models import AdminNotification
 from user.models import CustomUser
 from user.models import CustomUser,Notification
-from .serializers import CarLoanApplicationSerializer
+from .serializers import CarLoanApplicationSerializer,CarLoanDisbursementSerializer
 from user.models import CustomUser,Notification
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -300,13 +300,71 @@ def car_loan_applications(request):
         print(f"Error fetching car loan applications: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_loan_applications(request):
+    try:
+        # Fix: Convert QuerySet to list or use .values() if you only need specific fields
+        applications = list(CarLoanApplication.objects.all())
+        serializer = CarLoanApplicationSerializer(applications, many=True)
+        print(serializer.data)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"Error fetching car loan applications: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_loan_disbursements(request):
+    try:
+        # Step 1: Get all disbursements
+        disbursements = CarLoanDisbursement.objects.all()
+        serializer = CarLoanDisbursementSerializer(disbursements, many=True)
+        disbursement_data = serializer.data  
+
+        # Step 2: Fetch car data from external API
+        response = requests.get('http://localhost:8000/rental/cars/')
+        if response.status_code != 200:
+            return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
+
+        cars_data = response.json().get('cars', [])
+
+        # Step 3: Build enriched disbursement list
+        enriched_disbursements = []
+        for disbursement in disbursement_data:
+            car_id = disbursement.get('application', {}).get('car_id')
+            matched_car = next((car for car in cars_data if car['car_id'] == car_id), None)
+
+            # Add car details if match found
+            disbursement_with_car = {
+                **disbursement,
+                "car_details": {
+                    'make': matched_car['make'],
+                    'model': matched_car['model'],
+                    'year': matched_car['year'],
+                    'color': matched_car['color'],
+                    'image_url': matched_car['image_url'],
+                } if matched_car else None
+            }
+
+            enriched_disbursements.append(disbursement_with_car)
+
+        return Response(enriched_disbursements, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error fetching car loan disbursements: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def car_loan_application_details(request,id):
     
-    
-    
-   
    # response = requests.get(f'http://localhost:8000/rental/cars/{id}') 
     #data = response.json()
     

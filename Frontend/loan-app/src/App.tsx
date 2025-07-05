@@ -57,6 +57,7 @@ import AutoGarageHomepage from './sections/rental/AutoGarageHomePage';
 import ApplyCarLoan from './sections/rental/ApplyCarLoan';
 import RentalApplications from './sections/admin/RentalApplications';
 import VerifyCarApplication from './sections/admin/VerifyCarApplication';
+import ManageRentals from './sections/admin/ManageRentals';
 function App() {
 
   return (
@@ -123,6 +124,7 @@ const Main: React.FC = () => {
           <Route path="payment/approve/:id" element={<VerifyPayment />} />
           <Route path="analytics" element={<Analytics />} />
            <Route path="rental-applications" element={<RentalApplications />} />
+            <Route path="manage-rentals" element={<ManageRentals />} />
           <Route path="car-application/:id/:carId" element={<VerifyCarApplication />} />
 
           <Route path="admin/notifications" element={<AdminNotificationPage />} />
