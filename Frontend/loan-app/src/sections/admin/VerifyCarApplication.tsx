@@ -2,65 +2,32 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Car, User, DollarSign, Calendar, Phone, Mail, MapPin, Briefcase, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { ChevronLeft, Car, User, DollarSign, Calendar, Phone, Mail, MapPin, Briefcase, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 import { getCarById } from '../../services/rental/Cars';
 import { fetchCarLoanApplicationDetails } from '../../services/admin/rental';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-interface CarData {
-  id: number;
-  car_id: number;
-  make: string;
-  model: string;
-  year: number;
-  color: string;
-  commission_rate: number;
-  date_offered: string;
-  description: string;
-  image_url: string;
-  license_plate: string;
-  loan_sale_price: number;
-}
-
-interface LoanApplication {
-  id: number;
-  car_id: number;
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  birthdate: string;
-  city: string;
-  company_name: string;
-  complete_address: string;
-  created_at: string;
-  down_payment: string;
-  email_address: string;
-  employment_type: string;
-  existing_loans: boolean;
-  gender: string;
-  is_active: boolean;
-  job_title: string;
-  loan_amount: string;
-  loan_term: string;
-  marital_status: string;
-  monthly_income: string;
-  other_income: string;
-  phone_number: string;
-  status: string;
-  user: number;
-  years_employed: string;
-}
+import Modal from '../../components/Modal';
+import { adminRentalApi } from '../../services/axiosConfig';
+import { formatDate } from '../../utils/formatDate';
+import { formatCurrency } from '../../utils/formatCurrency';
+import EmailModal from '../../components/EmailModal';
+import { useMutation } from '@tanstack/react-query';
+import { useMyContext } from '../../context/MyContext';
 
 const VerifyCarApplication: React.FC = () => {
   const { id, carId } = useParams<{ id: string; carId: string }>();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+   const [loading2, setLoading2] = useState(false);
   const [decision, setDecision] = useState<'approved' | 'rejected' | null>(null);
- const navigate = useNavigate();
-  console.log('carId:', carId);
-  console.log('id:', id);
-
+  const navigate = useNavigate();
+  const [isReject, setIsReject] = useState(false);
+   const [selectedId, setSelectedId] = useState<number | null>(null);
+    const { emailDetails, approveLoan } = useMyContext();
   const { data: carData, isLoading: isCarLoading, isError: isCarError } = useQuery({
     queryKey: ['carDetails', carId],
     queryFn: () => getCarById(Number(carId)),
@@ -72,39 +39,62 @@ const VerifyCarApplication: React.FC = () => {
     queryFn: () => fetchCarLoanApplicationDetails(Number(id)),
     enabled: !!id
   });
+  
+  const commissionRate = carData?.commission_rate * 10;
 
-  console.log('Car data:', carData);
-  console.log('Car details:', carDetails);
-  console.log('Application ID:', id);
-
-  const formatCurrency = (amount: number | string) => {
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(num);
+  const calculateTotalAmount = () => {
+    const loanAmount = carData?.loan_sale_price || 0;
+    const fivePercentOfTotal = (loanAmount * commissionRate * 10) / 100;
+    return loanAmount + fivePercentOfTotal;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-PH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+  
+  const openReject = (id: number) => {
+    setIsReject(true);
+    setSelectedId(id);
+  };
+
+
+  const rejectMutation = useMutation({
+      mutationFn: async (id: number) => {
+        setLoading2(true);
+        await adminRentalApi.post(`/car-loans/${id}/reject/`, {
+          id: id,
+          subject: emailDetails.subject,
+          description: emailDetails.description,
+        });
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(["carLoanApplicationDetails", id]);
+        setLoading2(false);
+        setIsReject(false);
+      },
     });
-  };
 
-  const handleDecision = async (action: 'approve' | 'reject') => {
-    setIsProcessing(true);
-    
-    // Simulate API call - replace with actual API call
-    setTimeout(() => {
-      setDecision(action === 'approve' ? 'approved' : 'rejected');
-      setIsProcessing(false);
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['carLoanApplicationDetails'] });
-    }, 1500);
+     const handleReject = async () => {
+    rejectMutation.mutateAsync(selectedId ?? 0);
+  };
+  
+
+
+  const handleApprove = async () => {
+    setLoading(true);
+    try {
+      const response = await adminRentalApi.post("/loan-approval/", {
+        id: id,
+        loan_amount: carDetails?.loan_amount,
+        interest : carDetails?.commision_rate
+      });
+
+      if (response.status === 200) {
+        setIsModalOpen(false);
+        queryClient.invalidateQueries(["carLoanApplicationDetails", id]);
+      }
+    } catch (error) {
+      console.error("Error approving payment:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -186,12 +176,12 @@ const VerifyCarApplication: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen  p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
-        
+
         {/* Header */}
         <div className="flex items-center mb-6">
-         <button
+          <button
             onClick={() => navigate(-1)}
             className="absolute bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 mx-auto"
           >
@@ -199,7 +189,6 @@ const VerifyCarApplication: React.FC = () => {
             Go Back
           </button>
           <div>
-
             <h1 className="text-2xl font-bold text-white">Loan Application Review</h1>
             <p className="text-white/80">Application ID: #{id}</p>
           </div>
@@ -240,11 +229,19 @@ const VerifyCarApplication: React.FC = () => {
                       <p className="font-semibold">{carData?.license_plate}</p>
                     </div>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-blue-600 font-medium">Sale Price</p>
-                    <p className="text-2xl font-bold text-blue-700">
-                      {formatCurrency(carData?.loan_sale_price || 0)}
-                    </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm text-blue-600 font-medium">Sale Price</p>
+                      <p className="text-2xl font-bold text-blue-700">
+                        {formatCurrency(carData?.loan_sale_price || 0)}
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <p className="text-sm text-purple-600 font-medium">Commission Rate</p>
+                      <p className="text-2xl font-bold text-purple-700">
+                        {commissionRate ? `${commissionRate}%` : 'N/A'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -259,13 +256,12 @@ const VerifyCarApplication: React.FC = () => {
                   <User className="h-6 w-6 mr-3" />
                   <h2 className="text-xl font-bold">Applicant Information</h2>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  carDetails?.status === 'Pending' 
-                    ? 'bg-yellow-100 text-yellow-800' 
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${carDetails?.status === 'Pending'
+                    ? 'bg-yellow-100 text-yellow-800'
                     : carDetails?.status === 'Approved'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
                   {carDetails?.status}
                 </span>
               </div>
@@ -362,7 +358,7 @@ const VerifyCarApplication: React.FC = () => {
               {/* Loan Details */}
               <div className="mt-6 pt-6 border-t">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Loan Details</h3>
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-4 gap-4">
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <p className="text-sm text-blue-600 font-medium">Loan Amount</p>
                     <p className="text-xl font-bold text-blue-700">
@@ -375,10 +371,19 @@ const VerifyCarApplication: React.FC = () => {
                       {formatCurrency(carDetails?.down_payment || 0)}
                     </p>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-blue-600 font-medium">Loan Term</p>
-                    <p className="text-xl font-bold text-blue-700">
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <p className="text-sm text-purple-600 font-medium">Loan Term</p>
+                    <p className="text-xl font-bold text-purple-700">
                       {carDetails?.loan_term} months
+                    </p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <p className="text-sm text-orange-600 font-medium">Total Amount</p>
+                    <p className="text-xl font-bold text-orange-700">
+                      {formatCurrency(calculateTotalAmount())}
+                    </p>
+                    <p className="text-xs text-orange-500 mt-1">
+                      (Including 5% additional charge)
                     </p>
                   </div>
                 </div>
@@ -386,41 +391,108 @@ const VerifyCarApplication: React.FC = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => handleDecision('reject')}
-                disabled={isProcessing}
-                className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <>
-                    <XCircle className="h-5 w-5" />
-                    <span>Reject Application</span>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={() => handleDecision('approve')}
-                disabled={isProcessing}
-                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <>
-                    <CheckCircle className="h-5 w-5" />
-                    <span>Approve Application</span>
-                  </>
-                )}
-              </button>
+          {/* Conditionally render Action Buttons based on status */}
+          {carDetails.status === "Approved" ? (
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+              <div className="flex items-center justify-center space-x-3">
+                <CheckCircle className="h-8 w-8 text-green-500" />
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-green-600">Application Approved</h3>
+                  <p className="text-gray-600 mt-1">This loan application has been successfully approved.</p>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : carDetails.status === "Rejected" ? (
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+              <div className="flex items-center justify-center space-x-3">
+                <XCircle className="h-8 w-8 text-red-500" />
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-red-600">Application Rejected</h3>
+                  <p className="text-gray-600 mt-1">This loan application has been rejected.</p>
+                </div>
+              </div>
+              
+              {/* Additional rejection details section */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-3">
+                    <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-sm font-medium text-red-800">Rejection Notice</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        The applicant has been notified of the rejection via email. No further action is required.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+                  >
+                    Back to Applications
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => openReject(carDetails.id)}
+                  disabled={isProcessing}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5" />
+                      <span>Reject Application</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  disabled={isProcessing}
+                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-bold py-4 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle className="h-5 w-5" />
+                      <span>Approve Application</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      <Modal
+        loading={loading}
+        isOpen={isModalOpen}
+        title="Approve Car Loan Application"
+        message="Are you sure you want to approve the car loan application of this user?"
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleApprove}
+      />
+
+
+       {isReject && selectedId !== null ? (
+        <EmailModal
+          loading={loading2}
+          isOpen={isReject}
+          onClose={() => setIsReject(false)}
+          onConfirm={handleReject}
+          heading="Reject Loan Application"
+          buttonText="Submit Rejection"
+        />
+      ) : null}
     </div>
   );
 };

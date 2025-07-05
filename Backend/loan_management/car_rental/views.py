@@ -5,15 +5,16 @@ from rest_framework.decorators import api_view, permission_classes
 # Create your views here.
 from rest_framework import status
 import requests
-from . models import CarLoanApplication
+from . models import CarLoanApplication , CarLoanDisbursement
 from decimal import Decimal
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import calendar
 from loan_admin.models import AdminNotification
 from user.models import CustomUser
-
+from user.models import CustomUser,Notification
 from .serializers import CarLoanApplicationSerializer
+from user.models import CustomUser,Notification
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_cars(request):
@@ -325,3 +326,123 @@ def car_loan_application_details(request,id):
         print(f"Error fetching car loan applications: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def car_loan_approval(request):
+    try:
+        data = request.data
+        id = data.get('id')
+        loan_amount = data.get('loan_amount')
+        interest = data.get('interest')
+        
+        calculated_interest = (Decimal(loan_amount) * Decimal(interest * 10)) / 100
+        
+        total_amount  = Decimal(loan_amount) + calculated_interest
+        
+      
+        application = CarLoanApplication.objects.get(id=id)
+        
+        car_disbursment = CarLoanDisbursement.objects.create(application=application,
+                                                             total_amount=total_amount)    
+        car_disbursment.save()
+    
+        application.status = 'Approved'
+        application.save()
+        
+       # response = requests.post(f"http://localhost:8000/car-loan-status/{application.car_id}/" , {  for connection in the future
+           # "car_id": application.car_id,
+         #   "is_approved": True
+          #  }) 
+        
+      
+        user = application.user
+        notification_message = (
+            f"Your car loan application  has been approved. ")
+        
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+        
+        return Response({
+            "message": "Car loan application approved successfully"
+        }, status=status.HTTP_200_OK)
+    
+    except CarLoanApplication.DoesNotExist:
+        return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        print(f"Error approving car loan application: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def car_loan_reject(request, id):
+    try:
+        
+        data = request.data
+        subject = data.get('subject')
+        description = data.get('description')
+        application = CarLoanApplication.objects.get(id=id)
+        application.status = 'Rejected'
+        application.is_active = False
+        application.save()
+        
+        # response = requests.post(f"http://localhost:8000/car-loan-status/{application.car_id}/" , {  for connection in the future
+           # "car_id": application.car_id,
+         #   "is_approved": False
+          #  }) 
+        message  = (
+            f"Your car loan application has been rejected. Reason: {description}")
+        user = application.user
+       
+        notification = Notification.objects.create(
+            user=user,
+            message=message,
+            is_read=False,
+            status="Rejected"
+        )
+
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+        
+        return Response({
+            "message": "Car loan application rejected successfully"
+        }, status=status.HTTP_200_OK)
+    
+    except CarLoanApplication.DoesNotExist:
+        return Response({"error": "Application not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        print(f"Error rejecting car loan application: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
