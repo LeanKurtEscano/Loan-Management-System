@@ -38,6 +38,7 @@ const Step6 = ({
 
             if (response.status === 201) {
                 setLoading(false);
+                setLoanSubmission((prev: LoanSubmission) => ({ ...prev, idSelfie: null }));
                 queryClient.invalidateQueries(['userLoanApplication']);
                 queryClient.invalidateQueries(['userLoanSubmission']);
                 nav('/user/my-loan');

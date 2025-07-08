@@ -39,7 +39,10 @@ const VerifyCarApplication: React.FC = () => {
     queryFn: () => fetchCarLoanApplicationDetails(Number(id)),
     enabled: !!id
   });
+
+  console.log("Car Data:", carData);
   
+
   const commissionRate = carData?.commission_rate * 10;
 
   const calculateTotalAmount = () => {
@@ -82,8 +85,8 @@ const VerifyCarApplication: React.FC = () => {
     try {
       const response = await adminRentalApi.post("/loan-approval/", {
         id: id,
-        loan_amount: carDetails?.loan_amount,
-        interest : carDetails?.commision_rate
+        loan_amount: carData?.loan_sale_price,
+        interest : carData?.commission_rate
       });
 
       if (response.status === 200) {

@@ -32,7 +32,9 @@ class CarLoanApplication(models.Model):
 
 class CarLoanDisbursement(models.Model):
     application = models.ForeignKey(CarLoanApplication, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True, blank=True, null=True)
     disbursement_start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=200, default='Ongoing', blank=True, null=True) 
     

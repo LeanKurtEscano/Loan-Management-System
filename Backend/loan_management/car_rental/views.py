@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 # Create your views here.
 from rest_framework import status
 import requests
-from . models import CarLoanApplication , CarLoanDisbursement
+from . models import CarLoanApplication , CarLoanDisbursement,CarLoanPayments
 from decimal import Decimal
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -13,8 +13,11 @@ import calendar
 from loan_admin.models import AdminNotification
 from user.models import CustomUser
 from user.models import CustomUser,Notification
-from .serializers import CarLoanApplicationSerializer,CarLoanDisbursementSerializer
+from .serializers import CarLoanApplicationSerializer,CarLoanDisbursementSerializer,CarLoanPaymentSerializer
 from user.models import CustomUser,Notification
+
+from django.utils import timezone  # For timezone-aware datetime
+from dateutil.relativedelta import relativedelta  
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_cars(request):
@@ -300,7 +303,7 @@ def car_loan_applications(request):
         print(f"Error fetching car loan applications: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    
+  
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def car_loan_applications(request):
@@ -322,27 +325,34 @@ def car_loan_applications(request):
 @permission_classes([IsAuthenticated])
 def car_loan_disbursements(request):
     try:
-        # Step 1: Get all disbursements
-        disbursements = CarLoanDisbursement.objects.all()
-        serializer = CarLoanDisbursementSerializer(disbursements, many=True)
-        disbursement_data = serializer.data  
+        disbursements = CarLoanDisbursement.objects.select_related('application').all()
 
-        # Step 2: Fetch car data from external API
-        response = requests.get('http://localhost:8000/rental/cars/')
+        token = request.META.get('HTTP_AUTHORIZATION')
+        headers = {'Authorization': token} if token else {}
+
+        response = requests.get('http://localhost:8000/rental/cars/', headers=headers)
         if response.status_code != 200:
             return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
 
         cars_data = response.json().get('cars', [])
+        print(cars_data)
 
-        # Step 3: Build enriched disbursement list
         enriched_disbursements = []
-        for disbursement in disbursement_data:
-            car_id = disbursement.get('application', {}).get('car_id')
-            matched_car = next((car for car in cars_data if car['car_id'] == car_id), None)
+        for disbursement in disbursements:
+            car_id = disbursement.application.car_id
 
-            # Add car details if match found
+            matched_car = next((car for car in cars_data if car['id'] == car_id), None)
+
             disbursement_with_car = {
-                **disbursement,
+                "id": disbursement.id,
+                "first_name": disbursement.application.first_name,
+                "middle_name": disbursement.application.middle_name,
+                "last_name": disbursement.application.last_name,
+                "application": disbursement.application.id,
+                "total_amount": disbursement.total_amount,
+                "status": disbursement.status,
+                "disbursement_start_date": disbursement.disbursement_start_date,
+                "end_date": disbursement.end_date,
                 "car_details": {
                     'make': matched_car['make'],
                     'model': matched_car['model'],
@@ -354,7 +364,7 @@ def car_loan_disbursements(request):
 
             enriched_disbursements.append(disbursement_with_car)
 
-        return Response(enriched_disbursements, status=status.HTTP_200_OK)
+        return Response( enriched_disbursements, status=status.HTTP_200_OK)
 
     except Exception as e:
         print(f"Error fetching car loan disbursements: {e}")
@@ -375,9 +385,6 @@ def car_loan_application_details(request,id):
         serializer = CarLoanApplicationSerializer(applications)
 
         
-        
-   
-        
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     except Exception as e:
@@ -391,7 +398,9 @@ def car_loan_approval(request):
         data = request.data
         id = data.get('id')
         loan_amount = data.get('loan_amount')
+        print(loan_amount)
         interest = data.get('interest')
+        print(interest)
         
         calculated_interest = (Decimal(loan_amount) * Decimal(interest * 10)) / 100
         
@@ -400,8 +409,17 @@ def car_loan_approval(request):
       
         application = CarLoanApplication.objects.get(id=id)
         
+        
+        
+        loan_term_months = int(application.loan_term or 0)  # Fallback to 0 if empty
+
+        # 📅 Calculate end date
+        start_date = timezone.now()
+        end_date = start_date + relativedelta(months=loan_term_months)
+        
         car_disbursment = CarLoanDisbursement.objects.create(application=application,
-                                                             total_amount=total_amount)    
+                                                             total_amount=total_amount,
+                                                              end_date=end_date)    
         car_disbursment.save()
     
         application.status = 'Approved'
@@ -415,7 +433,7 @@ def car_loan_approval(request):
       
         user = application.user
         notification_message = (
-            f"Your car loan application  has been approved. ")
+            f"Your car loan application has been approved. ")
         
         notification = Notification.objects.create(
             user=user,
@@ -504,3 +522,96 @@ def car_loan_reject(request, id):
     except Exception as e:
         print(f"Error rejecting car loan application: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def active_car_loan_data(request, id):
+    try:
+        user = request.user
+        try:
+            application = CarLoanApplication.objects.get(user=user, is_active=True, car_id=int(id))
+        except CarLoanApplication.DoesNotExist:
+            return Response({"message": "No active car loan application found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            disbursement = CarLoanDisbursement.objects.get(application=application)
+        except CarLoanDisbursement.DoesNotExist:
+            return Response({"message": "Disbursement not found for this application"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data = {
+            "car_id": application.car_id,
+            "user_data": {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "phone": application.phone_number,
+            },
+            "loan_data": {
+                "loan_amount": float(application.loan_amount),
+                "loan_term": application.loan_term,
+                "interest_rate": float(disbursement.total_amount),  
+            }
+        }
+        
+        return Response(data, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"Error fetching active car loan applications: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_disbursment_payments(request, id):
+    try:
+        
+        token = request.META.get('HTTP_AUTHORIZATION')
+        headers = {'Authorization': token} if token else {}
+        disbursement = CarLoanDisbursement.objects.get(id=id)
+
+        response = requests.get(f"http://localhost:8000/rental/cars/{disbursement.application.car_id}", headers=headers)
+        if response.status_code != 200:
+            return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
+
+        cars_data = response.json().get('car_loan_details')
+        print(cars_data)
+      
+        payments = CarLoanPayments.objects.filter(disbursement=disbursement)
+        
+        serializer = CarLoanPaymentSerializer(payments, many=True)
+        
+        personal_details = {
+            "first_name": disbursement.application.first_name,
+            "last_name": disbursement.application.last_name,
+            "middle_name": disbursement.application.middle_name,
+            "email": disbursement.application.email_address,
+            "phone_number": disbursement.application.phone_number,
+        }
+     
+        
+        return Response({"car_details":cars_data ,"payments":serializer.data, "person": personal_details}, status=status.HTTP_200_OK)
+    
+    except CarLoanDisbursement.DoesNotExist:
+        return Response({"error": "Disbursement not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        print(f"Error fetching car loan payments: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+""" 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def car_disbursement_payment(request):
+    try:
+        data = request.data
+        disbursement_id = data.get("disbursement_id")
+        
+    except Exception as e:
+        print(e)
+        return Response({"error":f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+"""

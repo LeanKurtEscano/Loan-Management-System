@@ -58,6 +58,7 @@ import ApplyCarLoan from './sections/rental/ApplyCarLoan';
 import RentalApplications from './sections/admin/RentalApplications';
 import VerifyCarApplication from './sections/admin/VerifyCarApplication';
 import ManageRentals from './sections/admin/ManageRentals';
+import Disbursements from './sections/admin/Disbursements';
 function App() {
 
   return (
@@ -91,7 +92,7 @@ const Main: React.FC = () => {
 
   const isAdminRoute = location.pathname.startsWith("/dashboard");
  
-
+  console.log(localStorage.getItem("admin_token"))
   
 
   return (
@@ -123,8 +124,10 @@ const Main: React.FC = () => {
           <Route path="submission/user-transaction/:id" element={<ManageTransaction />} />
           <Route path="payment/approve/:id" element={<VerifyPayment />} />
           <Route path="analytics" element={<Analytics />} />
-           <Route path="rental-applications" element={<RentalApplications />} />
-            <Route path="manage-rentals" element={<ManageRentals />} />
+          <Route path="rental-applications" element={<RentalApplications />} />
+          <Route path="manage-rentals" element={<ManageRentals />} />
+          <Route path="disbursement/:id" element={<Disbursements />} />
+            
           <Route path="car-application/:id/:carId" element={<VerifyCarApplication />} />
 
           <Route path="admin/notifications" element={<AdminNotificationPage />} />

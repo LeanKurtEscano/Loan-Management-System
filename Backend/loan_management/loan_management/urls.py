@@ -24,4 +24,5 @@ urlpatterns = [
     path('loan-admin/', include('loan_admin.urls')),
     path('disbursement/', include('disbursement.urls')),
     path('rental/', include('car_rental.urls')),
+    path('rental/disbursement/', include('car_rental_disbursement.urls')),
 ]

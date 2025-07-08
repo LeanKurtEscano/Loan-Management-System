@@ -25,8 +25,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { loanApi } from "../../services/axiosConfig";
 import Modal from "../../components/Modal";
-import { formatDate } from "../../utils/formatDate";
-import { fetchCarLoanApplications } from "../../services/admin/rental";
+import { formatDate, formatDateWithWords } from "../../utils/formatDate";
+import { fetchCarLoanApplications, fetchCarLoanDisbursements } from "../../services/admin/rental";
 
 // Define types
 interface User {
@@ -151,8 +151,8 @@ const ManageRentals: React.FC = () => {
     isLoading,
     isError
   } = useQuery({
-    queryKey: ["carLoanApplicationsAdmin"],
-    queryFn: () => fetchCarLoanApplications()
+    queryKey: ["carLoanDisbursmentAdmin"],
+    queryFn: () => fetchCarLoanDisbursements()
   });
 
   console.log(loanApplications)
@@ -170,8 +170,8 @@ const ManageRentals: React.FC = () => {
   });
 
   // Event handlers
-  const handleView = (Id: string,carId: string): void => {
-   navigate(`/dashboard/car-application/${Id}/${carId}/`);
+  const handleView = (id: string): void => {
+    navigate(`/dashboard/disbursement/${id}`)
   };
 
 
@@ -229,7 +229,9 @@ const ManageRentals: React.FC = () => {
   const filteredApplications = useMemo(() => {
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.user.first_name} ${loan.user.middle_name || ''} ${loan.user.last_name} ${loan.user?.suffix || loan.user.suffix || ''}`.toLowerCase();
+      const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`
+
+      //  ${loan.user?.suffix || loan.user.suffix || ''}`.toLowerCase();
       const matchesSearch = fullName.includes(searchTerm.toLowerCase());
 
       // Status filter
@@ -257,8 +259,8 @@ const ManageRentals: React.FC = () => {
 
         // Handle nested properties and special cases
         if (sortConfig.key === 'name') {
-          aValue = `${a.user.first_name} ${a.user.last_name}`;
-          bValue = `${b.user.first_name} ${b.user.last_name}`;
+          aValue = `${a.first_name} ${a.last_name}`;
+          bValue = `${b.first_name} ${b.last_name}`;
         } else if (sortConfig.key === 'created_at') {
           aValue = new Date(a.created_at);
           bValue = new Date(b.created_at);
@@ -555,7 +557,18 @@ const ManageRentals: React.FC = () => {
                       Name <SortIcon column="name" sortConfig={sortConfig} />
                     </div>
                   </th>
+
                   <th
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('car')}
+                  >
+                    <div className="flex items-center">
+                      Car <SortIcon column="name" sortConfig={sortConfig} />
+                    </div>
+                  </th>
+                  <th
+
+                  
                     className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort('status')}
                   >
@@ -568,7 +581,17 @@ const ManageRentals: React.FC = () => {
                     onClick={() => handleSort('created_at')}
                   >
                     <div className="flex items-center">
-                      Submitted Date <SortIcon column="created_at" sortConfig={sortConfig} />
+                      Start Date <SortIcon column="created_at" sortConfig={sortConfig} />
+                    </div>
+                  </th>
+
+
+                   <th
+                    className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('created_at')}
+                  >
+                    <div className="flex items-center">
+                      End Date <SortIcon column="ended_at" sortConfig={sortConfig} />
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider">
@@ -588,16 +611,28 @@ const ManageRentals: React.FC = () => {
                         {loan.first_name} {loan.middle_name ? loan.middle_name + " " : ""}
                         {loan.last_name}
 
-                         {loan.user.suffix ? " " + loan.user.suffix : ""}
+                          {/*{loan.user.suffix ? " " + loan.user.suffix : ""} */} 
                       </div>
                     </td>
 
+                      <td className="px-6 py-4">
+                      <div className="text-sm text-gray-700">
+                        {loan.car_details.make} {loan.car_details.model} ({loan.car_details.year})
+                      </div>
+                    </td>
+                    
                     <td className="px-6 py-4">
                       <StatusBadge status={loan.status} />
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-700">
-                        {formatDate(loan.created_at)}
+                        {formatDateWithWords(loan.disbursement_start_date )}
+                      </div>
+                    </td>
+
+                     <td className="px-6 py-4">
+                      <div className="text-sm text-gray-700">
+                        {formatDateWithWords(loan.end_date )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">

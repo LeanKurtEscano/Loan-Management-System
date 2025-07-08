@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Car, Calendar, User, Phone, Mail, MapPin, CreditCard, DollarSign, Clock, Shield, Info, HelpCircle, CheckCircle, AlertCircle, FileText, Building, Star, Award, Users } from 'lucide-react';
 import { CarLoanDetails } from '../../constants/interfaces/carLoan';
 import { formatDateWithWords } from '../../utils/formatDate';
@@ -9,63 +9,29 @@ import Cards from '../../components/rental/Cards';
 import { useParams } from 'react-router-dom';
 import LoanApplicationForm from '../../components/rental/LoanApplicationForm';
 import { getCarById } from '../../services/rental/Cars';
+
 const ApplyCarLoan = () => {
   const carId = useParams();
   console.log(carId.id)
-  const [carDetails, setCarDetails] = useState<CarLoanDetails | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const { data: applicationData, isLoading: applicationLoading, isError, error } = useQuery({
     queryKey: ['carLoanApplication', carId.id],
     queryFn: () => getExistingCarApplication(Number(carId.id))
   });
 
-
-    const { data, isLoading  } = useQuery({
+  const { data: carData, isLoading: carLoading } = useQuery({
     queryKey: ['carDetails', carId.id],
     queryFn: () => getCarById(Number(carId.id))
   });
 
-  console.log(data);
-
-
-
+  console.log(carData);
   console.log(applicationData);
 
-  useEffect(() => {
-    const fetchCarDetails = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const mockCarLoanDetails = {
-        id: "1",
-        car_id: 101,
-        make: "Toyota",
-        model: "Camry",
-        year: 2022,
-        color: "Silver",
-        license_plate: "ABC123",
-        loan_sale_price: 1250000,
-        commission_rate: 0.05,
-        date_offered: "2024-01-15T10:30:00",
-        description: "Well-maintained sedan with low mileage, perfect for family use",
-        image_url: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop"
-      };
-
-      setCarDetails(mockCarLoanDetails);
-      setLoading(false);
-    };
-
-    fetchCarDetails();
-  }, [carId]);
-
-
   const getApplicationStatus = () => {
-
     if (!applicationData) return null;
     
-   
     if (applicationData.status) {
+      const status = applicationData.status.toLowerCase();
       if (status === 'approved') return 'approved';
       if (status === 'pending') return 'pending';
     }
@@ -85,11 +51,9 @@ const ApplyCarLoan = () => {
   const isApplicationApproved = applicationStatus === 'approved';
   const isApplicationNotFound = isError && error?.response?.status === 404;
   
- 
   const showForm = isApplicationNotFound;
-  
 
-  if (loading || applicationLoading) {
+  if (carLoading || applicationLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -97,7 +61,7 @@ const ApplyCarLoan = () => {
     );
   }
 
-  if (!carDetails) {
+  if (!carData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -173,12 +137,12 @@ const ApplyCarLoan = () => {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 animate-slide-in-left">
               <div className="relative">
                 <img
-                  src={data.image_url}
-                  alt={`${data.make} ${data.model}`}
+                  src={carData.image_url}
+                  alt={`${carData.make} ${carData.model}`}
                   className="w-full h-64 sm:h-80 object-cover"
                 />
                 <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  {data.year}
+                  {carData.year}
                 </div>
                 {isApplicationApproved && (
                   <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center">
@@ -197,44 +161,43 @@ const ApplyCarLoan = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {data.make} {data.model}
+                    {carData.make} {carData.model}
                   </h2>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-blue-600">
-                      {formatCurrency(data.loan_sale_price)}
+                      {formatCurrency(carData.loan_sale_price)}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {(data.commission_rate * 100).toFixed(1)}% commission
+                      {(carData.commission_rate * 100).toFixed(1)}% commission
                     </p>
                   </div>
                 </div>
 
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  {data.description}
+                  {carData.description}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center text-gray-700">
                     <Car className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{data.color}</span>
+                    <span className="text-sm">{carData.color}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <Shield className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{data.license_plate}</span>
+                    <span className="text-sm">{carData.license_plate}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{formatDateWithWords(data.date_offered)}</span>
+                    <span className="text-sm">{formatDateWithWords(carData.date_offered)}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">ID: {data.car_id}</span>
+                    <span className="text-sm">ID: {carData.car_id}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-          
             {showForm && <Cards/>}
           </div>
 
@@ -243,7 +206,7 @@ const ApplyCarLoan = () => {
           {showForm && (
             <LoanApplicationForm 
               id={carId.id ?? ""} 
-              loanSalePrice={carDetails.loan_sale_price}
+              loanSalePrice={carData.loan_sale_price}
             />
           )}
         </div>
