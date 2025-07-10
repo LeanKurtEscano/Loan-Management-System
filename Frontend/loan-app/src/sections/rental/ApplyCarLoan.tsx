@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Car, Calendar, User, Phone, Mail, MapPin, CreditCard, DollarSign, Clock, Shield, Info, HelpCircle, CheckCircle, AlertCircle, FileText, Building, Star, Award, Users } from 'lucide-react';
+import { Car, Calendar, User, Phone, Mail, MapPin, CreditCard, DollarSign, Clock, Shield, Info, HelpCircle, CheckCircle, AlertCircle, FileText, Building, Star, Award, Users, Gauge, Zap } from 'lucide-react';
 import { CarLoanDetails } from '../../constants/interfaces/carLoan';
 import { formatDateWithWords } from '../../utils/formatDate';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -14,15 +14,21 @@ const ApplyCarLoan = () => {
   const carId = useParams();
   console.log(carId.id)
 
-  const { data: applicationData, isLoading: applicationLoading, isError, error } = useQuery({
-    queryKey: ['carLoanApplication', carId.id],
-    queryFn: () => getExistingCarApplication(Number(carId.id))
-  });
+const { data: applicationData, isLoading: applicationLoading, isError, error } = useQuery({
+  queryKey: ['carLoanApplication', carId.id],
+  queryFn: () => getExistingCarApplication(Number(carId.id)),
+  refetchInterval: 300000, // 5 minutes in milliseconds
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+});
 
-  const { data: carData, isLoading: carLoading } = useQuery({
-    queryKey: ['carDetails', carId.id],
-    queryFn: () => getCarById(Number(carId.id))
-  });
+const { data: carData, isLoading: carLoading } = useQuery({
+  queryKey: ['carDetails', carId.id],
+  queryFn: () => getCarById(Number(carId.id)),
+  refetchInterval: 300000, // 5 minutes in milliseconds
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+});
 
   console.log(carData);
   console.log(applicationData);
@@ -168,7 +174,7 @@ const ApplyCarLoan = () => {
                       {formatCurrency(carData.loan_sale_price)}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {(carData.commission_rate * 100).toFixed(1)}% commission
+                      {(carData.interest_rate * 100).toFixed(1)}% commission
                     </p>
                   </div>
                 </div>
@@ -180,7 +186,7 @@ const ApplyCarLoan = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center text-gray-700">
                     <Car className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="text-sm">{carData.color}</span>
+                    <span className="text-sm">{carData.body_type}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <Shield className="w-5 h-5 mr-2 text-blue-600" />
@@ -193,6 +199,14 @@ const ApplyCarLoan = () => {
                   <div className="flex items-center text-gray-700">
                     <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
                     <span className="text-sm">ID: {carData.car_id}</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <Gauge className="w-5 h-5 mr-2 text-blue-600" />
+                    <span className="text-sm">{carData.mileage?.toLocaleString()} Kilometers</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <Zap className="w-5 h-5 mr-2 text-blue-600" />
+                    <span className="text-sm">{carData.horsepower} Horse Power</span>
                   </div>
                 </div>
               </div>

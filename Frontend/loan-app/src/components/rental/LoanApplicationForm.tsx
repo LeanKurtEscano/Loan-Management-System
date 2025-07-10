@@ -29,7 +29,6 @@ const LoanApplicationForm:React.FC<CarId> = ({id, loanSalePrice}) => {
         otherIncome: '',
         loanAmount: loanSalePrice ? loanSalePrice.toString() : '',
         loanTerm: '',
-        downPayment: '',
         hasOtherLoans: '',
         carId: Number(id),
       });
@@ -428,22 +427,6 @@ const LoanApplicationForm:React.FC<CarId> = ({id, loanSalePrice}) => {
                         </select>
                       </div>
     
-    
-    
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                          Down Payment
-                        </label>
-                        <input
-                          type="number"
-                          name="downPayment"
-                          value={formData.downPayment}
-                          onChange={handleInputChange}
-                          min="0"
-                          className="w-full px-5 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base"
-                          placeholder="₱100,000"
-                        />
-                      </div>
     
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-3">

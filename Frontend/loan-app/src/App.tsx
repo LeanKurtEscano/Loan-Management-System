@@ -59,6 +59,7 @@ import RentalApplications from './sections/admin/RentalApplications';
 import VerifyCarApplication from './sections/admin/VerifyCarApplication';
 import ManageRentals from './sections/admin/ManageRentals';
 import Disbursements from './sections/admin/Disbursements';
+import CarLoan from './sections/user/CarLoan';
 function App() {
 
   return (
@@ -150,6 +151,7 @@ const Main: React.FC = () => {
           <Route path="apply-car-loan" element={<AutoGarageHomepage />} />
           <Route path="car-list" element={<CarList />} />
            <Route path="car-list/:id" element={<ApplyCarLoan />} />
+            <Route path="my-car-loan" element={<CarLoan />} />
         </Route>
 
 

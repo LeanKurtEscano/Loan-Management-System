@@ -43,8 +43,8 @@ const VerifyCarApplication: React.FC = () => {
   console.log("Car Data:", carData);
   
 
-  const commissionRate = carData?.commission_rate * 10;
-
+  const commissionRate =(carData?.interest_rate * 10)/100;
+  
   const calculateTotalAmount = () => {
     const loanAmount = carData?.loan_sale_price || 0;
     const fivePercentOfTotal = (loanAmount * commissionRate * 10) / 100;
@@ -86,7 +86,7 @@ const VerifyCarApplication: React.FC = () => {
       const response = await adminRentalApi.post("/loan-approval/", {
         id: id,
         loan_amount: carData?.loan_sale_price,
-        interest : carData?.commission_rate
+        interest : carData?.interest_rate
       });
 
       if (response.status === 200) {
@@ -366,12 +366,6 @@ const VerifyCarApplication: React.FC = () => {
                     <p className="text-sm text-blue-600 font-medium">Loan Amount</p>
                     <p className="text-xl font-bold text-blue-700">
                       {formatCurrency(carDetails?.loan_amount || 0)}
-                    </p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <p className="text-sm text-green-600 font-medium">Down Payment</p>
-                    <p className="text-xl font-bold text-green-700">
-                      {formatCurrency(carDetails?.down_payment || 0)}
                     </p>
                   </div>
                   <div className="bg-purple-50 p-4 rounded-lg">

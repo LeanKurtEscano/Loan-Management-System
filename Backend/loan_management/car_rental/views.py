@@ -19,110 +19,20 @@ from user.models import CustomUser,Notification
 from django.utils import timezone  # For timezone-aware datetime
 from dateutil.relativedelta import relativedelta  
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def list_cars(request):
     try:
-       """
-        response = requests.get('https://api.example.com/available-cars') 
+       
+        response = requests.get('http://192.168.1.64:5000/api/loan/available-cars') 
 
  
         if response.status_code == 200:
             data = response.json()
+            print(data)
             return Response({"cars": data.get('cars', [])}, status=status.HTTP_200_OK)
         else:
             return Response({
                 "error": f"External API returned {response.status_code}: {response.text}"
-            }, status=status.HTTP_502_BAD_GATEWAY)
-        """
-        
-       mock_cars_data = [
-    {
-        "id": 1,
-        "car_id": 101,
-        "make": "Toyota",
-        "model": "Camry",
-        "year": 2022,
-        "color": "Silver",
-        "license_plate": "ABC123",
-        "loan_sale_price": 1250000,
-        "commission_rate": 0.05,
-        "date_offered": "2024-01-15T10:30:00",
-        "description": "Well-maintained sedan with low mileage, perfect for family use",
-        "image_url": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop"
-    },
-    {
-        "id": 2,
-        "car_id": 102,
-        "make": "Honda",
-        "model": "Civic",
-        "year": 2023,
-        "color": "White",
-        "license_plate": "DEF456",
-        "loan_sale_price": 980000,
-        "commission_rate": 0.045,
-        "date_offered": "2024-01-20T14:15:00",
-        "description": "Sporty and fuel-efficient, ideal for city driving",
-        "image_url": "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=500&h=300&fit=crop"
-    },
-    {
-        "id": 3,
-        "car_id": 103,
-        "make": "Nissan",
-        "model": "Altima",
-        "year": 2021,
-        "color": "Black",
-        "license_plate": "GHI789",
-        "loan_sale_price": 1100000,
-        "commission_rate": 0.055,
-        "date_offered": "2024-01-18T09:45:00",
-        "description": "Luxurious interior with advanced safety features",
-        "image_url": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&h=300&fit=crop"
-    },
-    {
-        "id": 4,
-        "car_id": 104,
-        "make": "Hyundai",
-        "model": "Elantra",
-        "year": 2023,
-        "color": "Blue",
-        "license_plate": "JKL012",
-        "loan_sale_price": 850000,
-        "commission_rate": 0.04,
-        "date_offered": "2024-01-22T16:20:00",
-        "description": "Brand new with warranty, excellent fuel economy",
-        "image_url": "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=500&h=300&fit=crop"
-    },
-    {
-        "id": 5,
-        "car_id": 105,
-        "make": "Mazda",
-        "model": "CX-5",
-        "year": 2022,
-        "color": "Red",
-        "license_plate": "MNO345",
-        "loan_sale_price": 1450000,
-        "commission_rate": 0.06,
-        "date_offered": "2024-01-25T11:30:00",
-        "description": "SUV with spacious interior and all-wheel drive",
-        "image_url": "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=500&h=300&fit=crop"
-    },
-    {
-        "id": 6,
-        "car_id": 106,
-        "make": "Subaru",
-        "model": "Outback",
-        "year": 2021,
-        "color": "Green",
-        "license_plate": "PQR678",
-        "loan_sale_price": 1320000,
-        "commission_rate": 0.052,
-        "date_offered": "2024-01-28T13:45:00",
-        "description": "Adventure-ready with excellent ground clearance",
-        "image_url": "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500&h=300&fit=crop"
-    }
-]
-       
-       return Response({"cars": mock_cars_data}, status=status.HTTP_200_OK)
+            }, status=status.HTTP_502_BAD_GATEWAY)     
     except Exception as e:
         print(f"Error fetching car data: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -131,11 +41,10 @@ def list_cars(request):
    
     
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def car_loan_details(request, id):
     try:
-        """
-        response = requests.get(f'https://api.example.com/car-loan-details/{id}') Will change with 
+      
+        response = requests.get(f'http://192.168.1.64:5000/api/loan/cars-loan-details/{id}') 
         
         if response.status_code == 200:
             data = response.json()
@@ -144,25 +53,8 @@ def car_loan_details(request, id):
             return Response({
                 "error": f"External API returned {response.status_code}: {response.text}"
             }, status=status.HTTP_502_BAD_GATEWAY)
-        """
         
-        # Mock data for car loan details
-        mock_car_loan_details = {
-            "id": id,
-            "car_id": 101,
-            "make": "Toyota",
-            "model": "Camry",
-            "year": 2022,
-            "color": "Silver",
-            "license_plate": "ABC123",
-            "loan_sale_price": 1250000,
-            "commission_rate": 0.05,
-            "date_offered": "2024-01-15T10:30:00",
-            "description": "Well-maintained sedan with low mileage, perfect for family use",
-            "image_url": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop"
-        }
-        
-        return Response({"car_loan_details": mock_car_loan_details}, status=status.HTTP_200_OK)
+    
     except Exception as e:
         print(f"Error fetching car loan details: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -178,7 +70,6 @@ def apply_car_loan(request):
         monthly_income = Decimal(data.get('monthlyIncome', 0))
         other_income = Decimal(data.get('otherIncome', 0) or 0)
         loanAmount = Decimal(data.get('loanAmount', 0))
-        down_payment = Decimal(data.get('downPayment', 0) or 0)
         car_id = data.get('carId', None)
         user = request.user
         # Create a new CarLoanApplication instance
@@ -203,14 +94,13 @@ def apply_car_loan(request):
             loan_term=data.get('loanTerm'),
             existing_loans=True if data.get('hasOtherLoans') == 'yes' else False,
             car_id = data.get('carId', None),  
-            down_payment=down_payment,
             user_id = user.id,  
             
         )
         
-       # response = requests.post(f"https://api.example.com/set-pending/{car_id}") - to be change with actual endpoint via flask local host
-        
-        
+        response = requests.post(f"http://192.168.1.64:5000/api/loan/set-pending/{car_id}",
+                                 
+        json={"car_id": car_id}) 
         admin_notification_message = (
     f"New car loan application submitted by {application.first_name} {application.last_name}.\n"
 )
@@ -260,10 +150,9 @@ def apply_car_loan(request):
 @permission_classes([IsAuthenticated])
 def existing_car_application(request, id):
     try:
+        print(id)
         
-      
         application = CarLoanApplication.objects.get(user = request.user, car_id=int(id), is_active=True)
-        
         print(application.id)
         if application.status == 'Approved':
             return Response({
@@ -407,7 +296,8 @@ def car_loan_approval(request):
         total_amount  = Decimal(loan_amount) + calculated_interest
         
       
-        application = CarLoanApplication.objects.get(id=id)
+        application = CarLoanApplication.objects.get(id= int(id))
+        print(application.car_id)
         
         
         
@@ -425,10 +315,12 @@ def car_loan_approval(request):
         application.status = 'Approved'
         application.save()
         
-       # response = requests.post(f"http://localhost:8000/car-loan-status/{application.car_id}/" , {  for connection in the future
-           # "car_id": application.car_id,
-         #   "is_approved": True
-          #  }) 
+        response = requests.post(f"http://192.168.1.64:5000/api/loan/car-loan-status/{application.car_id}" , json = {  
+            "car_id": application.car_id,
+           "is_approved": True
+            }) 
+        
+        print(response.status_code)
         
       
         user = application.user

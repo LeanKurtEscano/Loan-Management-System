@@ -24,7 +24,7 @@ export const getCarById = async (carId: number) => {
     if (response.status !== 200) {
       throw new Error("Failed to fetch cars");
     }
-    return response.data.car_loan_details; // Assuming the API returns an object with a 'car_loan_details' property
+    return response.data.car_loan_details.car; // Assuming the API returns an object with a 'car_loan_details' property
   } catch (error) {
     console.error("Error fetching cars:", error);
     throw error;
@@ -36,7 +36,7 @@ export const getCarById = async (carId: number) => {
 export const getExistingCarApplication = async (carId: number) => { 
 
  try {
-    const response = await rentalApi.get(`car-loan/${carId}/`);     
+    const response = await rentalApi.get(`/car-loan/${carId}/`);     
     if (response.status !== 200) {
       throw new Error("Failed to fetch cars");
     }

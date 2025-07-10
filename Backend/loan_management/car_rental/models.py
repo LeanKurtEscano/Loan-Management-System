@@ -36,6 +36,8 @@ class CarLoanDisbursement(models.Model):
     disbursement_start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    is_fully_paid = models.BooleanField(default=False, blank=True, null=True)
+    is_celebrate = models.BooleanField(default=False, blank=True, null=True)  # Indicates if the loan is fully paid and celebrated
     status = models.CharField(max_length=200, default='Ongoing', blank=True, null=True) 
     
 
