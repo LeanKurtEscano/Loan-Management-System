@@ -60,11 +60,16 @@ import VerifyCarApplication from './sections/admin/VerifyCarApplication';
 import ManageRentals from './sections/admin/ManageRentals';
 import Disbursements from './sections/admin/Disbursements';
 import CarLoan from './sections/user/CarLoan';
+import { MyCarProvider } from './context/CarContext';
 function App() {
 
   return (
     <MyProvider>
-      <Main />
+      <MyCarProvider>
+         <Main />
+
+      </MyCarProvider>
+     
     </MyProvider>
   );
 }

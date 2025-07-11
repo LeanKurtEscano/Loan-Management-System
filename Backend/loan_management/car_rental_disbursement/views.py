@@ -102,7 +102,7 @@ def handle_car_loan_payments(request):
             
         )
          
-        notification_message = f"Your loan payment of ₱{float(period_payment['amount']):,.2f} is being processed. We will notify you once it is verified."
+        notification_message = f"Your Car loan payment of ₱{float(period_payment['amount']):,.2f} is being processed. We will notify you once it is verified."
 
         notification = Notification.objects.create(
             user=loan_sub.user,
@@ -127,7 +127,7 @@ def handle_car_loan_payments(request):
         )
         
         admin_notification_message = (
-    f"New loan payment of ₱{period_payment['amount']} made by {request.user.username}. "
+    f"New  Car loan payment of ₱{period_payment['amount']} made by {request.user.username}. "
     "Please review the transaction."
 )
         
@@ -181,4 +181,7 @@ def user_payment_data(request):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)   
-    
+
+
+
+

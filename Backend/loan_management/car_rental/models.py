@@ -42,11 +42,15 @@ class CarLoanDisbursement(models.Model):
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
     is_fully_paid = models.BooleanField(default=False, blank=True, null=True)
     is_celebrate = models.BooleanField(default=False, blank=True, null=True) 
+    last_penalty_update = models.DateField(null=True, blank=True)
+    penalty = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    no_penalty_delay = models.IntegerField( blank=True , null=True)
     status = models.CharField(max_length=200, default='Ongoing', blank=True, null=True) 
     
 
 class CarLoanPayments(models.Model):
     disbursement = models.ForeignKey(CarLoanDisbursement, on_delete=models.CASCADE)
+    email= models.CharField(max_length=250, blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=200, default='Pending', blank=True, null=True) 
     period  = models.CharField(max_length=50, null= True , blank= True)
