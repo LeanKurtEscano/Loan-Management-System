@@ -74,7 +74,7 @@ const CarLoan: React.FC = () => {
             {step === 1 && <Step1 nextStep={nextStep} />}
             {step === 2 && <Step2 nextStep={nextStep} prevStep={prevStep} />}
             {step === 3 && <Step3 nextStep={nextStep} prevStep={prevStep} />}
-            {step === 4 && <Step4 prevStep={prevStep} />}
+            {step === 4 && <Step4 prevStep={prevStep} setStep={setStep} />}
           </>
 
         </>

@@ -70,6 +70,7 @@ const Step4: React.FC<Step4Props> = ({ prevStep, setStep }) => {
 
 
     } catch (error) {
+      console.log(error);
       alert("NetWork Error");
     }
   }

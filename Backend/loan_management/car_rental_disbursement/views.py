@@ -94,23 +94,24 @@ def handle_car_loan_payments(request):
 
         loan_payment = CarLoanPayments.objects.create(
             user=request.user,
-            loan = loan_sub,
+            disbursement = loan_sub,
             amount= Decimal(period_payment["amount"]),
             period=unit,
             receipt=receipt_url,
             is_penalty = is_penalty,
+            email=email
             
         )
          
         notification_message = f"Your Car loan payment of ₱{float(period_payment['amount']):,.2f} is being processed. We will notify you once it is verified."
 
         notification = Notification.objects.create(
-            user=loan_sub.user,
+            user=loan_sub.application.user,
             message=notification_message,
             is_read=False,
             status="Approved"
         )
-        user_id = loan_sub.user.id
+        user_id = loan_sub.application.user.id
         
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(

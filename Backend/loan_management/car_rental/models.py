@@ -49,6 +49,7 @@ class CarLoanDisbursement(models.Model):
     
 
 class CarLoanPayments(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     disbursement = models.ForeignKey(CarLoanDisbursement, on_delete=models.CASCADE)
     email= models.CharField(max_length=250, blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
