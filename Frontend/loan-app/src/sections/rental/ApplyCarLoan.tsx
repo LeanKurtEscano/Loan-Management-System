@@ -9,7 +9,7 @@ import Cards from '../../components/rental/Cards';
 import { useParams } from 'react-router-dom';
 import LoanApplicationForm from '../../components/rental/LoanApplicationForm';
 import { getCarById } from '../../services/rental/Cars';
-
+import { useNavigate } from 'react-router-dom';
 const ApplyCarLoan = () => {
   const carId = useParams();
   console.log(carId.id)
@@ -29,6 +29,14 @@ const { data: carData, isLoading: carLoading } = useQuery({
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
 });
+
+const navigate = useNavigate();
+
+
+const goToLoanDisbursement = () => {
+  navigate(`/user/my-car-loan`);
+
+}
 
   console.log(carData);
   console.log(applicationData);
@@ -114,7 +122,7 @@ const { data: carData, isLoading: carLoading } = useQuery({
             <span className="font-medium">Status: {applicationData?.status || "Approved"}</span>
           </div>
         </div>
-        <button className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+        <button onClick={goToLoanDisbursement}className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
           Proceed to Purchase
         </button>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Step4 = () => {
+const Step4 = ({ prevStep }: {  prevStep: () => void }) => {
   return (
     <div>Step4</div>
   )

@@ -93,7 +93,7 @@ const Main: React.FC = () => {
 
   const isAdminRoute = location.pathname.startsWith("/dashboard");
  
-  console.log(localStorage.getItem("admin_token"))
+  console.log(localStorage.getItem("access_token"))
   
 
   return (

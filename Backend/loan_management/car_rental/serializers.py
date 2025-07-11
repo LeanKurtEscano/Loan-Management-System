@@ -28,4 +28,12 @@ class CarLoanPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarLoanPayments
         fields = '__all__'
-     
+
+
+
+class CarLoanDisbursementFullSerializer(serializers.ModelSerializer):
+    application = CarLoanApplicationSerializer(read_only=True)  # nested serializer
+
+    class Meta:
+        model = CarLoanDisbursement
+        fields = '__all__'

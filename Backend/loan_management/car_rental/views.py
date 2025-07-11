@@ -291,10 +291,7 @@ def car_loan_approval(request):
         interest = data.get('interest')
         print(interest)
         
-        calculated_interest = (Decimal(loan_amount) * Decimal(interest * 10)) / 100
-        
-        total_amount  = Decimal(loan_amount) + calculated_interest
-        
+      
       
         application = CarLoanApplication.objects.get(id= int(id))
         print(application.car_id)
@@ -308,16 +305,25 @@ def car_loan_approval(request):
         end_date = start_date + relativedelta(months=loan_term_months)
         
         car_disbursment = CarLoanDisbursement.objects.create(application=application,
-                                                             total_amount=total_amount,
-                                                              end_date=end_date)    
+                                                             total_amount= Decimal(loan_amount),
+                                                             balance = Decimal(loan_amount),
+                                                              repay_date=end_date)    
         car_disbursment.save()
+        print(application.first_name)
     
         application.status = 'Approved'
         application.save()
         
         response = requests.post(f"http://192.168.1.64:5000/api/loan/car-loan-status/{application.car_id}" , json = {  
             "car_id": application.car_id,
-           "is_approved": True
+            "user_id": application.user.id,
+           "is_approved": True,
+           "disbursement_id": car_disbursment.id,
+           "first_name": application.first_name,
+           "last_name": application.last_name,
+           "middle_name": application.middle_name or  "",
+           "email": application.email_address,
+           "contact": application.phone_number,
             }) 
         
         print(response.status_code)
@@ -369,15 +375,15 @@ def car_loan_reject(request, id):
         data = request.data
         subject = data.get('subject')
         description = data.get('description')
-        application = CarLoanApplication.objects.get(id=id)
+        application = CarLoanApplication.objects.get(id=int(id))
         application.status = 'Rejected'
         application.is_active = False
         application.save()
         
-        # response = requests.post(f"http://localhost:8000/car-loan-status/{application.car_id}/" , {  for connection in the future
-           # "car_id": application.car_id,
-         #   "is_approved": False
-          #  }) 
+        response = requests.post(f"http://localhost:8000/car-loan-status/{application.car_id}/" , json = {
+           "car_id": application.car_id,
+           "is_approved": False
+           }) 
         message  = (
             f"Your car loan application has been rejected. Reason: {description}")
         user = application.user
@@ -507,3 +513,17 @@ def car_disbursement_payment(request):
         return Response({"error":f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 """
+
+
+@api_view(['GET'])
+def car_disbursement_personal_details(request, id):
+    try:
+        disbursement = CarLoanDisbursement.objects.get(id=int(id))
+        serializer = CarLoanDisbursementSerializer(disbursement)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    
+    except Exception as e:
+        print(f"Error fetching personal details: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

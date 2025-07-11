@@ -61,7 +61,7 @@ const VerifyCarApplication: React.FC = () => {
   const rejectMutation = useMutation({
       mutationFn: async (id: number) => {
         setLoading2(true);
-        await adminRentalApi.post(`/car-loans/${id}/reject/`, {
+        await adminRentalApi.post(`/car-loans/reject/${id}`, {
           id: id,
           subject: emailDetails.subject,
           description: emailDetails.description,
@@ -85,7 +85,7 @@ const VerifyCarApplication: React.FC = () => {
     try {
       const response = await adminRentalApi.post("/loan-approval/", {
         id: id,
-        loan_amount: carData?.loan_sale_price,
+        loan_amount: calculateTotalAmount(),
         interest : carData?.interest_rate
       });
 
