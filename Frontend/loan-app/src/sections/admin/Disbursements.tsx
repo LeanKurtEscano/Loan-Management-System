@@ -5,44 +5,10 @@ import { motion } from 'framer-motion'
 import { Car, User, CreditCard, DollarSign, Calendar, Phone, Mail, FileText, TrendingUp } from 'lucide-react'
 import { adminRentalApi } from '../../services/axiosConfig'
 import { fetchDisbursementData } from '../../services/admin/rental'
-
-interface CarLoanDetails {
-  id: number
-  car_id: number
-  make: string
-  model: string
-  year: number
-  color: string
-  license_plate: string
-  loan_sale_price: number
-  commission_rate: number
-  date_offered: string
-  description: string
-  image_url: string
-}
-
-interface PersonalDetails {
-  first_name: string
-  last_name: string
-  middle_name: string
-  email: string
-  phone_number: string
-}
-
-interface Payment {
-  id: number
-  disbursement: number
-  payment_date: string
-  amount: string
-  status: string
-}
-
-interface DisbursementData {
-  car_details: CarLoanDetails
-  payments: Payment[]
-  person: PersonalDetails
-}
-
+import { CarLoanDetails,PersonalDetails, Payment } from '../../constants/interfaces/carRental'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -93,12 +59,17 @@ const tableRowVariants = {
 
 const Disbursements = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['disbursement', id],
     queryFn: () => fetchDisbursementData(id!),
     enabled: !!id,
   })
+
+   const viewPayment = (Id:number): void => {
+   navigate(`/dashboard/disbursement/payments/${Id}`);
+  };
 
   if (isLoading) {
     return (
@@ -173,7 +144,7 @@ const Disbursements = () => {
     }
   }
 
-  const totalPayments = data.payments.reduce((sum: number, payment: Payment) => sum + parseFloat(payment.amount), 0)
+  const totalPayments = data.payments.filter(payment => payment.status === "Approved" ).reduce((sum: number, payment: Payment) => sum + parseFloat(payment.amount), 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
@@ -279,7 +250,7 @@ const Disbursements = () => {
                         <label className="text-xs font-medium text-purple-600 uppercase tracking-wider">Commission Rate</label>
                       </div>
                       <p className="text-2xl font-bold text-purple-900">
-                        {(data.car_details.commission_rate * 100).toFixed(1)}%
+                        {(data.car_details.interest_rate).toFixed(1)}%
                       </p>
                     </motion.div>
                     <motion.div 
@@ -405,7 +376,7 @@ const Disbursements = () => {
                       <label className="text-sm font-medium text-slate-600">Loan Amount</label>
                       <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
                         <p className="text-lg font-bold text-slate-900">
-                          {formatCurrency(data.car_details.loan_sale_price)}
+                          {formatCurrency(data.car_details.loan_sale_price + (data.car_details.loan_sale_price * data.car_details.interest_rate / 100))}
                         </p>
                       </div>
                     </div>
@@ -414,7 +385,7 @@ const Disbursements = () => {
                       <label className="text-sm font-medium text-slate-600">Remaining Balance</label>
                       <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                         <p className="text-lg font-bold text-red-600">
-                          {formatCurrency(data.car_details.loan_sale_price - totalPayments)}
+                          {formatCurrency(data.car_details.loan_sale_price + (data.car_details.loan_sale_price * data.car_details.interest_rate / 100) )}
                         </p>
                       </div>
                     </div>
@@ -484,6 +455,19 @@ const Disbursements = () => {
                             {payment.status}
                           </span>
                         </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                              <div className="flex justify-center space-x-2">
+                                                <button
+                                                  onClick={() => viewPayment(payment.id)}
+                                                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors rounded-full p-2"
+                                                  title="View details"
+                                                >
+                                                  <FontAwesomeIcon icon={faEye} />
+                                                </button>
+                                               
+                                              </div>
+                         </td>
                       </motion.tr>
                     ))}
                   </tbody>

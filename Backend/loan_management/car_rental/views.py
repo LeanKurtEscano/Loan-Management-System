@@ -219,7 +219,7 @@ def car_loan_disbursements(request):
         token = request.META.get('HTTP_AUTHORIZATION')
         headers = {'Authorization': token} if token else {}
 
-        response = requests.get('http://localhost:8000/rental/cars/', headers=headers)
+        response = requests.get('http://192.168.1.64:5000/api/loan/all-cars', headers=headers)
         if response.status_code != 200:
             return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
 
@@ -240,14 +240,13 @@ def car_loan_disbursements(request):
                 "application": disbursement.application.id,
                 "total_amount": disbursement.total_amount,
                 "status": disbursement.status,
-                "disbursement_start_date": disbursement.disbursement_start_date,
-                "end_date": disbursement.end_date,
+                "disbursement_start_date": disbursement.start_date,
+                "end_date": disbursement.repay_date,
                 "car_details": {
                     'make': matched_car['make'],
                     'model': matched_car['model'],
                     'year': matched_car['year'],
                     'color': matched_car['color'],
-                    'image_url': matched_car['image_url'],
                 } if matched_car else None
             }
 
@@ -471,11 +470,11 @@ def car_disbursment_payments(request, id):
         headers = {'Authorization': token} if token else {}
         disbursement = CarLoanDisbursement.objects.get(id=id)
 
-        response = requests.get(f"http://localhost:8000/rental/cars/{disbursement.application.car_id}", headers=headers)
+        response = requests.get(f"http://192.168.1.64:5000/api/loan/cars-loan-details/{disbursement.application.car_id}", headers=headers)
         if response.status_code != 200:
             return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
 
-        cars_data = response.json().get('car_loan_details')
+        cars_data = response.json().get('car')
         print(cars_data)
       
         payments = CarLoanPayments.objects.filter(disbursement=disbursement)

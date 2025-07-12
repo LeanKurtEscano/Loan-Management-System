@@ -1,6 +1,6 @@
 import { userCarDisbursementApi } from "../axiosConfig";
 import { SubmitDisbursement } from "../../constants/interfaces/disbursement";
-
+import { adminCarDisbursementApi } from "../axiosConfig";
 export const fetchCarLoanDisbursement = async () => {
     try { 
         const response =  await userCarDisbursementApi.get("/active-disbursement");
@@ -48,3 +48,19 @@ export const getPayments= async () => {
   
   }
   
+
+
+
+
+export const getCarPaymentDetail = async (id: string) => {
+      try {
+        const response = await adminCarDisbursementApi.get(`/payment/${id}/`);
+    
+        console.log("API Response:", response.data); 
+        return response.data;
+      } catch (error: any) {
+        console.error("Error fetching data:", error?.response?.data || error.message);
+        throw new Error(error?.response?.data?.error || "Something went wrong");
+      }
+    };
+    

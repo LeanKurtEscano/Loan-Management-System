@@ -6,6 +6,7 @@ from rest_framework import status
 import requests
 from car_rental.models import CarLoanDisbursement
 from car_rental.serializers import CarLoanDisbursementSerializer,CarLoanPaymentSerializer
+from .serializers import FullCarLoanPaymentSerializer
 from decimal import Decimal
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -186,3 +187,15 @@ def user_payment_data(request):
 
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_car_user_payment(request,id):
+    try:
+      
+        loan_payment = CarLoanPayments.objects.get(id = int(id))
+     
+        serializer = FullCarLoanPaymentSerializer(loan_payment)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": str(e)}, status=400)   

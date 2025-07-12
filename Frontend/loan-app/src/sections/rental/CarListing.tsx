@@ -19,6 +19,7 @@ const CarListing: React.FC = () => {
     queryFn: fetchCarLoanDisbursement,
   })
 
+
   console.log(carsDisbursement)
 
   const navigate = useNavigate();
@@ -196,7 +197,7 @@ const CarListing: React.FC = () => {
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Percent className="w-4 h-4" />
-                          <span>{(car.commission_rate * 100).toFixed(1)}% commission</span>
+                          <span>{((car.commission_rate )).toFixed(1)}% commission</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />

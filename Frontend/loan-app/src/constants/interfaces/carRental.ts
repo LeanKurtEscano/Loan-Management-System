@@ -87,3 +87,45 @@ export interface LoanApplication {
   user: number;
   years_employed: string;
 }
+
+
+
+
+export interface CarLoanDetails {
+  id: number
+  car_id: number
+  make: string
+  model: string
+  year: number
+  color: string
+  license_plate: string
+  loan_sale_price: number
+  commission_rate: number
+  date_offered: string
+  description: string
+  image_url: string
+}
+
+export interface PersonalDetails {
+  first_name: string
+  last_name: string
+  middle_name: string
+  email: string
+  phone_number: string
+}
+
+export interface Payment {
+  id: number
+  disbursement: number
+  payment_date: string
+  amount: string
+  status: string
+  email: string
+  period:string
+  is_penalty: boolean
+  penalty_fee: string
+  receipt:string
+  created_at: string
+  user:number
+
+}

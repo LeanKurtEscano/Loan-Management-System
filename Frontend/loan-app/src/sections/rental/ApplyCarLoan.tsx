@@ -182,7 +182,7 @@ const goToLoanDisbursement = () => {
                       {formatCurrency(carData.loan_sale_price)}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {(carData.interest_rate * 100).toFixed(1)}% commission
+                      {(carData.interest_rate ).toFixed(1)}% commission
                     </p>
                   </div>
                 </div>

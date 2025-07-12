@@ -182,6 +182,30 @@ export const adminRefresh = axios.create({
 
 
 
+    export const adminCarDisbursementApi = axios.create({
+     baseURL: "http://localhost:8000/rental/disbursement",
+     headers: {
+       "Content-Type": "application/json",
+     
+     },
+      
+   });
+
+  adminCarDisbursementApi.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("admin_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+
+
+
+
   export const userCarDisbursementApi = axios.create({
      baseURL: "http://localhost:8000/rental/disbursement",
      headers: {

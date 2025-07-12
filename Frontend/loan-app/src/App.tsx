@@ -61,6 +61,7 @@ import ManageRentals from './sections/admin/ManageRentals';
 import Disbursements from './sections/admin/Disbursements';
 import CarLoan from './sections/user/CarLoan';
 import { MyCarProvider } from './context/CarContext';
+import VerifyCarPayment from './sections/admin/VerifyCarPayment';
 function App() {
 
   return (
@@ -133,6 +134,7 @@ const Main: React.FC = () => {
           <Route path="rental-applications" element={<RentalApplications />} />
           <Route path="manage-rentals" element={<ManageRentals />} />
           <Route path="disbursement/:id" element={<Disbursements />} />
+           <Route path="disbursement/payments/:id" element={<VerifyCarPayment />} />
             
           <Route path="car-application/:id/:carId" element={<VerifyCarApplication />} />
 
