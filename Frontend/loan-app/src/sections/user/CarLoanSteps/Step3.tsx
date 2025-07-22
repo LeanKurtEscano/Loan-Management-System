@@ -10,12 +10,11 @@ interface Step3Props {
 }
 
 const Step3: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
-    const { data, isLoading, isError } = useQuery(["userLoanSubmission3"], getLoanSubmission);
+
  
-    if (isLoading) return <div className="flex justify-center items-center h-screen text-gray-600">Loading...</div>;
-    if (isError || !data) return <div className="flex justify-center items-center h-screen text-red-500">Error fetching data</div>;
+
     
-    const paymentMethod = data?.cashout || "Gcash"; // Default to GCash
+    const paymentMethod =   "gcash"; // Default to GCash
     const formattedMethod = paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).toLowerCase();
     const qrImage = paymentMethod === "gcash" 
         ?  qr

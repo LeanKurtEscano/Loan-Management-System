@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Car, User, DollarSign, Calendar, Phone, Mail, MapPin, Briefcase, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Car, User, DollarSign, Calendar, Phone, Mail, MapPin, Briefcase, CheckCircle, XCircle, Loader2, AlertCircle, CreditCard, IdCard } from 'lucide-react';
 import { getCarById } from '../../services/rental/Cars';
 import { fetchCarLoanApplicationDetails } from '../../services/admin/rental';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,7 +15,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import EmailModal from '../../components/EmailModal';
 import { useMutation } from '@tanstack/react-query';
 import { useMyContext } from '../../context/MyContext';
-
+import { cleanImageUrl } from '../../utils/imageClean';
 const VerifyCarApplication: React.FC = () => {
   const { id, carId } = useParams<{ id: string; carId: string }>();
   const queryClient = useQueryClient();
@@ -40,23 +40,21 @@ const VerifyCarApplication: React.FC = () => {
     enabled: !!id
   });
 
-  console.log("Car Data:", carData);
+  console.log("Car Data:", carDetails);
   
 
-  const commissionRate =(carData?.interest_rate * 10)/100;
+  const commissionRate =(carData?.interest_rate);
   
   const calculateTotalAmount = () => {
     const loanAmount = carData?.loan_sale_price || 0;
-    const fivePercentOfTotal = (loanAmount * commissionRate * 10) / 100;
+    const fivePercentOfTotal = (loanAmount * commissionRate ) / 100;
     return loanAmount + fivePercentOfTotal;
   };
 
-  
   const openReject = (id: number) => {
     setIsReject(true);
     setSelectedId(id);
   };
-
 
   const rejectMutation = useMutation({
       mutationFn: async (id: number) => {
@@ -78,8 +76,6 @@ const VerifyCarApplication: React.FC = () => {
     rejectMutation.mutateAsync(selectedId ?? 0);
   };
   
-
-
   const handleApprove = async () => {
     setLoading(true);
     try {
@@ -117,6 +113,8 @@ const VerifyCarApplication: React.FC = () => {
       </div>
     );
   }
+
+  console.log(formatCurrency(calculateTotalAmount()));
 
   // Error state
   if (isCarError || isCarDetailsError) {
@@ -240,11 +238,105 @@ const VerifyCarApplication: React.FC = () => {
                       </p>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-lg">
-                      <p className="text-sm text-purple-600 font-medium">Commission Rate</p>
+                      <p className="text-sm text-purple-600 font-medium">Interest Rate</p>
                       <p className="text-2xl font-bold text-purple-700">
                         {commissionRate ? `${commissionRate}%` : 'N/A'}
                       </p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ID Information Card */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6">
+              <div className="flex items-center text-white">
+                <IdCard className="h-6 w-6 mr-3" />
+                <h2 className="text-xl font-bold">ID Information</h2>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Front ID */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                    <CreditCard className="h-5 w-5 mr-2 text-emerald-600" />
+                    Front ID
+                  </h3>
+                  {carDetails?.front_id ? (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <img
+                        src={cleanImageUrl(carDetails.front_id)}
+                        alt="Front ID"
+                        className="w-full h-60 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                      
+                      />
+                  
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 p-4 rounded-lg text-center">
+                      <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No front ID uploaded</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Back ID */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                    <CreditCard className="h-5 w-5 mr-2 text-emerald-600" />
+                    Back ID
+                  </h3>
+                  {carDetails?.back_id ? (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <img
+                        src={cleanImageUrl(carDetails.back_id)}
+                        alt="Back ID"
+                        className="w-full h-60 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                      
+                      />
+                    
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 p-4 rounded-lg text-center">
+                      <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No back ID uploaded</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* ID Status Information */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <IdCard className="h-5 w-5 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-600">ID Status</span>
+                    </div>
+                    <p className="text-lg font-bold text-blue-700 mt-1">
+                      {carDetails?.front_id && carDetails?.back_id ? 'Complete' : 'Incomplete'}
+                    </p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium text-green-600">Front ID</span>
+                    </div>
+                    <p className="text-lg font-bold text-green-700 mt-1">
+                      {carDetails?.front_id ? 'Uploaded' : 'Missing'}
+                    </p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-5 w-5 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-600">Back ID</span>
+                    </div>
+                    <p className="text-lg font-bold text-orange-700 mt-1">
+                      {carDetails?.back_id ? 'Uploaded' : 'Missing'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -380,7 +472,7 @@ const VerifyCarApplication: React.FC = () => {
                       {formatCurrency(calculateTotalAmount())}
                     </p>
                     <p className="text-xs text-orange-500 mt-1">
-                      (Including 5% additional charge)
+                     
                     </p>
                   </div>
                 </div>
@@ -478,7 +570,6 @@ const VerifyCarApplication: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleApprove}
       />
-
 
        {isReject && selectedId !== null ? (
         <EmailModal

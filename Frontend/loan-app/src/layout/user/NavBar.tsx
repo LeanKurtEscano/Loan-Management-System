@@ -24,7 +24,8 @@ const menuItems = [
     { name: "Apply for Loan", path: "/user/apply-loan" },
     { name: "My Loan", path: "/user/my-loan" },
     { name: "Apply for Car Loan", path: "/user/apply-car-loan" },
-     { name: "My Car Loan", path: "/user/my-car-loan" },
+    { name: "My Car Loan", path: "/user/my-car-loan" },
+   
 ];
 import NotificationBell from "../../components/NotificationBell";
 const NavBar: React.FC = () => {

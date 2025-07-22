@@ -9,6 +9,8 @@ import { CarLoanDetails,PersonalDetails, Payment } from '../../constants/interfa
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -61,17 +63,22 @@ const Disbursements = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, isFetching } = useQuery({
     queryKey: ['disbursement', id],
     queryFn: () => fetchDisbursementData(id!),
     enabled: !!id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+    retry: 3,
+    refetchOnWindowFocus: false,
   })
 
-   const viewPayment = (Id:number): void => {
-   navigate(`/dashboard/disbursement/payments/${Id}`);
+  const viewPayment = (Id:number): void => {
+    navigate(`/dashboard/disbursement/payments/${Id}`);
   };
 
-  if (isLoading) {
+  // Show loading state for initial load and fetching
+  if (isLoading || isFetching || !data) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <motion.div 
@@ -103,16 +110,47 @@ const Disbursements = () => {
             <FileText className="w-8 h-8 text-red-600" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900 mb-2">Error Loading Data</h3>
-          <p className="text-red-600">Unable to load disbursement information</p>
+          <p className="text-red-600 mb-4">Unable to load disbursement information</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
         </motion.div>
       </div>
     )
   }
 
-  if (!data) return null
+  // Additional safety checks for data structure
+  if (!data || !data.car_details || !data.person || !data.payments) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <motion.div 
+          className="text-center bg-white rounded-2xl shadow-2xl p-8 max-w-md border border-slate-200"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-yellow-600" />
+          </div>
+          <h3 className="text-xl font-semibold text-slate-900 mb-2">Incomplete Data</h3>
+          <p className="text-yellow-600 mb-4">Some required information is missing</p>
+          <button 
+            onClick={() => navigate(-1)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go Back
+          </button>
+        </motion.div>
+      </div>
+    )
+  }
 
   const formatCurrency = (amount: number | string) => {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+    if (isNaN(numAmount)) return '₱0.00'
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
@@ -120,19 +158,27 @@ const Disbursements = () => {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-PH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    if (!dateString) return 'N/A'
+    try {
+      return new Date(dateString).toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch (error) {
+      return 'Invalid Date'
+    }
   }
-
+  
   const getStatusColor = (status: string) => {
+    if (!status) return 'bg-slate-50 text-slate-700 border-slate-200'
+    
     switch (status.toLowerCase()) {
       case 'completed':
       case 'paid':
+      case 'approved':
         return 'bg-emerald-50 text-emerald-700 border-emerald-200'
       case 'pending':
         return 'bg-amber-50 text-amber-700 border-amber-200'
@@ -144,7 +190,10 @@ const Disbursements = () => {
     }
   }
 
-  const totalPayments = data.payments.filter(payment => payment.status === "Approved" ).reduce((sum: number, payment: Payment) => sum + parseFloat(payment.amount), 0)
+  const totalPayments = data.payments?.filter(payment => payment.status === "Approved").reduce((sum: number, payment: Payment) => sum + parseFloat(payment.amount || '0'), 0) || 0
+
+  const loanAmount = data.car_details.loan_sale_price + (data.car_details.loan_sale_price * data.car_details.interest_rate / 100)
+  const remainingBalance = loanAmount - totalPayments
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
@@ -159,6 +208,16 @@ const Disbursements = () => {
           className="mb-8"
           variants={itemVariants}
         >
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="bg-blue-500 text-white font-medium px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+              Go Back
+            </button>
+          </div>
+          
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 mb-2">
@@ -195,9 +254,12 @@ const Disbursements = () => {
                   >
                     <div className="relative group">
                       <img
-                        src={data.car_details.image_url}
+                        src={data.car_details.image_url || '/placeholder-car.jpg'}
                         alt={`${data.car_details.make} ${data.car_details.model}`}
                         className="w-full h-60 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-300"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder-car.jpg'
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
@@ -207,19 +269,19 @@ const Disbursements = () => {
                       <h3 className="text-2xl font-bold text-slate-900 mb-3">
                         {data.car_details.year} {data.car_details.make} {data.car_details.model}
                       </h3>
-                      <p className="text-slate-600 leading-relaxed text-sm">{data.car_details.description}</p>
+                      <p className="text-slate-600 leading-relaxed text-sm">{data.car_details.description || 'No description available'}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Color</label>
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                          <p className="font-medium text-slate-900">{data.car_details.color}</p>
+                          <p className="font-medium text-slate-900">{data.car_details.color || 'N/A'}</p>
                         </div>
                       </div>
                       <div className="space-y-2">
                         <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">License Plate</label>
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                          <p className="font-medium text-slate-900">{data.car_details.license_plate}</p>
+                          <p className="font-medium text-slate-900">{data.car_details.license_plate || 'N/A'}</p>
                         </div>
                       </div>
                     </div>
@@ -247,10 +309,10 @@ const Disbursements = () => {
                     >
                       <div className="flex items-center mb-2">
                         <TrendingUp className="w-4 h-4 text-purple-600 mr-2" />
-                        <label className="text-xs font-medium text-purple-600 uppercase tracking-wider">Commission Rate</label>
+                        <label className="text-xs font-medium text-purple-600 uppercase tracking-wider">Interest Rate</label>
                       </div>
                       <p className="text-2xl font-bold text-purple-900">
-                        {(data.car_details.interest_rate).toFixed(1)}%
+                        {(data.car_details.interest_rate || 0).toFixed(1)}%
                       </p>
                     </motion.div>
                     <motion.div 
@@ -299,19 +361,19 @@ const Disbursements = () => {
                       <div>
                         <label className="text-xs text-slate-500 mb-1 block">First:</label>
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                          <p className="font-medium text-blue-600 text-sm">{data.person.first_name}</p>
+                          <p className="font-medium text-blue-600 text-sm">{data.person.first_name || 'N/A'}</p>
                         </div>
                       </div>
                       <div>
                         <label className="text-xs text-slate-500 mb-1 block">Middle:</label>
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                          <p className="font-medium text-blue-600 text-sm">{data.person.middle_name}</p>
+                          <p className="font-medium text-blue-600 text-sm">{data.person.middle_name || 'N/A'}</p>
                         </div>
                       </div>
                       <div>
                         <label className="text-xs text-slate-500 mb-1 block">Last:</label>
                         <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                          <p className="font-medium text-blue-600 text-sm">{data.person.last_name}</p>
+                          <p className="font-medium text-blue-600 text-sm">{data.person.last_name || 'N/A'}</p>
                         </div>
                       </div>
                     </div>
@@ -325,7 +387,7 @@ const Disbursements = () => {
                         <label className="text-sm font-medium text-slate-600">Email Address</label>
                       </div>
                       <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                        <p className="font-medium text-slate-900 text-sm break-all">{data.person.email}</p>
+                        <p className="font-medium text-slate-900 text-sm break-all">{data.person.email || 'N/A'}</p>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -334,7 +396,7 @@ const Disbursements = () => {
                         <label className="text-sm font-medium text-slate-600">Phone Number</label>
                       </div>
                       <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                        <p className="font-medium text-slate-900">{data.person.phone_number}</p>
+                        <p className="font-medium text-slate-900">{data.person.phone_number || 'N/A'}</p>
                       </div>
                     </div>
                   </div>
@@ -368,15 +430,15 @@ const Disbursements = () => {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-600">Number of Payments</label>
                       <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                        <p className="text-lg font-bold text-slate-900">{data.payments.length}</p>
+                        <p className="text-lg font-bold text-slate-900">{data.payments?.length || 0}</p>
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-600">Loan Amount</label>
+                      <label className="text-sm font-medium text-slate-600">Total Loan Amount</label>
                       <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
                         <p className="text-lg font-bold text-slate-900">
-                          {formatCurrency(data.car_details.loan_sale_price + (data.car_details.loan_sale_price * data.car_details.interest_rate / 100))}
+                          {formatCurrency(loanAmount)}
                         </p>
                       </div>
                     </div>
@@ -385,7 +447,7 @@ const Disbursements = () => {
                       <label className="text-sm font-medium text-slate-600">Remaining Balance</label>
                       <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                         <p className="text-lg font-bold text-red-600">
-                          {formatCurrency(data.car_details.loan_sale_price + (data.car_details.loan_sale_price * data.car_details.interest_rate / 100) )}
+                          {formatCurrency(remainingBalance)}
                         </p>
                       </div>
                     </div>
@@ -412,7 +474,7 @@ const Disbursements = () => {
               </div>
             </div>
             <div className="overflow-x-auto">
-              {data.payments.length > 0 ? (
+              {data.payments && data.payments.length > 0 ? (
                 <table className="min-w-full divide-y divide-slate-200">
                   <thead className="bg-slate-50">
                     <tr>
@@ -427,6 +489,9 @@ const Disbursements = () => {
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Status
+                      </th>
+                      <th className="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                        Actions
                       </th>
                     </tr>
                   </thead>
@@ -452,22 +517,20 @@ const Disbursements = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(payment.status)}`}>
-                            {payment.status}
+                            {payment.status || 'N/A'}
                           </span>
                         </td>
-
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                                              <div className="flex justify-center space-x-2">
-                                                <button
-                                                  onClick={() => viewPayment(payment.id)}
-                                                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors rounded-full p-2"
-                                                  title="View details"
-                                                >
-                                                  <FontAwesomeIcon icon={faEye} />
-                                                </button>
-                                               
-                                              </div>
-                         </td>
+                          <div className="flex justify-center space-x-2">
+                            <button
+                              onClick={() => viewPayment(payment.id)}
+                              className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 transition-colors rounded-full p-2"
+                              title="View details"
+                            >
+                              <FontAwesomeIcon icon={faEye} />
+                            </button>
+                          </div>
+                        </td>
                       </motion.tr>
                     ))}
                   </tbody>

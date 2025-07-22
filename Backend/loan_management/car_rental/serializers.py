@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from .models import CarLoanApplication, CarLoanDisbursement, CarLoanPayments
-
+from user.serializers import CustomUserSerializer
 
 
 class CarLoanApplicationSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(read_only=True)
     class Meta:
         model = CarLoanApplication
         fields = '__all__' 

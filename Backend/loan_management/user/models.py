@@ -19,7 +19,11 @@ class CustomUser(AbstractUser):
     image_url = cloudinary.models.CloudinaryField('image', blank=True, null=True)
     is_good_payer = models.BooleanField(default=False)
     suffix = models.CharField(max_length=20, blank=True, null=True )
-   # type_id = models.ForeignKey(IdType, on_delete=models.CASCADE, null=True, blank=True)
+    is_blacklisted = models.BooleanField(default=False)
+    blacklisted_date = models.DateField(null=True, blank=True)
+    
+    
+  
 
 class VerificationRequests(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

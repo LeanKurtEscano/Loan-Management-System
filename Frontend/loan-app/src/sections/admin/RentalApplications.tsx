@@ -229,7 +229,7 @@ const RentalApplications: React.FC = () => {
   const filteredApplications = useMemo(() => {
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.user.first_name} ${loan.user.middle_name || ''} ${loan.user.last_name} ${loan.user?.suffix || loan.user.suffix || ''}`.toLowerCase();
+      const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name} ${loan?.suffix || loan.suffix || ''}`.toLowerCase();
       const matchesSearch = fullName.includes(searchTerm.toLowerCase());
 
       // Status filter

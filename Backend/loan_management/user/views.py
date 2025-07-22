@@ -17,6 +17,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils.html import strip_tags
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit_support_request(request):
@@ -56,6 +58,51 @@ def submit_support_request(request):
     except Exception as e:
         print(f"Support request error: {e}")
         return Response({"error": "Failed to submit support request.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def handle_due_date_notification(request):
+    try:
+        data = request.data
+        rawDueDate = data.get("rawDueDate")
+        
+        
+        user = request.user
+        
+        if not rawDueDate:
+            return Response({"error": "rawDueDate and notificationType are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        notification_message = f" Your monthly loan payment is due soon. Make sure to pay by {rawDueDate} to stay on track!"
+        notification = Notification.objects.create(
+            user=request.user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+        
+        
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+             f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                'id': notification.id,
+                'message': notification.message,
+                'is_read': notification.is_read,
+                'created_at': str(notification.created_at),
+               
+            }
+            }
+        )
+        return Response({"success": "Notification sent successfully"}, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])

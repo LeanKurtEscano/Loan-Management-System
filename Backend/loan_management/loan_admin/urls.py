@@ -19,5 +19,6 @@ urlpatterns = [
     path('notifications/<int:id>/mark-read/',views.mark_read, name="mark-read"),
     path('notifications/<int:id>/',views.delete_notification, name="delete-notif"),
     path('notifications/details/<int:id>/',views.notification_details, name="details-notif"),
+    path('blacklist/',views.check_users_and_blacklist, name="get_users_and_check_blacklist"),
 
 ]

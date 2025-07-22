@@ -49,7 +49,7 @@ interface SortConfig {
 }
 
 interface StatusBadgeProps {
-  status: "Pending" | "Approved" | "Rejected";
+  status: "Pending" | "Completed" | "Rejected";
 }
 
 interface SortIconProps {
@@ -98,7 +98,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   let icon = null;
 
   switch (status) {
-    case "Approved":
+    case "Completed":
       colorClass = "bg-green-100 text-green-800 border-green-200";
       icon = faCheckCircle;
       break;
@@ -229,14 +229,15 @@ const ManageRentals: React.FC = () => {
   const filteredApplications = useMemo(() => {
     return loanApplications.filter(loan => {
       // Search filter
-      const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name}`
-
-      //  ${loan.user?.suffix || loan.user.suffix || ''}`.toLowerCase();
+     const fullName = `${loan.first_name} ${loan.middle_name || ''} ${loan.last_name} ${loan?.suffix || loan.suffix || ''}`.toLowerCase();
       const matchesSearch = fullName.includes(searchTerm.toLowerCase());
 
       // Status filter
       const matchesStatus = statusFilter === "All" || loan.status === statusFilter;
 
+
+      // Status filter
+      
       // Date filter
       let matchesDate = true;
       if (dateFilter !== "All") {

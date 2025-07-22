@@ -19,7 +19,6 @@ const CarListing: React.FC = () => {
     queryFn: fetchCarLoanDisbursement,
   })
 
-
   console.log(carsDisbursement)
 
   const navigate = useNavigate();
@@ -73,7 +72,7 @@ const CarListing: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-20 py-8">
         {/* Conditional rendering based on active loan status */}
         {hasActiveLoan ? (
           // Show active loan card
@@ -160,17 +159,17 @@ const CarListing: React.FC = () => {
               </p>
             </div>
 
-            {/* Car Grid */}
+            {/* Car Grid - Fixed for uniform height */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCars.map((car) => (
-                <div key={car.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
-                  <div className="relative">
+                <div key={car.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full">
+                  {/* Image Section - Fixed height */}
+                  <div className="relative flex-shrink-0">
                     <img
                       src={car.image_url}
                       alt={`${car.year} ${car.make} ${car.model}`}
                       className="w-full h-48 object-cover"
                     />
-
                     <div className="absolute bottom-4 left-4">
                       <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                         {car.year}
@@ -178,16 +177,23 @@ const CarListing: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="p-6">
-                    <div className="mb-4">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  {/* Content Section - Flexible height with fixed structure */}
+                  <div className="p-6 flex flex-col flex-grow">
+                    {/* Car Details - Fixed height section */}
+                    <div className="mb-4 flex-grow">
+                      <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-1">
                         {car.make} {car.model}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-2">{car.color} • {car.license_plate}</p>
-                      <p className="text-gray-600 text-sm line-clamp-2">{car.description}</p>
+                      <p className="text-gray-600 text-sm mb-2 line-clamp-1">
+                        {car.color} • {car.license_plate}
+                      </p>
+                      <p className="text-gray-600 text-sm line-clamp-2 min-h-[2.5rem]">
+                        {car.description}
+                      </p>
                     </div>
                     
-                    <div className="space-y-3 mb-6">
+                    {/* Price and Info Section - Fixed height */}
+                    <div className="space-y-3 mb-6 flex-shrink-0">
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-blue-600">
                           {formatPrice(car.loan_sale_price)}
@@ -206,8 +212,12 @@ const CarListing: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="flex gap-3">
-                      <button onClick={() => applyForLoan(car.id)} className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    {/* Action Buttons - Fixed at bottom */}
+                    <div className="flex gap-3 mt-auto">
+                      <button 
+                        onClick={() => applyForLoan(car.id)} 
+                        className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      >
                         Apply for Loan
                       </button>
                       <button className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">

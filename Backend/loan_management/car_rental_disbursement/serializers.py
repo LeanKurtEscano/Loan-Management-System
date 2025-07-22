@@ -8,6 +8,7 @@ from car_rental.serializers import CarLoanDisbursementFullSerializer
 
 class FullCarLoanPaymentSerializer(serializers.ModelSerializer):
     # Add disbursement fields
+    
     disbursement = CarLoanDisbursementFullSerializer(read_only=True)
     class Meta:
         model = CarLoanPayments

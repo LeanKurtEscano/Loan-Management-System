@@ -27,6 +27,9 @@ from .models import AdminNotification
 from .serializers import AdminNotificationSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from datetime import timedelta
+from django.utils import timezone
+from loan.models import LoanSubmission
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def remove_verification(request):
@@ -119,6 +122,9 @@ def verify_user(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+    
+   
+    
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_verify_data(request):
@@ -530,6 +536,27 @@ def mark_all_read(request):
         )
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_users_and_blacklist(request):
+    now = timezone.now()
+    five_months_ago = now - timedelta(days=150)
+
+    users_to_check = CustomUser.objects.filter(last_login__lte=five_months_ago, is_blacklisted=False)
+
+    blacklisted_count = 0
+
+    for user in users_to_check:
+        submissions = LoanSubmission.objects.filter(user=user, is_fully_paid=False)
+        for submission in submissions:
+            if submission.no_penalty_delay is not None and submission.no_penalty_delay >= 5:
+                user.is_blacklisted = True
+                user.blacklisted_date = now
+                user.save()
+                blacklisted_count += 1
+                break
+
+    return Response({"message": "Blacklist check complete", "blacklisted_users": blacklisted_count})
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

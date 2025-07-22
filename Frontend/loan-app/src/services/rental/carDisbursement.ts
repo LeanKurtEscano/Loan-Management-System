@@ -18,6 +18,40 @@ export const fetchCarLoanDisbursement = async () => {
 }
 
 
+  export const getCarTransactions = async () => {
+    try {
+      const response = await userCarDisbursementApi.get(`/payments/`);
+  
+      console.log("API Response:", response.data); 
+      return response.data;
+    } catch (error: any) {
+      console.error("Error fetching data:", error?.response?.data || error.message);
+      throw new Error(error?.response?.data?.error || "Something went wrong");
+    }
+  };
+
+
+
+export const fetchCarLoanApplication = async () => {
+    try { 
+        const response =  await userCarDisbursementApi.get("/active-application");
+        if (response.status !== 200) {
+            throw new Error("Failed to fetch car loan disbursement");
+        }
+        return response.data
+
+    } catch (error) {
+        console.error("Error fetching car loan disbursement:", error);
+        throw error;
+    }
+
+
+}
+
+
+
+
+
 
 export const getPayments= async () => {
     try {
@@ -52,7 +86,7 @@ export const getPayments= async () => {
 
 
 
-export const getCarPaymentDetail = async (id: string) => {
+export const getCarPaymentDetail = async (id: string | number) => {
       try {
         const response = await adminCarDisbursementApi.get(`/payment/${id}/`);
     

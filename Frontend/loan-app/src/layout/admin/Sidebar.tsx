@@ -100,11 +100,11 @@ const Sidebar: React.FC = () => {
                         </div>
                         <div className={`absolute left-10 transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
                             <p className="font-medium text-xs text-blue-800 whitespace-nowrap">Hello Admin!</p>
-                            <p className="text-xs  text-gray-600 whitespace-nowrap">Loan Management System</p>
+                            <p className="text-[10px]  text-gray-600 whitespace-nowrap">Loan Management System</p>
                         </div>
                         {/* AdminNotificationBell positioned in the top right of the profile section */}
                         {/* AdminNotificationBell positioned on the right side */}
-                        <div className={`ml-auto pb-1.5  transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <div className={`ml-auto pb-1.5 px-0.5  transition-opacity duration-700 ${toggle ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
                             <AdminNotificationBell id={data?.id}  />
                         </div>
                     </div>

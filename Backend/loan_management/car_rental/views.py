@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,parser_classes
 # Create your views here.
 from rest_framework import status
 import requests
@@ -15,14 +15,20 @@ from user.models import CustomUser
 from user.models import CustomUser,Notification
 from .serializers import CarLoanApplicationSerializer,CarLoanDisbursementSerializer,CarLoanPaymentSerializer
 from user.models import CustomUser,Notification
-
+from rest_framework.parsers import MultiPartParser, FormParser
+import cloudinary.uploader
 from django.utils import timezone  # For timezone-aware datetime
 from dateutil.relativedelta import relativedelta  
+from dotenv import load_dotenv
+import os
+load_dotenv
 @api_view(['GET'])
 def list_cars(request):
     try:
+        collab_api = os.getenv('COLLAB_API')
+        print(collab_api)
        
-        response = requests.get('http://192.168.1.64:5000/api/loan/available-cars') 
+        response = requests.get(f'{collab_api}/api/loan/available-cars') 
 
  
         if response.status_code == 200:
@@ -43,8 +49,10 @@ def list_cars(request):
 @api_view(['GET'])
 def car_loan_details(request, id):
     try:
-      
-        response = requests.get(f'http://192.168.1.64:5000/api/loan/cars-loan-details/{id}') 
+        
+        collab_api =  os.getenv('COLLAB_API')
+        response = requests.get(f'{collab_api}/api/loan/cars-loan-details/{id}') 
+       
         
         if response.status_code == 200:
             data = response.json()
@@ -53,8 +61,29 @@ def car_loan_details(request, id):
             return Response({
                 "error": f"External API returned {response.status_code}: {response.text}"
             }, status=status.HTTP_502_BAD_GATEWAY)
-        
-    
+        """
+        print(id)
+        sample_json = {
+    "car": {
+        "id": id,
+        "make": "Toyota",
+        "model": "Corolla",
+        "year": 2022,
+        "image_url": "https://example.com/images/cars/toyota-corolla.jpg",
+        "loan_sale_price": 850000,
+        "interest_rate": 6.5,
+        "description": "A reliable and fuel-efficient sedan ideal for both city and highway driving. Equipped with modern safety features and excellent mileage.",
+        "body_type": "Sedan",
+        "license_plate": "ABC-1234",
+        "date_offered": "2024-09-10",
+        "car_id": "CAR101",
+        "mileage": 32000,
+        "horsepower": 132
+    }
+}
+
+        return Response({"car_loan_details": sample_json}, status=status.HTTP_200_OK)
+    """
     except Exception as e:
         print(f"Error fetching car loan details: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -63,20 +92,39 @@ def car_loan_details(request, id):
 
 
 @api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser]) 
 @permission_classes([IsAuthenticated])
 def apply_car_loan(request):
     try:
         data = request.data
+        print(request.data)
         monthly_income = Decimal(data.get('monthlyIncome', 0))
         other_income = Decimal(data.get('otherIncome', 0) or 0)
         loanAmount = Decimal(data.get('loanAmount', 0))
         car_id = data.get('carId', None)
         user = request.user
+        
+        front_image_url = ""
+        back_image_url = ""
+
+        if 'idFront' in request.FILES:
+            front_image = request.FILES['idFront']
+            upload_front = cloudinary.uploader.upload(front_image)
+            front_image_url = upload_front.get("secure_url")
+
+        if 'idBack' in request.FILES:
+            back_image = request.FILES['idBack']
+            upload_back = cloudinary.uploader.upload(back_image)
+            back_image_url = upload_back.get("secure_url")
+            
+        
         # Create a new CarLoanApplication instance
         application = CarLoanApplication.objects.create(
             first_name=data.get('firstName'),
             middle_name=data.get('middleName'),
             last_name=data.get('lastName'),
+            front_id=front_image_url,
+            back_id=back_image_url,
             birthdate=data.get('dateOfBirth'),
             gender=data.get('gender'),
             marital_status=data.get('maritalStatus'),
@@ -98,7 +146,8 @@ def apply_car_loan(request):
             
         )
         
-        response = requests.post(f"http://192.168.1.64:5000/api/loan/set-pending/{car_id}",
+        collab_api = os.getenv('COLLAB_API')
+        response = requests.post(f"{collab_api}/api/loan/set-pending/{car_id}",
                                  
         json={"car_id": car_id}) 
         admin_notification_message = (
@@ -150,7 +199,7 @@ def apply_car_loan(request):
 @permission_classes([IsAuthenticated])
 def existing_car_application(request, id):
     try:
-        print(id)
+       
         
         application = CarLoanApplication.objects.get(user = request.user, car_id=int(id), is_active=True)
         print(application.id)
@@ -218,8 +267,8 @@ def car_loan_disbursements(request):
 
         token = request.META.get('HTTP_AUTHORIZATION')
         headers = {'Authorization': token} if token else {}
-
-        response = requests.get('http://192.168.1.64:5000/api/loan/all-cars', headers=headers)
+        collab_api = os.getenv('COLLAB_API')
+        response = requests.get(f'{collab_api}/api/loan/all-cars', headers=headers)
         if response.status_code != 200:
             return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
 
@@ -294,6 +343,7 @@ def car_loan_approval(request):
       
         application = CarLoanApplication.objects.get(id= int(id))
         print(application.car_id)
+        application.interest = Decimal(interest) 
         
         
         
@@ -312,17 +362,32 @@ def car_loan_approval(request):
     
         application.status = 'Approved'
         application.save()
-        
-        response = requests.post(f"http://192.168.1.64:5000/api/loan/car-loan-status/{application.car_id}" , json = {  
+        collab_api = os.getenv('COLLAB_API')
+        response = requests.post(f"{collab_api}/api/loan/car-loan-status/{application.car_id}" , json = {
             "car_id": application.car_id,
             "user_id": application.user.id,
-           "is_approved": True,
-           "disbursement_id": car_disbursment.id,
-           "first_name": application.first_name,
-           "last_name": application.last_name,
-           "middle_name": application.middle_name or  "",
-           "email": application.email_address,
-           "contact": application.phone_number,
+            "is_approved": True,
+            "disbursement_id": car_disbursment.id,
+            "first_name": application.first_name,
+            "last_name": application.last_name,
+            "middle_name": application.middle_name or  "",
+            "email": application.email_address,
+            "contact": application.phone_number,
+            "loan_term": application.loan_term,
+            "birthdate": application.birthdate.strftime('%Y-%m-%d'),
+            "gender": application.gender,
+            "marital_status": application.marital_status,
+            "city": application.city,
+            "complete_address": application.complete_address,
+            "company_name": application.company_name,
+            "job_title": application.job_title,
+            "employment_type": application.employment_type,
+            "years_employed": application.years_employed,
+            "monthly_income": str(application.monthly_income),
+            "other_income": str(application.other_income),
+            "existing_loans": application.existing_loans,
+            "front": str(application.front_id),
+            "back": str(application.back_id),
             }) 
         
         print(response.status_code)
@@ -378,11 +443,12 @@ def car_loan_reject(request, id):
         application.status = 'Rejected'
         application.is_active = False
         application.save()
-        
-        response = requests.post(f"http://localhost:8000/car-loan-status/{application.car_id}/" , json = {
+        collab_api = os.getenv('COLLAB_API')
+        response = requests.post(f"{collab_api}/api/loan/car-loan-status-reject" , json = {
            "car_id": application.car_id,
-           "is_approved": False
            }) 
+        
+        print(response.status_code)
         message  = (
             f"Your car loan application has been rejected. Reason: {description}")
         user = application.user
@@ -469,8 +535,8 @@ def car_disbursment_payments(request, id):
         token = request.META.get('HTTP_AUTHORIZATION')
         headers = {'Authorization': token} if token else {}
         disbursement = CarLoanDisbursement.objects.get(id=id)
-
-        response = requests.get(f"http://192.168.1.64:5000/api/loan/cars-loan-details/{disbursement.application.car_id}", headers=headers)
+        collab_api = os.getenv('COLLAB_API')
+        response = requests.get(f"{collab_api}/api/loan/cars-loan-details/{disbursement.application.car_id}", headers=headers)
         if response.status_code != 200:
             return Response({"error": "Failed to fetch car data"}, status=status.HTTP_502_BAD_GATEWAY)
 

@@ -14,6 +14,19 @@ export const getUserDetails = async() => {
 
 }
 
+export const triggerBlacklist = async() => {
+    try {
+        const response = await adminApi.get(`/blacklist/`);
+
+        if (response.status === 200) {
+            console.log("");
+        } else {
+            console.log("");
+        }
+    } catch(error) {
+        console.log("Something Went Wrong");
+    }
+}
 
 export const getAdminDetails = async() => {
     try {

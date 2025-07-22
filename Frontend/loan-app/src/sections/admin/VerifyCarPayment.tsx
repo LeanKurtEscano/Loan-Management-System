@@ -10,7 +10,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useMyContext } from "../../context/MyContext";
 import { cleanImageUrl } from "../../utils/imageClean";
@@ -22,6 +22,7 @@ import ImageModal from "../../components/ImageModal";
 import Modal from "../../components/Modal";
 import { adminCarDisbursementApi } from "../../services/axiosConfig";
 import { getCarPaymentDetail } from "../../services/rental/carDisbursement";
+
 const VerifyCarPayment = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -34,9 +35,27 @@ const VerifyCarPayment = () => {
     const [loading2, setLoading2] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [isPenaltyModalOpen, setIsPenaltyModalOpen] = useState(false);
-    const [penaltyAmount, setPenaltyAmount] = useState<number | null>(null);
+    const [penaltyAmount, setPenaltyAmount] = useState(null);
     const [loadingPenalty, setLoadingPenalty] = useState(false);
     const [penaltyError, setPenaltyError] = useState("");
+
+    // Add validation for id parameter
+    useEffect(() => {
+        if (!id) {
+            console.error("No ID provided in URL params");
+            navigate(-1);
+        }
+    }, [id, navigate]);
+
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ["userCarPayment", id],
+        queryFn: () => getCarPaymentDetail(id),
+        enabled: !!id, // Only run if id exists
+        retry: 3, // Retry failed requests
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    });
+
     const handleApprove = async () => {
         setLoading(true);
         try {
@@ -47,7 +66,8 @@ const VerifyCarPayment = () => {
 
             if (response.status === 200) {
                 setIsModalOpen(false);
-                queryClient.invalidateQueries(["userPayment", id]);
+                // Use the correct query key for invalidation
+                queryClient.invalidateQueries(["userCarPayment", id]);
             }
         } catch (error) {
             console.error("Error approving payment:", error);
@@ -56,50 +76,43 @@ const VerifyCarPayment = () => {
         }
     };
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ["userCarPayment", id],
-        queryFn: () => getCarPaymentDetail(id),
-        enabled: !!id,
-    });
+    const handlePenaltyInputChange = (e) => {
+        const value = e.target.value;
 
+        // Allow empty input
+        if (value === "") {
+            setPenaltyAmount(null);
+            setPenaltyError("");
+            return;
+        }
 
-    const handlePenaltyInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+        const numericValue = Number(value);
 
-    // Allow empty input and prevent "0" from persisting
-    if (value === "") {
-        setPenaltyAmount(null); // Set to null or "" based on your state handling
-        setPenaltyError("");
-        return;
-    }
+        // Validate the input
+        if (isNaN(numericValue)) return;
 
-    const numericValue = Number(value);
+        if (numericValue < 0) {
+            setPenaltyError("Penalty amount cannot be negative");
+        } else if (data?.loan?.penalty && numericValue > data.loan.penalty) {
+            setPenaltyError(`Penalty amount cannot exceed ${formatCurrency(data.loan.penalty)}`);
+        } else {
+            setPenaltyError("");
+        }
 
-    // Validate the input
-    if (isNaN(numericValue)) return; // Prevent setting NaN
-
-    if (numericValue < 0) {
-        setPenaltyError("Penalty amount cannot be negative");
-    } else if (data?.loan?.penalty && numericValue > data.loan.penalty) {
-        setPenaltyError(`Penalty amount cannot exceed ${formatCurrency(data.loan.penalty)}`);
-    } else {
-        setPenaltyError("");
-    }
-
-    setPenaltyAmount(numericValue);
-};
+        setPenaltyAmount(numericValue);
+    };
 
     const rejectMutation = useMutation({
         mutationFn: async (id) => {
             setLoading2(true);
-            await adminDisbursementApi.post("/reject/payment/", {
+            await adminCarDisbursementApi.post("/reject/payment/", {
                 id,
                 subject: emailDetails.subject,
                 description: emailDetails.description,
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(["userPayment"]);
+            queryClient.invalidateQueries(["userCarPayment", id]);
             setLoading2(false);
             setIsReject(false);
         },
@@ -118,10 +131,10 @@ const VerifyCarPayment = () => {
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(["userPayment"]);
+            queryClient.invalidateQueries(["userCarPayment", id]);
             setLoadingPenalty(false);
             setIsPenaltyModalOpen(false);
-            setPenaltyAmount("");
+            setPenaltyAmount(null);
         },
         onError: (error) => {
             console.error("Error applying penalty:", error);
@@ -138,7 +151,11 @@ const VerifyCarPayment = () => {
         rejectMutation.mutateAsync(selectedId ?? 0);
     };
 
-
+    const handlePenaltyConfirm = () => {
+        if (penaltyAmount && !penaltyError) {
+            penaltyMutation.mutateAsync();
+        }
+    };
 
     const getStatusColor = (status) => {
         if (!status) return "bg-gray-500";
@@ -156,6 +173,7 @@ const VerifyCarPayment = () => {
         return faCircleCheck;
     };
 
+    // Handle loading state
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -164,7 +182,29 @@ const VerifyCarPayment = () => {
         );
     }
 
-    if (isError || !data) {
+    // Handle error state
+    if (isError) {
+        console.error("Query error:", error);
+        return (
+            <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
+                <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-5xl mb-4" />
+                <h2 className="text-2xl font-bold text-gray-800">Error loading payment data</h2>
+                <p className="text-gray-600 mt-2">
+                    {error?.message || "Unable to retrieve payment information."}
+                </p>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="mt-6 bg-blue-500 text-white font-medium px-6 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2"
+                >
+                    <FontAwesomeIcon icon={faArrowLeft} className="text-white" />
+                    Go Back
+                </button>
+            </div>
+        );
+    }
+
+    // Handle no data state
+    if (!data) {
         return (
             <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
                 <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-5xl mb-4" />
@@ -181,9 +221,6 @@ const VerifyCarPayment = () => {
         );
     }
 
-
-   
-
     return (
         <AnimatePresence>
             <motion.div
@@ -192,6 +229,8 @@ const VerifyCarPayment = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
+
+                
                 <motion.div
                     className="w-full max-w-4xl bg-white shadow-xl rounded-xl overflow-hidden"
                     initial={{ y: 50 }}
@@ -310,7 +349,7 @@ const VerifyCarPayment = () => {
                                         <div className="col-span-2">
                                             <label className="block text-sm text-gray-500">Amount Paid</label>
                                             <div className="text-green-600 text-xl font-bold">
-                                                {formatCurrency(parseFloat(data?.amount).toFixed(2))}
+                                                {formatCurrency(parseFloat(data?.amount || 0).toFixed(2))}
                                             </div>
                                         </div>
 
@@ -319,17 +358,16 @@ const VerifyCarPayment = () => {
                                                 <label className="block text-sm text-gray-500">Total Disbursement Penalty</label>
                                                 <div className="text-red-600 font-medium flex items-center gap-2">
                                                     <FontAwesomeIcon icon={faExclamationTriangle} />
-                                                    {formatCurrency(data?.disbursement?.penalty)}
+                                                    {formatCurrency(data?.disbursement?.penalty || 0)}
                                                 </div>
                                             </div>
                                         )}
 
-
-                                         {data?.penalty_fee > 0 && (
+                                        {data?.penalty_fee > 0 && (
                                             <div className="">
                                                 <label className="block text-sm text-gray-500">Penalty Fee Paid: </label>
                                                 <div className="text-red-600 font-medium flex items-center gap-2">
-                                                    {formatCurrency(data?.penalty_fee)}
+                                                    {formatCurrency(data?.penalty_fee || 0)}
                                                 </div>
                                             </div>
                                         )}
@@ -384,7 +422,6 @@ const VerifyCarPayment = () => {
                                         Payment Approved
                                     </div>
                                 )}
-
                             </div>
                         </div>
                     </div>
@@ -408,7 +445,7 @@ const VerifyCarPayment = () => {
                 />
 
                 {/* Rejection Modal */}
-                {isReject && selectedId !== null ? (
+                {isReject && selectedId !== null && (
                     <EmailModal
                         loading={loading2}
                         isOpen={isReject}
@@ -417,23 +454,23 @@ const VerifyCarPayment = () => {
                         heading="Reject Payment"
                         buttonText="Confirm Rejection"
                     />
-                ) : null}
+                )}
 
                 {/* Penalty Modal */}
-                <div className={`fixed inset-0  bg-gray-500/50  bg-opacity-40 z-50 flex items-center justify-center transition-opacity duration-300 ${isPenaltyModalOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+                <div className={`fixed inset-0 bg-gray-500/50 bg-opacity-40 z-50 flex items-center justify-center transition-opacity duration-300 ${isPenaltyModalOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <motion.div
                         className="bg-white rounded-xl p-6 w-96 shadow-2xl"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: isPenaltyModalOpen ? 1 : 0.9, opacity: isPenaltyModalOpen ? 1 : 0 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     >
-                        <div className="flex  items-center mb-4 text-amber-500">
+                        <div className="flex items-center mb-4 text-amber-500">
                             <FontAwesomeIcon icon={faMoneyBillWave} className="text-2xl mr-3" />
-                            <h3 className="text-xl  font-bold">Deduct Penalty</h3>
+                            <h3 className="text-xl font-bold">Deduct Penalty</h3>
                         </div>
 
                         <p className="mb-5 text-gray-600">
-                            Enter the  amount you want to deduct from the penalty, based on the provided receipt.
+                            Enter the amount you want to deduct from the penalty, based on the provided receipt.
                         </p>
 
                         <div className="mb-5">
@@ -447,20 +484,18 @@ const VerifyCarPayment = () => {
                                 <input
                                     type="number"
                                     id="penaltyAmount"
-                                    value={penaltyAmount}
+                                    value={penaltyAmount || ""}
                                     onChange={handlePenaltyInputChange}
                                     className="pl-7 shadow appearance-none border rounded-lg w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                                     placeholder="0.00"
                                     min="0"
                                     step="0.01"
                                 />
-   
                             </div>
-                                                                       { penaltyError && (
-        <p className="mt-2 text-sm text-red-500">{penaltyError}</p>
-    )}
+                            {penaltyError && (
+                                <p className="mt-2 text-sm text-red-500">{penaltyError}</p>
+                            )}
                         </div>
-         
 
                         <div className="flex justify-end gap-3">
                             <button
@@ -470,10 +505,9 @@ const VerifyCarPayment = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={() => setIsPenaltyModalOpen(false)}
-
-                                disabled={!penaltyAmount || loadingPenalty}
-                                className={`bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-lg transition-colors flex items-center gap-2 ${(!penaltyAmount || loadingPenalty) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={handlePenaltyConfirm}
+                                disabled={!penaltyAmount || loadingPenalty || penaltyError}
+                                className={`bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-lg transition-colors flex items-center gap-2 ${(!penaltyAmount || loadingPenalty || penaltyError) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {loadingPenalty ? (
                                     <>

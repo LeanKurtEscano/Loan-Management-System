@@ -1,6 +1,7 @@
 from django.db import models
 from user.models import CustomUser
 from cloudinary.models import CloudinaryField
+from django.utils import timezone
 class LoanTypes(models.Model):
     name = models.CharField(max_length=100, unique=True)
     
@@ -72,5 +73,12 @@ class LoanSubmission(models.Model):
         """ Updates is_fully_paid based on the remaining balance. """
         self.is_fully_paid = self.balance <= 0
         self.save()
+        
+        
+    def check_and_apply_blacklist(self):
+        if self.no_penalty_delay is not None and self.no_penalty_delay >= 5:
+            self.user.is_blacklisted = True
+            self.user.blacklisted_date = timezone.now()
+            self.user.save()
 
 

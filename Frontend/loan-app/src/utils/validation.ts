@@ -493,3 +493,234 @@ export const validateLoanAmount = (amount: number): string => {
 
     return "";
 };
+
+
+
+
+// New validation functions for missing fields
+
+export const validateDateOfBirth = (dateOfBirth: string): string => {
+    if (!dateOfBirth) return "Date of birth is required.";
+    
+    const date = new Date(dateOfBirth);
+    const today = new Date();
+    
+    if (isNaN(date.getTime()))
+        return "Please enter a valid date.";
+    
+    if (date > today)
+        return "Date of birth cannot be in the future.";
+    
+    const age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+        if (age - 1 < 21)
+            return "You must be at least 21 years old to apply.";
+    } else {
+        if (age < 21)
+            return "You must be at least 21 years old to apply.";
+    }
+    
+    if (age > 100)
+        return "Please enter a valid date of birth.";
+    
+    return "";
+};
+
+export const validateGender = (gender: string): string => {
+    const validGenders = ['male', 'female', 'other', 'prefer-not-to-say'];
+    
+    if (!gender) return "Gender is required.";
+    
+    if (!validGenders.includes(gender))
+        return "Please select a valid gender option.";
+    
+    return "";
+};
+
+export const validateMaritalStatus = (maritalStatus: string): string => {
+    const validStatuses = ['single', 'married', 'divorced', 'widowed', 'separated'];
+    
+    if (!maritalStatus) return "Marital status is required.";
+    
+    if (!validStatuses.includes(maritalStatus))
+        return "Please select a valid marital status.";
+    
+    return "";
+};
+
+export const validateCity = (city: string): string => {
+    const maxLength = 50;
+    const minLength = 2;
+    const invalidCharsRegex = /[^A-Za-z\s\-']/;
+    
+    if (!city) return "City is required.";
+    
+    if (city.trim().length < minLength)
+        return `City must be at least ${minLength} characters long.`;
+    
+    if (city.length > maxLength)
+        return `City must be at most ${maxLength} characters long.`;
+    
+    if (invalidCharsRegex.test(city))
+        return "City must contain only letters, spaces, hyphens, and apostrophes.";
+    
+    return "";
+};
+
+export const validateEmployer = (employer: string): string => {
+    const maxLength = 100;
+    const minLength = 2;
+    const invalidCharsRegex = /[<>{}[\]\\]/;
+    
+    if (!employer) return "Employer/Company is required.";
+    
+    if (employer.trim().length < minLength)
+        return `Employer name must be at least ${minLength} characters long.`;
+    
+    if (employer.length > maxLength)
+        return `Employer name must be at most ${maxLength} characters long.`;
+    
+    if (invalidCharsRegex.test(employer))
+        return "Employer name must not contain invalid characters.";
+    
+    return "";
+};
+
+export const validateJobTitle = (jobTitle: string): string => {
+    const maxLength = 100;
+    const minLength = 2;
+    const invalidCharsRegex = /[<>{}[\]\\]/;
+    
+    if (!jobTitle) return "Job title is required.";
+    
+    if (jobTitle.trim().length < minLength)
+        return `Job title must be at least ${minLength} characters long.`;
+    
+    if (jobTitle.length > maxLength)
+        return `Job title must be at most ${maxLength} characters long.`;
+    
+    if (invalidCharsRegex.test(jobTitle))
+        return "Job title must not contain invalid characters.";
+    
+    return "";
+};
+
+export const validateEmploymentType = (employmentType: string): string => {
+    const validTypes = ['full-time', 'part-time', 'contract', 'self-employed', 'freelance'];
+    
+    if (!employmentType) return "Employment type is required.";
+    
+    if (!validTypes.includes(employmentType))
+        return "Please select a valid employment type.";
+    
+    return "";
+};
+
+export const validateYearsEmployed = (yearsEmployed: string): string => {
+    const validYears = ['less-than-1', '1-2', '3-5', '6-10', 'more-than-10'];
+    
+    if (!yearsEmployed) return "Years employed is required.";
+    
+    if (!validYears.includes(yearsEmployed))
+        return "Please select a valid years employed option.";
+    
+    return "";
+};
+
+export const validateMonthlyIncome = (monthlyIncome: string): string => {
+    if (!monthlyIncome) return "Monthly income is required.";
+
+    const income = parseFloat(monthlyIncome);
+
+    if (isNaN(income))
+        return "Please enter a valid income amount.";
+
+    if (income < 0)
+        return "Monthly income cannot be negative.";
+
+    // Reject values less than 1 but greater than 0 (e.g., 0.01, 0.99)
+    if (income > 0 && income < 1)
+        return "Monthly income cannot be less than ₱1.";
+
+    // Reject more than 2 decimal places
+    if (!/^\d+(\.\d{1,2})?$/.test(monthlyIncome))
+        return "Monthly income must have at most 2 decimal places.";
+
+    if (income < 10000)
+        return "Monthly income must be at least ₱10,000.";
+
+    if (income > 20000000)
+        return "Monthly income seems too high. Please verify the amount.";
+
+    return "";
+};
+
+export const validateOtherIncome = (otherIncome: string): string => {
+    if (!otherIncome) return ""; // Optional field
+
+    const income = parseFloat(otherIncome);
+
+    if (isNaN(income))
+        return "Please enter a valid income amount.";
+
+    if (income < 0)
+        return "Other income cannot be negative.";
+
+    if (income > 0 && income < 1)
+        return "Other income cannot be less than ₱1.";
+
+    if (!/^\d+(\.\d{1,2})?$/.test(otherIncome))
+        return "Other income must have at most 2 decimal places.";
+
+    if (income > 20000000)
+        return "Other income seems too high. Please verify the amount.";
+
+    return "";
+};
+
+
+
+export const validateLoanTerm = (loanTerm: string): string => {
+    const validTerms = ['12', '24', '36', '48', '60', '72'];
+    
+    if (!loanTerm) return "Loan term is required.";
+    
+    if (!validTerms.includes(loanTerm))
+        return "Please select a valid loan term.";
+    
+    return "";
+};
+
+export const validateHasOtherLoans = (hasOtherLoans: string): string => {
+    const validOptions = ['yes', 'no'];
+    
+    if (!hasOtherLoans) return "Please specify if you have other existing loans.";
+    
+    if (!validOptions.includes(hasOtherLoans))
+        return "Please select a valid option.";
+    
+    return "";
+};
+
+export const validateFile = (file: File | null, fieldName: string): string => {
+    if (!file) return `${fieldName} is required.`;
+    
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (!allowedTypes.includes(file.type))
+        return `${fieldName} must be a JPG, PNG, or PDF file.`;
+    
+    if (file.size > maxSize)
+        return `${fieldName} must be less than 10MB.`;
+    
+    return "";
+};
+
+export const validateAgreeToTerms = (agreeToTerms: boolean): string => {
+    if (!agreeToTerms) return "You must agree to the terms and conditions to proceed.";
+    
+    return "";
+};

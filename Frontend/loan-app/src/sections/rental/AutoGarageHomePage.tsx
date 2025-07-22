@@ -125,7 +125,7 @@ const AutoGarageHomepage = () => {
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Drive Your Dream Car
               <span className="block pb-2.5 text-blue-600 mt-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                Sa AutoGarage Loan!
+                Sa JDM Car Rentals!
               </span>
             </h1>
           </FadeInUp>
@@ -156,7 +156,7 @@ const AutoGarageHomepage = () => {
         <div className="max-w-6xl mx-auto px-8 sm:px-12 lg:px-16">
           <FadeInUp>
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose AutoGarage Loan?</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose JDM Car Rentals?</h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
                 We make car financing simple and accessible with transparent terms and competitive rates.
               </p>
@@ -275,7 +275,7 @@ const AutoGarageHomepage = () => {
                     <Car className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">AutoGarage Loan</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">JDM Car Rentals</h3>
                     <p className="text-blue-600 font-semibold">Your Trusted Car Financing Partner</p>
                   </div>
                 </div>
@@ -351,7 +351,7 @@ const AutoGarageHomepage = () => {
           
           <FadeInUp delay={400}>
             <div className="text-center mt-12 pt-8 border-t border-gray-200">
-              <p className="text-gray-500">&copy; 2024 AutoGarage Loan. All rights reserved.</p>
+              <p className="text-gray-500">&copy; 2024 JDM Car Rentals. All rights reserved.</p>
             </div>
           </FadeInUp>
         </div>

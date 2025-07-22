@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view, permission_classes,parser_classe
 # Create your views here.
 from rest_framework import status
 import requests
-from car_rental.models import CarLoanDisbursement
-from car_rental.serializers import CarLoanDisbursementSerializer,CarLoanPaymentSerializer
+from car_rental.models import CarLoanDisbursement,CarLoanApplication
+from car_rental.serializers import CarLoanDisbursementSerializer,CarLoanPaymentSerializer,CarLoanApplicationSerializer
 from .serializers import FullCarLoanPaymentSerializer
 from decimal import Decimal
 from channels.layers import get_channel_layer
@@ -16,9 +16,16 @@ from django.utils import timezone
 from dateutil.relativedelta import relativedelta  
 from rest_framework.parsers import MultiPartParser, FormParser
 from disbursement.utils import extract_duration
-from car_rental.models import CarLoanDisbursement, CarLoanPayments
+from car_rental.models import CarLoanDisbursement, CarLoanPayments,CarLoanCommission
 from user.models import CustomUser,Notification
 import cloudinary.uploader
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail, EmailMultiAlternatives
+import re
+from dotenv import load_dotenv
+import os
+load_dotenv()
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def active_car_disbursement(request):
@@ -30,6 +37,27 @@ def active_car_disbursement(request):
         serializer = CarLoanDisbursementSerializer(disbursement)
 
         if not disbursement:
+            return Response({"detail": "No active disbursement found."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error in active_car_disbursement: {e}")
+        return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def active_car_application(request):
+    try:
+        application= CarLoanApplication.objects.filter(
+            user=request.user,
+            is_active=True,
+            is_reject=False
+        ).first()
+        serializer = CarLoanApplicationSerializer(application)
+
+        if not application:
             return Response({"detail": "No active disbursement found."}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -199,3 +227,207 @@ def get_car_user_payment(request,id):
     except Exception as e:
         print(f"{e}")
         return Response({"error": str(e)}, status=400)   
+    
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_car_loan(request):
+    try:
+        loan_sub = CarLoanDisbursement.objects.get(application__user=request.user ,is_fully_paid =False, is_active = True)
+    
+        loan_sub.is_fully_paid = True
+        loan_sub.is_active = False
+        loan_sub.is_celebrate = False
+        loan_sub.application.is_active = False
+        loan_sub.application.save() 
+        
+        loan_sub.save() 
+        
+        return Response({"success": "USer can have new loan payment"}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)    
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def car_disbursement_payments(request):
+    try:
+        loan_payment = CarLoanPayments.objects.filter(disbursement__application__user=request.user)
+        serializer = CarLoanPaymentSerializer(loan_payment,many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except CarLoanPayments.DoesNotExist:
+        return Response({"detail": "Payment not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def approve_car_loan_payment(request):
+    try:
+        id = request.data.get("id")
+        penalty_amount = request.data.get("penaltyAmount")    
+        penalty_decimal = Decimal(penalty_amount) if penalty_amount not in [None, ""] else Decimal("0.00")
+        loan_payment = CarLoanPayments.objects.get(id=int(id))
+        loan_payment.penalty_fee = penalty_decimal
+        
+        loan_sub = loan_payment.disbursement
+
+        loan_payment.status = "Approved"
+        loan_sub.payment_status = None
+    
+        loan_payment.save()
+        
+        if loan_sub.no_penalty_delay and loan_sub.no_penalty_delay > 0:
+           months_deduct = int(re.search(r'\d+', loan_payment.period).group())
+           no_penalty_delay_value = int(loan_sub.no_penalty_delay)
+   
+           loan_sub.no_penalty_delay = max(0, no_penalty_delay_value - months_deduct)
+         
+        if penalty_decimal > Decimal("0.00"):
+            loan_sub.penalty -= penalty_decimal
+            loan_payment.is_penalty = True
+            
+            
+            
+        loan_sub.balance -= Decimal(loan_payment.amount)
+        
+        loan_sub.save()
+        
+        total_interest = Decimal(loan_sub.application.loan_amount) * Decimal(loan_sub.application.interest) / Decimal(100)
+        
+        total_amount_to_pay = Decimal(loan_sub.application.loan_amount) + total_interest
+        
+        commission = Decimal(loan_payment.amount) * (total_interest / total_amount_to_pay)
+
+        
+        car_rental_commission = Decimal(loan_payment.amount) - commission
+        
+        car_loan_commission = CarLoanCommission.objects.create(     
+            payment=loan_payment,
+            amount=commission,
+            track_system_amount=car_rental_commission
+        )
+        collab_api = os.getenv('COLLAB_API')
+        response = requests.post(f"{collab_api}/api/loan/receive-monthly-commission", json={
+            "car_id": loan_sub.application.car_id,
+            "disbursement_id": loan_sub.id,
+            "commission_amount": float(car_rental_commission),
+            "is_paid":True
+            
+        })
+        
+       
+
+        user = loan_payment.user
+        notification_message = f"Your loan payment of ₱{loan_payment.amount} has been approved."
+        
+        
+        loan_penalty_count = CarLoanPayments.objects.filter(disbursement=loan_sub, is_penalty=True).count()
+        
+        if loan_sub.balance.quantize(Decimal("0.00")) == Decimal("0.00"):
+            loan_sub.is_celebrate = True
+            loan_sub.status = "Completed"
+            loan_sub.save()
+            if loan_penalty_count > 0:
+              user.is_good_payer = False
+            else:
+              user.is_good_payer = True
+              
+            user.save()
+            
+
+            subject = "Your Loan is Fully Paid!"
+            html_content = render_to_string("email/loanfullypaid.html", {
+                'username': user.username,
+                'loan_amount': loan_payment.disbursement.application.loan_amount,
+                'interest': loan_sub.application.interest,
+                'start_date': loan_sub.start_date,
+                'end_date': loan_sub.repay_date,
+            })
+            plain_message = strip_tags(html_content)
+            email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+          
+            notification_message = "🎉 Congratulations! Your loan is fully paid."
+
+        loan_sub.save()
+
+   
+        notification = Notification.objects.create(
+            user=user,
+            message=notification_message,
+            is_read=False,
+            status="Approved"
+        )
+
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'notifications_{user.id}',
+            {
+                'type': 'send_notification',
+                'notification': {
+                    'id': notification.id,
+                    'message': notification.message,
+                    'is_read': notification.is_read,
+                    'created_at': str(notification.created_at),
+                }
+            }
+        )
+
+        return Response({
+            "success": "Loan Payment has been approved, balance updated, and notification sent."
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def reject_car_loan_payment(request):
+    try:
+        
+        
+        id = request.data.get("id")
+        subject_heading = request.data.get("subject")
+        
+        desc = request.data.get("description")
+        
+        loan_payment = CarLoanPayments.objects.get(id = int(id))
+        loan_sub = loan_payment.disbursement
+        loan_sub.payment_status = None
+        loan_sub.save()
+        loan_payment.status = "Rejected"
+        loan_payment.save()
+        user = loan_payment.user
+        subject = "You're Loan Payment has been rejected"
+        html_content = render_to_string("email/rejection_email.html", {
+            "subject":subject_heading,
+            "user_name": user.username,
+            "description": desc
+        })
+        plain_message = strip_tags(html_content)
+
+    
+        email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [user.email])
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+
+        return Response({"success": "Loan Application has been rejected"}, status= status.HTTP_200_OK)
+        
+        
+    except Exception as e:
+        print(f"{e}")
+        return Response({"error": f"{e}"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)

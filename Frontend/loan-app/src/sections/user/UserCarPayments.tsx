@@ -9,12 +9,10 @@ import {
   faChevronRight,
   faSortAmountDown,
   faSortAmountUp,
-  faCalendarAlt,
-  faCar,
-  faMoneyBill
+  faCalendarAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { useQuery } from "@tanstack/react-query";
-import { getTransactions } from "../../services/user/disbursement";
+import { getCarTransactions } from "../../services/rental/carDisbursement";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatTime, formatDateWithWords } from "../../utils/formatDate";
 import gcash from "../../assets/gcashtext.png";
@@ -24,24 +22,19 @@ import { motion } from "framer-motion";
 import Filter from "../../components/Filter";
 import FilterModal from "../../components/FilterModal";
 import UserDashboard from "../../layout/user/UserDashboard";
-import { getCarTransactions } from "../../services/rental/carDisbursement";
 
-const UserLoan = () => {
+const UserCarPayments = () => {
   const { data: rawData, isLoading, isError, error, refetch } = useQuery(
-    ["userTransactions"], 
-    getTransactions,
-    {
-      refetchOnWindowFocus: false,
-      staleTime: 300000, // 5 minutes
-    }
-  );
-
-  const { data: carData, isLoading: carLoading, isError: carIsError, error: carError, refetch: carRefetch } = useQuery(
     ["userCarTransactions"], 
     getCarTransactions,
     {
       refetchOnWindowFocus: false,
       staleTime: 300000, // 5 minutes
+      onSuccess: (data) => {
+        // Ensure data is properly initialized
+        setFilteredData(data || []);
+        setTotalPages(Math.ceil((data?.length || 0) / itemsPerPage));
+      }
     }
   );
   
@@ -53,7 +46,6 @@ const UserLoan = () => {
     paymentMethod?: string;
     settledDuration?: string;
     status?: string;
-    category?: string;
   }>({});
   const [toggleFilter, setToggleFilter] = useState(false);
   
@@ -68,45 +60,11 @@ const UserLoan = () => {
   const paymentMethods = ["gcash", "maya"];
   const settledDurations = ["1 month", "2 months", "3 months", "More than 3 months"];
   const statuses = ["Approved", "Pending", "Rejected"];
-  const categories = ["Loan", "Car Rental"];
-  
-  // Combine and normalize data from both sources
-  const combineData = () => {
-    const combinedData = [];
-    
-    // Add loan transactions
-    if (rawData && rawData.length > 0) {
-      const loanTransactions = rawData.map(item => ({
-        ...item,
-        category: 'Loan',
-        type: 'loan'
-      }));
-      combinedData.push(...loanTransactions);
-    }
-    
-    // Add car rental transactions
-    if (carData && carData.length > 0) {
-      const carTransactions = carData.map(item => ({
-        ...item,
-        category: 'Car Rental',
-        type: 'car',
-        // Normalize car data structure to match loan data
-        loan: item.rental || { 
-          cashout: item.payment_method || 'gcash',
-          frequency: item.rental_frequency || 'Monthly'
-        }
-      }));
-      combinedData.push(...carTransactions);
-    }
-    
-    return combinedData;
-  };
   
   const handleApplyFilters = (filters: {
     paymentMethod?: string;
     settledDuration?: string;
     status?: string;
-    category?: string;
   }) => {
     setActiveFilters(filters);
     setCurrentPage(1); // Reset to first page when filters change
@@ -142,13 +100,9 @@ const UserLoan = () => {
   }, [activeIndex]);
 
   // Handle View Button click
-  const handleView = (id: number, category: string, event: React.MouseEvent) => {
+  const handleView = (id: number, event: React.MouseEvent) => {
     event.stopPropagation();
-    if (category === 'Loan') {
-      nav(`/user/my-transactions/${id}`);
-    } else {
-      nav(`/user/my-car-transactions/${id}`);
-    }
+    nav(`/user/my-transactions/${id}`);
   };
 
   // Toggle sort direction
@@ -178,23 +132,35 @@ const UserLoan = () => {
     setCurrentPage(1); // Reset to first page when items per page changes
   };
 
+  // Helper function to get payment method from email or other logic
+  const getPaymentMethod = (tx: any) => {
+    // Since the JSON doesn't have payment method info, we'll default to gcash
+    // You can modify this logic based on your business requirements
+    return "gcash";
+  };
+
+  // Helper function to get frequency - defaulting to "Monthly" since it's not in the JSON
+  const getFrequency = (tx: any) => {
+    // You can calculate this based on period or set a default
+    return "Monthly";
+  };
+
   // Filter and sort data based on active filters and sort direction
   useEffect(() => {
-    const combinedData = combineData();
-    if (combinedData.length === 0) return;
+    if (!rawData) return;
     
-    let filtered = [...combinedData];
+    let filtered = [...rawData];
     
     if (activeFilters.paymentMethod) {
       filtered = filtered.filter(item => 
-        item.loan?.cashout?.toLowerCase() === activeFilters.paymentMethod?.toLowerCase()
+        getPaymentMethod(item).toLowerCase() === activeFilters.paymentMethod?.toLowerCase()
       );
     }
     
     if (activeFilters.settledDuration) {
       filtered = filtered.filter(item => {
         if (activeFilters.settledDuration === "More than 3 months") {
-          const months = parseInt(item.period);
+          const months = parseInt(item.period.split(' ')[0]);
           return !isNaN(months) && months > 3;
         } else {
           return item.period === activeFilters.settledDuration;
@@ -208,12 +174,6 @@ const UserLoan = () => {
       );
     }
     
-    if (activeFilters.category) {
-      filtered = filtered.filter(item => 
-        item.category === activeFilters.category
-      );
-    }
-    
     // Sort by date
     filtered.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
@@ -223,7 +183,7 @@ const UserLoan = () => {
     
     setFilteredData(filtered);
     setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-  }, [rawData, carData, activeFilters, sortDirection, itemsPerPage]);
+  }, [rawData, activeFilters, sortDirection, itemsPerPage]);
 
   // Get current data for pagination
   const getCurrentPageData = () => {
@@ -272,32 +232,8 @@ const UserLoan = () => {
     return pageNumbers;
   };
 
-  // Get category icon
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Loan':
-        return faMoneyBill;
-      case 'Car Rental':
-        return faCar;
-      default:
-        return faMoneyBill;
-    }
-  };
-
-  // Get category color
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Loan':
-        return "bg-blue-100 text-blue-800";
-      case 'Car Rental':
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   // Loading state
-  if (isLoading || carLoading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -306,16 +242,13 @@ const UserLoan = () => {
   }
 
   // Error state
-  if (isError || carIsError) {
+  if (isError) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
         <strong className="font-bold">Error!</strong>
         <span className="block sm:inline"> Failed to load transactions. Please try again later.</span>
         <button 
-          onClick={() => {
-            refetch();
-            carRefetch();
-          }} 
+          onClick={() => refetch()} 
           className="mt-2 bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm"
         >
           Retry
@@ -352,10 +285,13 @@ const UserLoan = () => {
 
       <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Transactions</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">My Loans</h2>
           <div className="flex flex-wrap items-center gap-3">
+            {/* Date Sort Filter */}
+            
             {/* Filter Button */}
             <div className="flex items-center gap-2">
+             
               <Filter
                 label="Filters"
                 toggle={toggleFilter}
@@ -370,8 +306,8 @@ const UserLoan = () => {
             <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            <p className="mt-4 text-lg font-medium text-gray-500">No transactions found</p>
-            <p className="text-sm text-gray-400">Try adjusting your filters</p>
+            <p className="mt-4 text-lg font-medium text-gray-500">No loans found</p>
+            <p className="text-sm text-gray-400">Try adjusting your filters or apply for a new loan</p>
             <button 
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
               onClick={() => setActiveFilters({})}
@@ -385,12 +321,12 @@ const UserLoan = () => {
             <div className="md:hidden space-y-4">
               {getCurrentPageData().map((tx: any, index: number) => (
                 <motion.div
-                  key={`${tx.type}-${tx.id}`}
+                  key={index}
                   className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  onClick={() => handleView(tx.id, tx.category, {} as React.MouseEvent)}
+                  onClick={() => nav(`/user/my-transactions/${tx.id}`)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -401,15 +337,9 @@ const UserLoan = () => {
                         {formatTime(tx.created_at)}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor(tx.status)}`}>
-                        {tx.status}
-                      </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(tx.category)}`}>
-                        <FontAwesomeIcon icon={getCategoryIcon(tx.category)} className="mr-1" />
-                        {tx.category}
-                      </span>
-                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor(tx.status)}`}>
+                      {tx.status}
+                    </span>
                   </div>
                   
                   <div className="mt-3 flex justify-between items-center">
@@ -426,17 +356,17 @@ const UserLoan = () => {
                   <div className="mt-3 flex justify-between items-center">
                     <div>
                       <div className="text-xs text-gray-500">Frequency</div>
-                      <div className="font-medium text-gray-900">{tx.loan?.frequency || 'N/A'}</div>
+                      <div className="font-medium text-gray-900">{getFrequency(tx)}</div>
                     </div>
                     <div>
                       <div className="text-xs text-gray-500">Payment Method</div>
                       <div className="mt-1">
-                        {tx.loan?.cashout === "gcash" && (
+                        {getPaymentMethod(tx) === "gcash" && (
                           <div className="bg-blue-50 px-2 py-1 rounded-md inline-flex items-center">
                             <img src={gcash} alt="Gcash" className="w-14 h-6 object-contain" />
                           </div>
                         )}
-                        {tx.loan?.cashout === "maya" && (
+                        {getPaymentMethod(tx) === "maya" && (
                           <div className="bg-green-50 px-2 py-1 rounded-md inline-flex items-center">
                             <img src={maya} alt="Maya" className="w-14 h-6 object-contain" />
                           </div>
@@ -462,7 +392,7 @@ const UserLoan = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button 
-                            onClick={(e) => handleView(tx.id, tx.category, e)} 
+                            onClick={(e) => handleView(tx.id, e)} 
                             className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-500 transition-colors"
                           >
                             <FontAwesomeIcon icon={faEye} className="mr-2" /> View Details
@@ -486,7 +416,6 @@ const UserLoan = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">Date</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Category</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Duration</th>
@@ -498,22 +427,16 @@ const UserLoan = () => {
                 <tbody className="divide-y divide-gray-200">
                   {getCurrentPageData().map((tx: any, index: number) => (
                     <motion.tr
-                      key={`${tx.type}-${tx.id}`}
+                      key={index}
                       className="hover:bg-gray-50 transition-colors cursor-pointer"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
-                      onClick={() => handleView(tx.id, tx.category, {} as React.MouseEvent)}
+                      onClick={() => nav(`/user/my-transactions/${tx.id}`)}
                     >
                       <td className="px-4 py-4">
                         <div className="font-medium text-gray-900">{formatDateWithWords(tx.created_at)}</div>
                         <div className="text-xs text-gray-500">{formatTime(tx.created_at)}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(tx.category)}`}>
-                          <FontAwesomeIcon icon={getCategoryIcon(tx.category)} className="mr-1" />
-                          {tx.category}
-                        </span>
                       </td>
                       <td className="px-4 py-4 font-medium text-gray-900">{formatCurrency(tx.amount)}</td>
                       <td className="px-4 py-4">
@@ -522,27 +445,28 @@ const UserLoan = () => {
                         </span>
                       </td>
                       <td className="px-4 py-4 text-gray-700">{tx.period}</td>
-                      <td className="px-4 py-4 text-gray-700">{tx.loan?.frequency || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-700">{getFrequency(tx)}</td>
                       <td className="px-4 py-4">
-                        {tx.loan?.cashout === "gcash" && (
-                          <div className="px-2 py-1 rounded-md inline-flex items-center">
+                        {getPaymentMethod(tx) === "gcash" && (
+                          <div className=" px-2 py-1 rounded-md inline-flex items-center">
                             <img src={gcash} alt="Gcash" className="w-16 h-8 object-contain" />
                           </div>
                         )}
-                        {tx.loan?.cashout === "maya" && (
-                          <div className="px-2 py-1 rounded-md inline-flex items-center">
+                        {getPaymentMethod(tx) === "maya" && (
+                          <div className=" px-2 py-1 rounded-md inline-flex items-center">
                             <img src={maya} alt="Maya" className="w-16 h-8 object-contain" />
                           </div>
                         )}
                       </td>
                       <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                         <div className="relative">
+                         
                           <button 
-                            onClick={(e) => handleView(tx.id, tx.category, e)} 
-                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-500 transition-colors"
-                          >
-                            <FontAwesomeIcon icon={faEye} className="mr-2" /> 
-                          </button>
+                                onClick={(e) => handleView(tx.id, e)} 
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-500 transition-colors"
+                              >
+                                <FontAwesomeIcon icon={faEye} className="mr-2" /> 
+                              </button>
                         </div>
                       </td>
                     </motion.tr>
@@ -642,11 +566,10 @@ const UserLoan = () => {
         paymentMethods={paymentMethods}
         settledDurations={settledDurations}
         statuses={statuses}
-        categories={categories}
         onApplyFilters={handleApplyFilters}
       />
     </motion.div>
   );
 };
 
-export default UserLoan;
+export default UserCarPayments;

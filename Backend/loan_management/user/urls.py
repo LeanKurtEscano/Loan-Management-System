@@ -23,4 +23,5 @@ urlpatterns = [
     path('notifications/<int:id>/',views.delete_notification, name="delete-notif"),
     path('notifications/details/<int:id>/',views.notification_details, name="details-notif"),
     path('support/',views.submit_support_request, name="support"),
+    path('reminder/',views.handle_due_date_notification, name="reminder"),
 ]

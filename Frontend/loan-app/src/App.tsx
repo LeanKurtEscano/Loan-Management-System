@@ -62,6 +62,7 @@ import Disbursements from './sections/admin/Disbursements';
 import CarLoan from './sections/user/CarLoan';
 import { MyCarProvider } from './context/CarContext';
 import VerifyCarPayment from './sections/admin/VerifyCarPayment';
+import UserCarPayments from './sections/user/UserCarPayments';
 function App() {
 
   return (
@@ -151,7 +152,9 @@ const Main: React.FC = () => {
         >
           <Route path="my-loan" element={<Loan />} />
           <Route path="my-transactions" element={<UserLoan/>} />
+           <Route path="car-transactions" element={<UserCarPayments/>} />
           <Route path="my-transactions/:id" element={<TransactionDetail/>} />
+           <Route path="my-car-transactions/:id" element={<TransactionDetail/>} />
           <Route path="account" element={<Account />} />
           
           <Route path="apply-loan" element={<LoanApplication />} />
@@ -162,7 +165,7 @@ const Main: React.FC = () => {
         </Route>
 
 
-
+  
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
