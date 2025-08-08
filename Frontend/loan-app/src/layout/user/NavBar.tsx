@@ -23,8 +23,8 @@ const menuItems = [
     { name: "Transactions", path: "/user/my-transactions" },
     { name: "Apply for Loan", path: "/user/apply-loan" },
     { name: "My Loan", path: "/user/my-loan" },
-    { name: "Apply for Car Loan", path: "/user/apply-car-loan" },
-    { name: "My Car Loan", path: "/user/my-car-loan" },
+    //{ name: "Apply for Car Loan", path: "/user/apply-car-loan" },
+    //{ name: "My Car Loan", path: "/user/my-car-loan" },
    
 ];
 import NotificationBell from "../../components/NotificationBell";

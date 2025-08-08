@@ -28,7 +28,7 @@ const CarListing: React.FC = () => {
   }
 
   const goToActiveLoan = () => {
-    // Navigate to the active loan page - adjust the route as needed
+  
     navigate('/user/my-car-loan');
   }
 
@@ -67,15 +67,15 @@ const CarListing: React.FC = () => {
 
   const uniqueMakes = [...new Set(cars.map(car => car.make))];
 
-  // Check if there's an active car loan disbursement
+
   const hasActiveLoan = carsDisbursement && carsDisbursement.is_active === true;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-20 py-8">
-        {/* Conditional rendering based on active loan status */}
+        
         {hasActiveLoan ? (
-          // Show active loan card
+        
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <div className="mb-6">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -101,15 +101,15 @@ const CarListing: React.FC = () => {
             </button>
           </div>
         ) : (
-          // Show normal car listing
+       
           <>
-            {/* Page Title */}
+           
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Available Cars for Loan</h1>
               <p className="text-gray-600">Choose from our selection of quality vehicles with competitive loan rates</p>
             </div>
 
-            {/* Filters */}
+         
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <div className="grid md:grid-cols-4 gap-4">
                 <div className="relative">

@@ -69,7 +69,8 @@ def handle_loan_payments(request):
     try:
         email = request.data.get("email", None)
         
-        # Extract periodPayment values correctly
+      
+       
         period_payment = {
             "label": request.data.get("periodPayment[label]", ""),
             "amount": request.data.get("periodPayment[amount]", ""),
@@ -154,6 +155,23 @@ def handle_loan_payments(request):
                 }
             }
         )
+        
+        
+        
+        if email:
+            subject = "Your Loan Payment Confirmation"
+            html_content = render_to_string("email/loan_payment_confirmation.html", {
+                "user_name": request.user.username,
+                "payment_label": period_payment['label'],
+                "payment_amount": period_payment['amount'],
+         
+            "company_name": "Tuloan"
+        })
+            plain_message = strip_tags(html_content)
+            email = EmailMultiAlternatives(subject, plain_message, "noreply.lu.tuloang.@gmail.com", [request.user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+        
 
         return Response({
             "success": "Loan Payment has been received",

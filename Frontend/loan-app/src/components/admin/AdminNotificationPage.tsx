@@ -135,18 +135,16 @@ const AdminNotificationPage = () => {
   };
  
  
-  // Toggle dropdown menu - improved version
-  const toggleDropdown = (notificationId ) => {
+  const toggleDropdown = (notificationId  ) => {
     setActiveDropdown(prevActive => prevActive === notificationId ? null : notificationId);
   }
   
-  // Pagination logic
   const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentNotifications = filteredNotifications.slice(startIndex, endIndex)
   
-  // Generate pagination numbers
+
   const getPageNumbers = () => {
     const pages = []
     const maxVisiblePages = 5
@@ -156,43 +154,42 @@ const AdminNotificationPage = () => {
         pages.push(i)
       }
     } else {
-      // Always show first page
+   
       pages.push(1)
       
-      // Calculate range around current page
+     
       let startPage = Math.max(2, currentPage - 1)
       let endPage = Math.min(totalPages - 1, currentPage + 1)
       
-      // Adjust if at edges
+     
       if (currentPage <= 2) {
         endPage = 4
       } else if (currentPage >= totalPages - 1) {
         startPage = totalPages - 3
       }
-      
-      // Add ellipsis if needed
+    
       if (startPage > 2) {
         pages.push('...')
       }
       
-      // Add middle pages
+      
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i)
       }
       
-      // Add ellipsis if needed
+      
       if (endPage < totalPages - 1) {
         pages.push('...')
       }
       
-      // Always show last page
+     
       pages.push(totalPages)
     }
     
     return pages
   }
   
-  // Format the timestamp to a readable format
+
   const formatDate = (dateString) => {
     const date = new Date(dateString)
     const now = new Date()
@@ -212,7 +209,7 @@ const AdminNotificationPage = () => {
     })
   }
   
-  // Get appropriate icon based on notification status
+  
   const getNotificationIcon = (status) => {
     switch(status) {
       case 'Success':
@@ -224,7 +221,7 @@ const AdminNotificationPage = () => {
     }
   }
 
-  // Get status badge style
+
   const getStatusBadgeStyle = (status) => {
     switch(status) {
       case 'Success':
@@ -236,7 +233,7 @@ const AdminNotificationPage = () => {
     }
   }
   
-  // Simplified filter options
+ 
   const filterOptions = [
     { value: 'all', label: 'All' },
     { value: 'unread', label: 'Unread' },
@@ -247,7 +244,7 @@ const AdminNotificationPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Header */}
+    
         <div className="px-6 py-5 flex justify-between items-center bg-white border-b">
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Bell className="text-blue-600" size={20} />
@@ -293,7 +290,7 @@ const AdminNotificationPage = () => {
           </div>
         </div>
       
-        {/* Notification List */}
+      
         <div>
           {isLoading && (
             <div className="text-center py-16">
